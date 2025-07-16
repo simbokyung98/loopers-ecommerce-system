@@ -1,12 +1,10 @@
 package com.loopers.domain.user;
 
-import com.loopers.infrastructure.user.UserJpaRepository;
-import com.loopers.interfaces.api.User.Gender;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
@@ -21,5 +19,10 @@ public class UserService {
             throw new CoreException(ErrorType.BAD_REQUEST, "이미 존재하는 사용자 입니다.");
         }
         return userRepository.save(userModel);
+    }
+
+    @Transactional(readOnly = true)
+    public UserModel getByLoginId(String loginId){
+        return userRepository.findByLoginId(loginId);
     }
 }
