@@ -14,4 +14,9 @@ public interface PointV1ApiSpec {
             @RequestHeader("X-USER-ID") Long userid,
             @RequestBody PointV1Dto.PointRequest pointRequest
     );
+
+    @Operation(summary = "내 포인트 조회")
+    ApiResponse<Long> get(
+            @RequestHeader("X-USER-ID") Long userid
+    );
 }

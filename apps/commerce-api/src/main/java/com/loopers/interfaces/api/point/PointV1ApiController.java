@@ -17,4 +17,11 @@ public class PointV1ApiController implements PointV1ApiSpec{
     public ApiResponse<Long> charge(@RequestHeader("X-USER-ID") Long userId, @RequestBody PointV1Dto.PointRequest pointRequest) {
         return ApiResponse.success(pointFacade.charge(userId, pointRequest.point()));
     }
+
+    @Override
+    @GetMapping
+    public ApiResponse<Long> get(@RequestHeader(value = "X-USER-ID") Long userId) {
+
+        return ApiResponse.success(pointFacade.getPointAmount(userId));
+    }
 }

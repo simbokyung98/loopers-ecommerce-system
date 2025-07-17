@@ -25,7 +25,9 @@ public class PointService {
 
     }
 
-    public PointModel get(Long userId){
-        return pointRepository.findByUserId(userId);
+    @Transactional(readOnly = true)
+    public Long getPointAmount(Long userId){
+        PointModel pointModel = pointRepository.findByUserId(userId);
+        return pointModel != null? pointModel.getPoint() : null;
     }
 }
