@@ -15,6 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
@@ -56,10 +57,15 @@ public class UserServiceIntegrationTest {
 
 
             // act
-           userService.save(userModel);
+           userService.save(
+                   "12345678",
+                   Gender.MALE,
+                   "2025-05-22",
+                   "loopers@test.com"
+           );
 
             // assert
-            verify(userRepository).save(userModel);
+            verify(userRepository).save(any(UserModel.class));
         }
 
         @DisplayName("이미 가입된 ID 로 회원가입 시도 시, 실패한다.")
@@ -71,7 +77,8 @@ public class UserServiceIntegrationTest {
             );
 
             // act
-            CoreException exception = assertThrows(CoreException.class, () -> userService.save(userModel));
+            CoreException exception = assertThrows(CoreException.class,
+                    () -> userService.save("심보경", Gender.MALE, "2024-05-22", "loopers@test.com"));
 
             // assert
             assertThat(exception.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
