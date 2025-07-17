@@ -13,14 +13,21 @@ public class PointService {
 
     @Transactional
     public PointModel charge(Long userId, Long point){
-        PointModel pointModel = pointRepository.findByUserId(userId)
-                .orElseGet(() -> pointRepository.save(new PointModel(userId, 0L)));
+        PointModel pointModel = pointRepository.findByUserId(userId);
 
+        if(pointModel == null){
+         pointModel = pointRepository.save(new PointModel(userId, 0L));
+        }
 
         pointModel.charge(point);
 
         return pointRepository.save(pointModel);
 
+    }
 
+    @Transactional(readOnly = true)
+    public Long getPointAmount(Long userId){
+        PointModel pointModel = pointRepository.findByUserId(userId);
+        return pointModel != null? pointModel.getPoint() : null;
     }
 }

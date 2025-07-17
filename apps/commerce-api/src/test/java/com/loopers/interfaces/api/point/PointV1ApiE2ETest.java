@@ -1,11 +1,13 @@
 package com.loopers.interfaces.api.point;
 
 import com.loopers.domain.point.PointModel;
-import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.user.UserModel;
-import com.loopers.domain.user.UserRepository;
+import com.loopers.infrastructure.point.PointJpaRepository;
+import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.User.Gender;
+import com.loopers.utils.DatabaseCleanUp;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,15 +23,31 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PointV1ApiE2ETest {
 
-    @Autowired
-    private TestRestTemplate testRestTemplate;
+    private final TestRestTemplate testRestTemplate;
+
+    private final UserJpaRepository userJpaRepository;
+
+    private final PointJpaRepository pointJpaRepository;
+
+    private final DatabaseCleanUp databaseCleanUp;
 
     @Autowired
-    private UserRepository userRepository;
+    public PointV1ApiE2ETest(
+            TestRestTemplate testRestTemplate,
+            UserJpaRepository userJpaRepository,
+            PointJpaRepository pointJpaRepository,
+            DatabaseCleanUp databaseCleanUp
+    ) {
+        this.testRestTemplate = testRestTemplate;
+        this.userJpaRepository = userJpaRepository;
+        this.pointJpaRepository = pointJpaRepository;
+        this.databaseCleanUp = databaseCleanUp;
+    }
 
-    @Autowired
-    private PointRepository pointRepository;
-
+    @AfterEach
+    void tearDown() {
+        databaseCleanUp.truncateAllTables();
+    }
     @DisplayName("POST /api/v1/ponits/charge")
     @Nested
     class Charge {
@@ -45,9 +63,9 @@ class PointV1ApiE2ETest {
         void returnsTotalPoint_whenChargingExistingUserWith1000Won(){
             //arrange
             UserModel signInModel =  new UserModel("testId", Gender.MALE.getCode(), "2024-05-22", "loopers@test.com");
-            userRepository.save(signInModel);
+            userJpaRepository.save(signInModel);
 
-            pointRepository.save(new PointModel(1L, 1000L));
+            pointJpaRepository.save(new PointModel(1L, 1000L));
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", "1");
@@ -74,6 +92,7 @@ class PointV1ApiE2ETest {
         @Test
         void throwsNotFound_whenChargingNonExistentUser() {
 
+            //arrange
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", "2");
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -93,6 +112,68 @@ class PointV1ApiE2ETest {
 
         }
 
+
+
+    }
+
+
+    @DisplayName("Get /api/v1/points")
+    @Nested
+    class Get{
+        /**
+         * - [ ]  포인트 조회에 성공할 경우, 보유 포인트를 응답으로 반환한다.
+         * - [ ]  `X-USER-ID` 헤더가 없을 경우, `400 Bad Request` 응답을 반환한다.
+         */
+        private static final String ENDPOINT_GET = "/api/v1/points";
+
+        @DisplayName("포인트 조회에 성공할 경우, 보유 포인트를 응답으로 반환한다")
+        @Test
+        void returnsCurrentPoint_whenUserIdHeaderIsPresent() {
+            //arrange
+            UserModel signInModel =  new UserModel("testId", Gender.MALE.getCode(), "2024-05-22", "loopers@test.com");
+            userJpaRepository.save(signInModel);
+
+            pointJpaRepository.save(new PointModel(1L, 2000L));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-USER-ID", "1");
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+            //act
+            ParameterizedTypeReference<ApiResponse<Long>> responseType = new ParameterizedTypeReference<>() {};
+            ResponseEntity<ApiResponse<Long>> response =
+                    testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(headers), responseType);
+
+            //assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).isNotNull(),
+                    () -> assertThat(response.getBody().data()).isEqualTo(2000L)
+            );
+        }
+
+
+        @DisplayName("`X-USER-ID` 헤더가 없을 경우, `400 Bad Request` 응답을 반환한다")
+        @Test
+        void throwsBadRequestException_whenUserIdHeaderIsMissing() {
+            //arrange
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+            //act
+            ParameterizedTypeReference<ApiResponse<Long>> responseType = new ParameterizedTypeReference<>() {};
+            ResponseEntity<ApiResponse<Long>> response =
+                    testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(headers), responseType);
+
+            //assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+                    () -> assertThat(response.getBody().meta().result()).isEqualTo(ApiResponse.Metadata.Result.FAIL)
+            );
+
+        }
 
 
     }
