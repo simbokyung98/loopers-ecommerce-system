@@ -153,6 +153,7 @@ class PointV1ApiE2ETest {
             );
         }
 
+
         @DisplayName("`X-USER-ID` 헤더가 없을 경우, `400 Bad Request` 응답을 반환한다")
         @Test
         void throwsBadRequestException_whenUserIdHeaderIsMissing() {
@@ -167,10 +168,10 @@ class PointV1ApiE2ETest {
                     testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(headers), responseType);
 
             //assert
-//            assertAll(
-//                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
-//                    () -> assertThat(response.getBody().meta().result()).isEqualTo(ApiResponse.Metadata.Result.FAIL)
-//            );
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+                    () -> assertThat(response.getBody().meta().result()).isEqualTo(ApiResponse.Metadata.Result.FAIL)
+            );
 
         }
 

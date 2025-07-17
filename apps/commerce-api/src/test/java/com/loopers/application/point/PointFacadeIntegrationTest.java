@@ -12,10 +12,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-public class PointFacadeIntegrationTest {
+class PointFacadeIntegrationTest {
 
     @Autowired
     private PointFacade pointFacade;
+
 
     @DisplayName("포인트를 충전을 할 때, ")
     @Nested
