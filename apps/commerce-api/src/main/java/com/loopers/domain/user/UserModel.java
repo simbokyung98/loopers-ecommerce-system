@@ -9,7 +9,7 @@ import lombok.Getter;
 
 
 @Entity
-@Table(name = "user")
+@Table(name ="user")
 @Getter
 public class UserModel extends BaseEntity {
 
