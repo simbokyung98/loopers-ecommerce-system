@@ -1,5 +1,6 @@
 package com.loopers.domain.user;
 
+import com.loopers.interfaces.api.User.Gender;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +14,13 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserModel save(UserModel userModel) {
+    public UserModel save(String loginId, Gender gender, String brith, String email) {
 
-        if (userRepository.existsByLoginId(userModel.getLoginId())) {
+        if (userRepository.existsByLoginId(loginId)) {
             throw new CoreException(ErrorType.BAD_REQUEST, "이미 존재하는 사용자 입니다.");
         }
-        return userRepository.save(userModel);
+
+        return userRepository.save(new UserModel(loginId, gender.getCode(), brith, email));
     }
 
     @Transactional(readOnly = true)

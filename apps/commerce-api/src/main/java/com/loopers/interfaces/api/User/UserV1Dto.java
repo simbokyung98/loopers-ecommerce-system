@@ -1,13 +1,7 @@
 package com.loopers.interfaces.api.User;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.loopers.application.user.UserVo;
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
+import com.loopers.application.user.UserInfo;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
-import java.time.LocalDate;
 
 public class UserV1Dto {
 
@@ -18,7 +12,7 @@ public class UserV1Dto {
             String brith,
             String email
     ){
-        public static UserResponse from(UserVo.UserInfo userInfo){
+        public static UserResponse from(UserInfo userInfo){
             return new UserResponse(
                     userInfo.id(),
                     userInfo.loginId(),

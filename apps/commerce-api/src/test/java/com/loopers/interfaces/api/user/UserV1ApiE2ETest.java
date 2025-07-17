@@ -1,10 +1,12 @@
 package com.loopers.interfaces.api.user;
 
 import com.loopers.domain.user.UserModel;
-import com.loopers.domain.user.UserRepository;
+import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.User.Gender;
 import com.loopers.interfaces.api.User.UserV1Dto;
+import com.loopers.utils.DatabaseCleanUp;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,11 +23,27 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 public class UserV1ApiE2ETest {
 
 
-    @Autowired
-    private TestRestTemplate testRestTemplate;
+    private final TestRestTemplate testRestTemplate;
+
+    private final UserJpaRepository userJpaRepository;
+
+    private final DatabaseCleanUp databaseCleanUp;
 
     @Autowired
-    private UserRepository userRepository;
+    public UserV1ApiE2ETest(
+            TestRestTemplate testRestTemplate,
+            UserJpaRepository userJpaRepository,
+            DatabaseCleanUp databaseCleanUp
+    ) {
+        this.testRestTemplate = testRestTemplate;
+        this.userJpaRepository = userJpaRepository;
+        this.databaseCleanUp = databaseCleanUp;
+    }
+
+    @AfterEach
+    void tearDown() {
+        databaseCleanUp.truncateAllTables();
+    }
 
     @DisplayName("POST /api/v1/users")
     @Nested
@@ -112,7 +130,7 @@ public class UserV1ApiE2ETest {
         void  returnsUserInfo_whenUserIdExists(){
             //arrange
             UserModel signInModel =  new UserModel("testId", Gender.MALE.getCode(), "2024-05-22", "loopers@test.com");
-            userRepository.save(signInModel);
+            userJpaRepository.save(signInModel);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", "testId");
