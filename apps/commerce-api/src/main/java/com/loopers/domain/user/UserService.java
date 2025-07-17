@@ -25,4 +25,12 @@ public class UserService {
     public UserModel getByLoginId(String loginId){
         return userRepository.findByLoginId(loginId);
     }
+
+
+    @Transactional(readOnly = true)
+    public Boolean existsById(Long id){
+        return userRepository.existsById(id);
+    }
+
+
 }

@@ -5,5 +5,8 @@ public interface UserRepository {
 
     Boolean existsByLoginId(String loginId);
 
+    Boolean existsById(Long id);
+
     UserModel findByLoginId(String userId);
+
 }
