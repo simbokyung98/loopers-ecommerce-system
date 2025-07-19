@@ -4,21 +4,6 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.Getter;
 
-import java.lang.reflect.GenericDeclaration;
-
-/**
- * Class Description
- *
- * @author simbokyung
- * @version 1.0
- * @class Gender
- * @modification <pre>
- * since        author	        description
- * ----------   ------------    ---------------------
- * 7/15/25   최초 작성
- * </pre>
- * @copyRight COPYRIGHT © OSSTEM IMPLANT CO., LTD. ALL RIGHTS RESERVED.\n
- */
 @Getter
 public enum Gender {
     MALE("M","남성"),
