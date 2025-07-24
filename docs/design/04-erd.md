@@ -1,9 +1,7 @@
 ### ERD
-[![](https://mermaid.ink/img/pako:eNqtVkuPmzAQ_ivIp1YiUYGQEI7dVupKfR5yWSEhBzuJlWDTsdk2TfLfa_OKtYFsd1NOeF7-ZuabgQPKBKEoRhQ-MLwGnCf8PWBODglfsjXjymHEKbYJf8SQbTA4HOc04QQrqlhOnQyofk2xsmRlQS5khO5oIzsl_DsIUmbqmUsa3dLgSbXFatvJpBLZ-VQAy-jZWyqsStlpd2xL00yUXN2M-w7DJegORJVTDdR1yq2ToMXX-x-Lj86bUlLQCtcyepugzrVRv9jvZ4m5Ympv56URtmgT_g0IhSHA51stf2E8qgCNFc7ryrXFxYQAlfIsKDaC05SX-ZLC0w4-7ciN5a_SuVc0H0qpRt9XyVYzVMpr3Rv07aVrQ8YrLXpV7gvZ08n-aq8pJ6YXXaQlA7W5fWiFvvlwQR-r_C1X_sdFn5iecdj_C3kHmErYI5NM8NSsuJtBJfyz3iPPw3nZBL9madyciKGSUz_H42gkDo7Za073xGbIZZ-dKYFtZ1Zrr2E1qZZhscNZj-Xx6FTNtizFL94b0SaFsaMYuEwFpLpM0mRl5XASdei6bl1oxrNdSYy1pWlsq4-eBSPHhjPNyrlMzSyhi6iWZgAB0BUF2ZLpOlrBjR1y0RoYQfEK7yR1UU4hx-aMNBUdzRa1oXr2UaxfCYatIchJOxWYPwiRo1hBqd1AlOtNe6g50nzvu8hQbY07M0Mo9nwvjKooKD6g3ygeTebjyAungTd7N_Hm0WQ6ddFey_0oHIdBNA8jPwimEz84uehPdbM_9vxJMAvDyJtNvCAIXEQJ0_37Uv9yVH8ep7_X3wdJ?type=png)](https://mermaid.live/edit#pako:eNqtVkuPmzAQ_ivIp1YiUYGQEI7dVupKfR5yWSEhBzuJlWDTsdk2TfLfa_OKtYFsd1NOeF7-ZuabgQPKBKEoRhQ-MLwGnCf8PWBODglfsjXjymHEKbYJf8SQbTA4HOc04QQrqlhOnQyofk2xsmRlQS5khO5oIzsl_DsIUmbqmUsa3dLgSbXFatvJpBLZ-VQAy-jZWyqsStlpd2xL00yUXN2M-w7DJegORJVTDdR1yq2ToMXX-x-Lj86bUlLQCtcyepugzrVRv9jvZ4m5Ympv56URtmgT_g0IhSHA51stf2E8qgCNFc7ryrXFxYQAlfIsKDaC05SX-ZLC0w4-7ciN5a_SuVc0H0qpRt9XyVYzVMpr3Rv07aVrQ8YrLXpV7gvZ08n-aq8pJ6YXXaQlA7W5fWiFvvlwQR-r_C1X_sdFn5iecdj_C3kHmErYI5NM8NSsuJtBJfyz3iPPw3nZBL9madyciKGSUz_H42gkDo7Za073xGbIZZ-dKYFtZ1Zrr2E1qZZhscNZj-Xx6FTNtizFL94b0SaFsaMYuEwFpLpM0mRl5XASdei6bl1oxrNdSYy1pWlsq4-eBSPHhjPNyrlMzSyhi6iWZgAB0BUF2ZLpOlrBjR1y0RoYQfEK7yR1UU4hx-aMNBUdzRa1oXr2UaxfCYatIchJOxWYPwiRo1hBqd1AlOtNe6g50nzvu8hQbY07M0Mo9nwvjKooKD6g3ygeTebjyAungTd7N_Hm0WQ6ddFey_0oHIdBNA8jPwimEz84uehPdbM_9vxJMAvDyJtNvCAIXEQJ0_37Uv9yVH8ep7_X3wdJ)
-### 코드값 관리(예상)
-##### - Order 의 status  : [paid, preparing, shipped, delivered, cancelled,refunded ]
-##### - PointHistory 의 division_code :[pay, add]
-    erDiagram
+
+```mermaid 
+  erDiagram
     Brand{
     bigint id pk
     varchar name
@@ -104,3 +102,8 @@
     
     Like       }o--|| Product       : on
     
+```
+
+### 코드값 관리(예상)
+##### - Order 의 status  : [paid, preparing, shipped, delivered, cancelled,refunded ]
+##### - PointHistory 의 division_code :[pay, add]
