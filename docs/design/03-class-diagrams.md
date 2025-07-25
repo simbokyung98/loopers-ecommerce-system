@@ -4,7 +4,7 @@
 
     classDiagram
     class User {
-    - Long id
+    - int id
       - String name
       - String birth
       - String gender
@@ -12,33 +12,36 @@
       }
     
     class Product {
-    - Long id
+    - int id
       - String name
       - int price
       - int stock
       - Brand brand
-      + create(name, price, stock, brand)
+      - int stock
+      - int likecount
+      + increase(stock)
+      + decrease(stock)
       }
     
     class Brand {
-    - Long id
+    - int id
       - String name
       + create(name)
       }
     
     class Order {
-    - Long id
+    - int id
       - User user
       - List<OrderItem> orderItems
       - String address
       - String phoneNumber
       - Point point
       - String status
-      + void addItem(orderItem)
+      + addItem(orderItem)
       }
     
     class OrderItem {
-    - Long id
+    - int id
       - User user
       - Product product
       - int quantity
@@ -46,7 +49,7 @@
       }
     
     class Cart {
-    - Long id
+    - int id
       - Product product
       - int quantity
       - create(user, product, quantity)
@@ -55,7 +58,7 @@
     }
     
     class Like {
-    - Long id
+    - int id
       - User user
       - Product product
       + create(user, product)
@@ -63,20 +66,19 @@
       }
     
     class Point {
-    - Long id
+    - int id
       - User user
       - int amount
       + charge(amount, user)
-      + add(amount, user)
+      + pay(amount, user)
       }
     
     class PointHistory {
-    - Long id
+    - int id
       - User user
       - int amount
       - String divisionCode
       - Date createdAt
-      + create(user, amount, divisionCode, createAt)
       }
 
     
@@ -91,5 +93,5 @@
     Like --> Product : 대상 상품
     Point --> User : 소유자
     PointHistory --> User : 대상
-
+    
 ```

@@ -2,14 +2,17 @@
 ```mermaid 
     classDiagram
     class Prouduct{
-    Long id
+     int id
     }
     class User{
-    Long id
+        int id
     }
     class Like{
-    Prouduct Prouduct
-    User user
+        - int id
+        - User user
+        - Product product
+        + create(user, product)
+        + delete(user, product)
     }
     
         Like --> Prouduct : 참조
@@ -21,23 +24,26 @@
 ```mermaid 
     classDiagram
     class Like{
-    List<LikeItem> items
+      List<LikeItem> items
     }
-    class Prouduct{
-    Long id
-    Long name
-    Brand Brand
-    String status
+    class Product{
+        int id
+        int name
+        Brand Brand
+        String status
     }
     class LikeItem{
-    Prouduct Prouduct
-    User user
+        - int id
+        - User user
+        - Product product
+        + create(user, product)
+        + delete(user, product)
     }
     class User {
-    Long id
+    i   nt id
     }
 
     Like --> "N" LikeItem :소유
-    LikeItem --> Prouduct : 참조
+    LikeItem --> Product : 참조
     LikeItem --> User : 참조
 ```

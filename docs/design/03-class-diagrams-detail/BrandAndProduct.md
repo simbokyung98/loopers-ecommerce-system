@@ -5,10 +5,11 @@ classDiagram
     Long id
     String name
     }
-    class Prouduct{
+    class Product{
     List Prouducts
+    + addItem(productItem)
     }
-    class ProuductItem{
+    class ProductItem{
     Long id
     Long name
     Brand Brand
@@ -21,7 +22,7 @@ classDiagram
     Long ProuductId
     }
     
-        Prouduct --> "N" ProuductItem :소유
-        ProuductItem --> Brand : 참조
-        ProuductItem --> "N" Like : 참조
+    Prouduct --> "N" ProuductItem :소유
+    ProuductItem --> Brand : 참조
+    ProuductItem --> "N" Like : 참조
 ```
