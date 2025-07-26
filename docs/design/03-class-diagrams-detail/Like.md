@@ -1,7 +1,7 @@
 ### 좋아요 등록/취소
 ```mermaid 
     classDiagram
-    class Prouduct{
+    class Product{
      int id
     }
     class User{
@@ -11,11 +11,9 @@
         - int id
         - User user
         - Product product
-        + create(user, product)
-        + delete(user, product)
     }
     
-        Like --> Prouduct : 참조
+        Like --> Product : 참조
         Like --> User : 참조
 ```
 
@@ -36,8 +34,6 @@
         - int id
         - User user
         - Product product
-        + create(user, product)
-        + delete(user, product)
     }
     class User {
     i   nt id

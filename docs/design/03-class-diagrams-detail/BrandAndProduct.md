@@ -22,7 +22,7 @@ classDiagram
     Long ProuductId
     }
     
-    Prouduct --> "N" ProuductItem :소유
-    ProuductItem --> Brand : 참조
-    ProuductItem --> "N" Like : 참조
+    Product --> "N" ProductItem :소유
+    ProductItem --> Brand : 참조
+    ProductItem --> "N" Like : 참조
 ```

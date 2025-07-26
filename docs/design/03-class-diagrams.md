@@ -8,7 +8,6 @@
       - String name
       - String birth
       - String gender
-      + signUp(name, birth, gender)
       }
     
     class Product {
@@ -26,7 +25,6 @@
     class Brand {
     - int id
       - String name
-      + create(name)
       }
     
     class Order {
@@ -45,15 +43,12 @@
       - User user
       - Product product
       - int quantity
-      + create(user, product, quantity)
       }
     
     class Cart {
     - int id
       - Product product
       - int quantity
-      - create(user, product, quantity)
-      - delete(user, product)
     
     }
     
@@ -61,16 +56,14 @@
     - int id
       - User user
       - Product product
-      + create(user, product)
-      + delete(user, product)
       }
     
     class Point {
     - int id
       - User user
       - int amount
-      + charge(amount, user)
-      + pay(amount, user)
+      + charge(amount)
+      + pay(amount)
       }
     
     class PointHistory {
