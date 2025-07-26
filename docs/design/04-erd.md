@@ -25,7 +25,9 @@
     bigint product_id fk, uk "UNIQUE (user_id, product_id)"
     bigint user_id fk, uk "UNIQUE (user_id, product_id)"
     bigint quantity
-    datetime cart_at
+    datetime create_at
+    datetime update_at
+    datetime delete_at
     }
     
     Order{
