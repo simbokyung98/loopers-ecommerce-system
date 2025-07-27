@@ -68,7 +68,7 @@ public class UserServiceIntegrationTest {
             verify(userRepository).save(any(UserModel.class));
         }
 
-        @DisplayName("이미 가입된 ID 로 회원가입 시도 시, 실패한다.")
+        @DisplayName("이미 가입된 ID 로 회원가입 시도 시, BAD_REQUEST 를 반환한다.")
         @Test
         void throwsException_whenAlreadySignedIn() {
             // arrange
