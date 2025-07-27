@@ -6,6 +6,7 @@ import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.User.Gender;
 import com.loopers.interfaces.api.User.UserV1Dto;
 import com.loopers.utils.DatabaseCleanUp;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,30 +16,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.test.context.TestConstructor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-
+@RequiredArgsConstructor
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserV1ApiE2ETest {
 
-
-    private final TestRestTemplate testRestTemplate;
-
-    private final UserJpaRepository userJpaRepository;
-
-    private final DatabaseCleanUp databaseCleanUp;
-
     @Autowired
-    public UserV1ApiE2ETest(
-            TestRestTemplate testRestTemplate,
-            UserJpaRepository userJpaRepository,
-            DatabaseCleanUp databaseCleanUp
-    ) {
-        this.testRestTemplate = testRestTemplate;
-        this.userJpaRepository = userJpaRepository;
-        this.databaseCleanUp = databaseCleanUp;
-    }
+    private TestRestTemplate testRestTemplate;
+    @Autowired
+    private UserJpaRepository userJpaRepository;
+    @Autowired
+    private DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
     void tearDown() {
