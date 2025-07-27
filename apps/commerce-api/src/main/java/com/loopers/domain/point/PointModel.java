@@ -6,20 +6,20 @@ import com.loopers.support.error.ErrorType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name ="point")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PointModel extends BaseEntity {
 
     @Column(unique = true)
     private Long userId;
     private Long amount;
-
-    public PointModel() {}
-
-
+    
     public PointModel(Long userId){
         if(userId == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "유저ID는 비어있을 수 없습니다.");
