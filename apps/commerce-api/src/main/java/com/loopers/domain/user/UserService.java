@@ -13,7 +13,6 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    @Transactional
     public UserModel save(String loginId, Gender gender, String brith, String email) {
 
         if (userRepository.existsByLoginId(loginId)) {
