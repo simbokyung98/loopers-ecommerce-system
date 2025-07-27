@@ -3,20 +3,16 @@ package com.loopers.interfaces.api.User;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum Gender {
     MALE("M","남성"),
     FEMALE("F","여성");
 
     private final String code;
     private final String desc;
-
-
-    Gender(String code, String desc) {
-        this.code = code;
-        this.desc = desc;
-    }
 
 
     public static Gender fromCode(String code) {
