@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatException;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
 @SpringBootTest
 class PointFacadeIntegrationTest {
@@ -32,12 +32,11 @@ class PointFacadeIntegrationTest {
             Long userId = 1L;
             Long point = 1000L;
 
-            //act
-            CoreException exception = assertThrows(CoreException.class, () -> pointFacade.charge(userId, point));
-
-            //assert
-            assertThat(exception.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-
+            assertThatException()
+                    .isThrownBy(() -> pointFacade.charge(userId, point))
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType", type(ErrorType.class))
+                    .isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 }
