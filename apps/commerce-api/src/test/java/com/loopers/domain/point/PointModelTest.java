@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 
 class PointModelTest {
@@ -25,11 +25,12 @@ class PointModelTest {
         void throwsBadRequestException_whenChargeAmountIsZeroOrNegative() {
             PointModel pointModel = new PointModel(1L);
 
-            CoreException result = assertThrows(CoreException.class, () -> {
-                pointModel.charge(-2L);
-            });
+            Throwable thrown = catchThrowable(() -> pointModel.charge(-2L));
 
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
+            assertThat(thrown)
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BAD_REQUEST);
         }
 
     }

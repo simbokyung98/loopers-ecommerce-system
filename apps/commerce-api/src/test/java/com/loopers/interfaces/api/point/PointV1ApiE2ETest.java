@@ -96,8 +96,9 @@ class PointV1ApiE2ETest {
         void throwsNotFound_whenChargingNonExistentUser() {
 
             //arrange
+            String INVALIDE_USER = "2";
             HttpHeaders headers = new HttpHeaders();
-            headers.set("X-USER-ID", "2");
+            headers.set("X-USER-ID",INVALIDE_USER);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             PointV1Dto.PointRequest pointRequest = new PointV1Dto.PointRequest(1000L);

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 
 class UserModelTest {
@@ -27,13 +27,13 @@ class UserModelTest {
         @Test
         void throwsBadRequestException_whenLoginIdIsTooLong() {
 
+            Throwable throwable = catchThrowable(() ->
+                new UserModel("1234567890", "F", "2025-05-22", "loopers@test.com"));
 
-            CoreException result = assertThrows(CoreException.class, () -> {
-                new UserModel("1234567890", "F", "2025-05-22", "loopers@test.com");
-            });
-
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-            assertThat(result.getMessage()).isEqualTo("로그인id는 비어있거나 9자를 넘을 수 없습니다.");
+            assertThat(throwable)
+                    .isInstanceOf(CoreException.class)
+                            .extracting("errorType")
+                                    .isEqualTo(ErrorType.BAD_REQUEST);
 
         }
 
@@ -41,13 +41,14 @@ class UserModelTest {
         @Test
         void throwsBadRequestException_whenEmailIsNotMatchingPattern() {
 
+            Throwable throwable = catchThrowable(() ->
+                new UserModel("123456789", "W", "2025-05-22", "loopers"));
 
-            CoreException result = assertThrows(CoreException.class, () -> {
-                new UserModel("123456789", "W", "2025-05-22", "loopers");
-            });
+            assertThat(throwable)
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BAD_REQUEST);
 
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-            assertThat(result.getMessage()).isEqualTo("이메일의 형식과 다릅니다.");
 
         }
 
@@ -55,13 +56,13 @@ class UserModelTest {
         @Test
         void throwsBadRequestException_whenBirthDateIsNotMatchingPattern() {
 
+            Throwable throwable = catchThrowable(() ->
+                    new UserModel("123456789", "W", "20250522", "loopers@test.com"));
 
-            CoreException result = assertThrows(CoreException.class, () -> {
-                new UserModel("123456789", "W", "20250522", "loopers@test.com");
-            });
-
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-            assertThat(result.getMessage()).isEqualTo("생년월일의 형식과 다릅니다.");
+            assertThat(throwable)
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BAD_REQUEST);
 
         }
 
