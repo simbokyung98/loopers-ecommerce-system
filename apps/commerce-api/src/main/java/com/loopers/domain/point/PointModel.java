@@ -16,10 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PointModel extends BaseEntity {
 
-    @Column(unique = true)
+    @Column(name = "user_id",unique = true, nullable = false)
     private Long userId;
+    @Column(name = "amount", nullable = false)
     private Long amount;
-    
+
     public PointModel(Long userId){
         if(userId == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "유저ID는 비어있을 수 없습니다.");

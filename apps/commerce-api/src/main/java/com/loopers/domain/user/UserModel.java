@@ -3,6 +3,7 @@ package com.loopers.domain.user;
 import com.loopers.domain.BaseEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -21,10 +22,13 @@ public class UserModel extends BaseEntity {
     private static final String PATTERN_BRITH = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$";
     private static final String PATTERN_EMAIL  = "^\\w+@\\w+\\.\\w{2,}$";
 
-
+    @Column(name = "login_id", nullable = false, updatable = false)
     private String loginId;
+    @Column(name = "gender", nullable = false, updatable = false)
     private String gender;
+    @Column(name = "brith", nullable = false, updatable = false)
     private String brith;
+    @Column(name = "email", nullable = false)
     private String email;
 
     public UserModel(String loginId, String gender,String brith , String email) {
