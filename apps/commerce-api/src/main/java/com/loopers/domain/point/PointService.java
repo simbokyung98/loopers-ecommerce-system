@@ -2,11 +2,11 @@ package com.loopers.domain.point;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-@Component
+@Service
 public class PointService {
 
     private final PointRepository pointRepository;
