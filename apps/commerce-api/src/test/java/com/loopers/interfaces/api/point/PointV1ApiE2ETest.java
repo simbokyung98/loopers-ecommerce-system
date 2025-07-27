@@ -63,9 +63,12 @@ class PointV1ApiE2ETest {
         void returnsTotalPoint_whenChargingExistingUserWith1000Won(){
             //arrange
             UserModel signInModel =  new UserModel("testId", Gender.MALE.getCode(), "2024-05-22", "loopers@test.com");
-            userJpaRepository.save(signInModel);
+            UserModel resultUser = userJpaRepository.save(signInModel);
 
-            pointJpaRepository.save(new PointModel(1L, 1000L));
+            PointModel pointModel = new PointModel(resultUser.getId());
+            pointModel.charge(1000L);
+
+            pointJpaRepository.save(pointModel);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", "1");
@@ -133,12 +136,14 @@ class PointV1ApiE2ETest {
             UserModel signInModel =  new UserModel("testId", Gender.MALE.getCode(), "2024-05-22", "loopers@test.com");
             userJpaRepository.save(signInModel);
 
-            pointJpaRepository.save(new PointModel(1L, 2000L));
+            PointModel pointModel = new PointModel(1L);
+            pointModel.charge(2000L);
+
+            pointJpaRepository.save(pointModel);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-USER-ID", "1");
             headers.setContentType(MediaType.APPLICATION_JSON);
-
 
             //act
             ParameterizedTypeReference<ApiResponse<Long>> responseType = new ParameterizedTypeReference<>() {};

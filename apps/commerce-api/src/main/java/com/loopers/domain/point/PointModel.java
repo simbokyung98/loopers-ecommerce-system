@@ -15,27 +15,24 @@ public class PointModel extends BaseEntity {
 
     @Column(unique = true)
     private Long userId;
-    private Long point;
+    private Long amount;
 
     public PointModel() {}
 
 
-    public PointModel(Long userId, Long point){
+    public PointModel(Long userId){
         if(userId == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "유저ID는 비어있을 수 없습니다.");
         }
-        if(point == null || point <= 0){
-            throw new CoreException(ErrorType.BAD_REQUEST, "포인트는 비어있거나 0보다 작을 수 없습니다.");
-        }
+
         this.userId = userId;
-        this.point = point;
+        this.amount = 0L;
     }
 
     public void charge(Long newPoint){
         if(newPoint <= 0) throw new CoreException(ErrorType.BAD_REQUEST, "충전금액은 0 보다 커야합니다.");
 
-        this.point += newPoint;
+        this.amount += newPoint;
     }
-
 
 }

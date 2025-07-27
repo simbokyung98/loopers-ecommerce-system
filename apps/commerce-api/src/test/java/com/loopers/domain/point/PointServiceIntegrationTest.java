@@ -51,15 +51,15 @@ class PointServiceIntegrationTest {
             UserModel signInModel =  new UserModel("testId", Gender.MALE.getCode(), "2024-05-22", "loopers@test.com");
             userJpaRepository.save(signInModel);
 
-            PointModel pointModel = pointJpaRepository.save(new PointModel(1L, 2000L));
+            PointModel pointModel = pointJpaRepository.save(new PointModel(1L));
 
             //act
-            Long result = pointService.getPointAmount(1L);
+            PointModel result = pointService.get(1L);
 
             //assert
             assertAll(
                     () -> assertThat(result).isNotNull(),
-                    () -> assertThat(result).isEqualTo(pointModel.getPoint())
+                    () -> assertThat(result.getAmount()).isEqualTo(pointModel.getAmount())
             );
         }
 
@@ -68,7 +68,7 @@ class PointServiceIntegrationTest {
         void returnsNull_whenUserDoesNotExistById() {
 
             //act
-            Long result = pointService.getPointAmount(1L);
+            PointModel result = pointService.get(1L);
 
             //assert
             assertThat(result).isNull();

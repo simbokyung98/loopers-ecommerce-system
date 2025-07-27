@@ -11,13 +11,17 @@ public class PointService {
 
     private final PointRepository pointRepository;
 
-    @Transactional
+    public PointModel create(Long userId){
+        PointModel pointModel = new PointModel(userId);
+        return pointRepository.save(pointModel);
+    }
+
     public PointModel charge(Long userId, Long point){
         PointModel pointModel = pointRepository.findByUserId(userId);
 
-        if(pointModel == null){
-         pointModel = pointRepository.save(new PointModel(userId, 0L));
-        }
+//        if(pointModel == null){
+//         pointModel = pointRepository.save(new PointModel(userId, 0L));
+//        }
 
         pointModel.charge(point);
 
@@ -26,8 +30,7 @@ public class PointService {
     }
 
     @Transactional(readOnly = true)
-    public Long getPointAmount(Long userId){
-        PointModel pointModel = pointRepository.findByUserId(userId);
-        return pointModel != null? pointModel.getPoint() : null;
+    public PointModel get(Long userId){
+        return pointRepository.findByUserId(userId);
     }
 }
