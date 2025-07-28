@@ -24,8 +24,10 @@ public class ProductModel extends BaseEntity {
     private Long price;
     @Column(name = "status", nullable = false)
     private ProductStatus status;
+    @Column(name = "brand_id", nullable = false)
+    private Long brandId;
 
-    public ProductModel(String name, Long stock, Long price, ProductStatus status){
+    public ProductModel(String name, Long stock, Long price, ProductStatus status, Long brandId){
         if(name == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "상품의 이름은 null 일 수 없습니다.");
         }
@@ -41,10 +43,15 @@ public class ProductModel extends BaseEntity {
             throw new CoreException(ErrorType.BAD_REQUEST, "상품의 상태는 null 일 수 없습니다.");
         }
 
+        if(brandId == null){
+            throw new CoreException(ErrorType.BAD_REQUEST, "상품의 브랜드 아이디는 null 일 수 없습니다.");
+        }
+
         this.name = name;
         this.stock = stock;
         this.price = price;
         this.status = status;
+        this.brandId = brandId;
     }
 
 

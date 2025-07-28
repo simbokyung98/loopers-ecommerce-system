@@ -18,11 +18,16 @@ class ProductModelTest {
     @Nested
     class create{
 
+        static final Long BRAND_ID = 1L;
+
         @DisplayName("상품의 이름이 null 이면, BAD_REQUEST 예외가 발생한다.")
         @Test
         void throwsBadRequestException_whenNameIsNull(){
+
+            Long brandId = 1L;
+
             Throwable throwable = catchThrowable(() ->
-                    new ProductModel(null,0L, 0L, ProductStatus.AVAILABLE));
+                    new ProductModel(null,0L, 0L, ProductStatus.AVAILABLE, BRAND_ID));
 
             assertThat(throwable)
                     .isInstanceOf(CoreException.class)
@@ -38,7 +43,7 @@ class ProductModelTest {
         @ParameterizedTest
         void throwsBadRequestException_whenStockNullOrNegative(Long stock){
             Throwable throwable = catchThrowable(() ->
-                    new ProductModel("테스트 상품",stock, 0L, ProductStatus.AVAILABLE));
+                    new ProductModel("테스트 상품",stock, 0L, ProductStatus.AVAILABLE, BRAND_ID));
 
             assertThat(throwable)
                     .isInstanceOf(CoreException.class)
@@ -54,7 +59,7 @@ class ProductModelTest {
         @ParameterizedTest
         void throwsBadRequestException_whenPriceNullOrNegative(Long price){
             Throwable throwable = catchThrowable(() ->
-                    new ProductModel("테스트 상품",0L, price, ProductStatus.AVAILABLE));
+                    new ProductModel("테스트 상품",0L, price, ProductStatus.AVAILABLE, BRAND_ID));
 
             assertThat(throwable)
                     .isInstanceOf(CoreException.class)
@@ -66,7 +71,19 @@ class ProductModelTest {
         @Test
         void throwsBadRequestException_whenStatusIsNull(){
             Throwable throwable = catchThrowable(() ->
-                    new ProductModel("테스트 상품",0L, 0L, null));
+                    new ProductModel("테스트 상품",0L, 0L, null, BRAND_ID));
+
+            assertThat(throwable)
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("상품의 브랜드 id가 null인 경우, BAD_REQUEST 예외가 발생한다.")
+        @Test
+        void throwsBadRequestException_whenBrandIdIsNull(){
+            Throwable throwable = catchThrowable(() ->
+                    new ProductModel("테스트 상품",0L, 0L, ProductStatus.AVAILABLE, null));
 
             assertThat(throwable)
                     .isInstanceOf(CoreException.class)
@@ -83,7 +100,7 @@ class ProductModelTest {
             ProductStatus status = ProductStatus.AVAILABLE;
 
             ProductModel productModel =
-                    new ProductModel(name,stock, price, status);
+                    new ProductModel(name,stock, price, status, BRAND_ID);
 
             assertThat(productModel).isNotNull();
             assertThat(productModel.getName()).isEqualTo(name);
