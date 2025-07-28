@@ -16,29 +16,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductModel extends BaseEntity {
 
-    @Column
+    @Column(name = "name", nullable = false)
     private String name;
-    @Column
+    @Column(name = "stock", nullable = false)
     private Long stock;
-    @Column
+    @Column(name = "stock", nullable = false)
     private Long price;
-    @Column
+    @Column(name = "status", nullable = false)
     private ProductStatus status;
 
     public ProductModel(String name, Long stock, Long price, ProductStatus status){
         if(name == null){
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "상품의 이름은 null 일 수 없습니다.");
         }
         if(stock == null || stock < 0){
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST,"상품의 재고는 null 이거나 음수일 수 없습니다.");
         }
 
         if(price == null || price < 0){
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "상품의 가격은 null 이거나 음수일 수 없습니다.");
         }
 
         if(status == null){
-            throw new CoreException(ErrorType.BAD_REQUEST);
+            throw new CoreException(ErrorType.BAD_REQUEST, "상품의 상태는 null 일 수 없습니다.");
         }
 
         this.name = name;
