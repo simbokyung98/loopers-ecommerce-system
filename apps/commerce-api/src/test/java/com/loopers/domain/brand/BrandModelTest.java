@@ -1,5 +1,6 @@
-package com.loopers.domain.product;
+package com.loopers.domain.brand;
 
+import com.loopers.domain.brand.BrandModel;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import org.junit.jupiter.api.DisplayName;
