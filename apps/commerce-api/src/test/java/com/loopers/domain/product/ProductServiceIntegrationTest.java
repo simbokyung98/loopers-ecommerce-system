@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.brand.BrandRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +33,7 @@ public class ProductServiceIntegrationTest {
         @Test
         void throwsNotFoundException_whenDoNotExist(){
 
-            Long notExistProductId = 1L;
+            Long notExistProductId = 999L;
 
 
             assertThatException()
