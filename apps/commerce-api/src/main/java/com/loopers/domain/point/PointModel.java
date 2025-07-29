@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name ="point")
+@Table(name ="tb_point")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PointModel extends BaseEntity {

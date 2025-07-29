@@ -12,20 +12,28 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "product")
+@Table(name = "tb_product")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductModel extends BaseEntity {
 
     @Column(name = "name", nullable = false)
     private String name;
+
     @Column(name = "stock", nullable = false)
     private Long stock;
-    @Column(name = "stock", nullable = false)
+
+    @Column(name = "price", nullable = false)
     private Long price;
+
     @Column(name = "status", nullable = false)
     private ProductStatus status;
+
     @Column(name = "brand_id", nullable = false)
     private Long brandId;
+
+    @Column(name = "like_count", nullable = false)
+    private Long likeCount;
+
 
     public ProductModel(String name, Long stock, Long price, ProductStatus status, Long brandId){
         if(name == null){
@@ -52,6 +60,7 @@ public class ProductModel extends BaseEntity {
         this.price = price;
         this.status = status;
         this.brandId = brandId;
+        this.likeCount = 0L;
     }
 
 

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "brand")
+@Table(name = "tb_brand")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BrandModel extends BaseEntity {
 
