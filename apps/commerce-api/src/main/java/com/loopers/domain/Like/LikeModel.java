@@ -34,7 +34,4 @@ public class LikeModel extends BaseEntity {
     }
 
 
-
-
-
 }
