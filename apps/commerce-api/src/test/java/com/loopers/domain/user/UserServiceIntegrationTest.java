@@ -13,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -130,6 +132,25 @@ public class UserServiceIntegrationTest {
 
             // assert
             assertThat(result).isNull();
+        }
+    }
+
+    @DisplayName("유저 정보가 존재하는지 확인 할 때, ")
+    @Nested
+    class Exist {
+        @DisplayName("존재하지 않는 유저 ID 로 좋아요를을 시도한 경우, BAD_REQUEST 예외가 발생하며 실패한다.")
+        @Test
+        void throwsException_whenUserDoesNotExist(){
+            //arrange
+            Long notExistUserId = 999L;
+
+
+
+            assertThatException()
+                    .isThrownBy(() -> userService.checkExist(notExistUserId))
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType", type(ErrorType.class))
+                    .isEqualTo(ErrorType.BAD_REQUEST);
         }
     }
 }

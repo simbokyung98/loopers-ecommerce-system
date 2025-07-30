@@ -29,8 +29,10 @@ public class UserService {
 
 
     @Transactional(readOnly = true)
-    public Boolean existsById(Long id){
-        return userRepository.existsById(id);
+    public void checkExist(Long id){
+        if(!userRepository.existsById(id)){
+            throw new CoreException(ErrorType.BAD_REQUEST, "존재하지 않는 사용자 입니다.");
+        }
     }
 
 
