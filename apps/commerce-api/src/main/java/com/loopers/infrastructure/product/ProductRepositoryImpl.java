@@ -47,9 +47,15 @@ public class ProductRepositoryImpl implements ProductRepository {
         Long totalCount = jpaQueryFactory.select(productModel.count())
                 .from(productModel)
                 .fetchOne();
+
         long total = totalCount != null ? totalCount : 0L;
 
         return new PageImpl<>(productModelList, pageRequest, total);
+    }
+
+    @Override
+    public List<ProductModel> findByIdIn(List<Long> ids) {
+        return productJpaRepository.findByIdIn(ids);
     }
 
 

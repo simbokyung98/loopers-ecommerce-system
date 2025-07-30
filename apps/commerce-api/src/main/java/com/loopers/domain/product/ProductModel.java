@@ -1,6 +1,7 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.BaseEntity;
+import com.loopers.domain.Like.LikeToggleResult;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.Column;
@@ -62,6 +63,31 @@ public class ProductModel extends BaseEntity {
         this.brandId = brandId;
         this.likeCount = 0L;
     }
+
+    public boolean isOnSell(){
+        return status == ProductStatus.SELL;
+    }
+
+    public void increaseLikeCount() {
+        this.likeCount += 1;
+    }
+
+    public void decreaseLikeCount() {
+        this.likeCount -= 1;
+    }
+
+    public void applyLikeToggle(LikeToggleResult result) {
+        if (result == LikeToggleResult.LIKED) {
+
+            likeCount++;
+        } else {
+            if(likeCount == 0){
+                throw new CoreException(ErrorType.BAD_REQUEST, "잘못된 좋아요 취소 입니다.");
+            }
+            likeCount--;
+        }
+    }
+
 
 
 

@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.Like.LikeToggleResult;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -36,6 +38,29 @@ public class ProductService {
         ProductModel productModel = new ProductModel(name, stock, price, productStatus, brandId);
         return productRepository.save(productModel);
 
+    }
+
+    public ProductModel checkSellable(Long id){
+        ProductModel productModel = productRepository.findById(id)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));
+
+        if(!productModel.isOnSell()){
+            throw new CoreException(ErrorType.CONFLICT, "판매중인 상품이 아닙니다.");
+        }
+
+        return productModel;
+
+    }
+
+    public ProductModel adjustLikeCount(ProductModel productModel, LikeToggleResult like){
+        productModel.applyLikeToggle(like);
+
+        return productRepository.save(productModel);
+
+    }
+
+    public List<ProductModel> getListByIds(List<Long> ids){
+        return productRepository.findByIdIn(ids);
     }
 
 
