@@ -43,7 +43,6 @@ public class LikeServiceIntegrationTest {
             //act
             likeService.likeToggle(userId, productId);
 
-
             Boolean exists = likeJpaRepository.existsByUserIdAndProductId(userId, productId);
             assertThat(exists).isTrue();
 
