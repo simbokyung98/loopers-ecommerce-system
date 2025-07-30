@@ -11,5 +11,5 @@ public interface LikeRepository {
 
     Optional<LikeModel> findByUserIdAndProductId(Long userId, Long productId);
 
-    List<LikeModel> findAllByUserId(Long userId);
+    List<Long> findAllProductIdByUserId(Long userId);
 }
