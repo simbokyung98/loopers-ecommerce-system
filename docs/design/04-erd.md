@@ -16,6 +16,7 @@
     bigint stock
     bigint price
     varchar status
+    varchar likeCount
     datetime create_at
     datetime update_at
     datetime delete_at
@@ -33,13 +34,11 @@
     Order{
     bigint id pk
     bigint user_id fk
-    datetime order_at
     bigint amount
     varchar address
     varchar phone_number
     varchar name
     varchar status
-    bigint like_count
     datetime create_at
     datetime update_at
     datetime delete_at
