@@ -26,10 +26,10 @@ class LikeFacadeIntegrationTest {
     private LikeFacade likeFacade;
 
     @Autowired
-    ProductRepository productRepository;
+    private ProductRepository productRepository;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
