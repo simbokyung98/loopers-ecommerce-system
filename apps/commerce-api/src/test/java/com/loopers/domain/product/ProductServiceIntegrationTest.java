@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.Like.LikeToggleResult;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -64,7 +65,7 @@ public class ProductServiceIntegrationTest {
             Long stock = 0L;
             Long price = 0L;
             Long likeCount = 0L;
-            ProductStatus status = ProductStatus.AVAILABLE;
+            ProductStatus status = ProductStatus.SELL;
 
             ProductModel productModel =
                     new ProductModel(name,stock, price, status, BRAND_ID);
@@ -85,5 +86,113 @@ public class ProductServiceIntegrationTest {
             );
 
         }
+    }
+
+    @DisplayName("상품이 판매중인지 체크할 때,")
+    @Nested
+    class CheckSellable{
+        @DisplayName("상품이 존재하지 않을 경우, NOT_FOUND 예외가 발생하며 실패한다")
+        @Test
+        void throwsNotFoundException_whenDoNotExist(){
+
+            Long notExistProductId = 999L;
+
+
+            assertThatException()
+                    .isThrownBy(() -> productService.checkSellable(notExistProductId))
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType", type(ErrorType.class))
+                    .isEqualTo(ErrorType.NOT_FOUND);
+        }
+
+        @DisplayName("상품이 판매중이지 않을 경우, CONFLICT 예외가 발생하며 실패한다")
+        @Test
+        void throwsNotFoundException_whenDoNotSell(){
+
+            //arrange
+            Long BRAND_ID = 1L;
+
+            String  name = "테스트 상품";
+            Long stock = 0L;
+            Long price = 0L;
+            Long likeCount = 0L;
+            ProductStatus status = ProductStatus.DISCONTINUED;
+
+            ProductModel productModel =
+                    new ProductModel(name,stock, price, status, BRAND_ID);
+
+            ProductModel response = productRepository.save(productModel);
+
+
+            assertThatException()
+                    .isThrownBy(() -> productService.checkSellable(response.getId()))
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType", type(ErrorType.class))
+                    .isEqualTo(ErrorType.CONFLICT);
+        }
+
+    }
+
+
+    @DisplayName("상품의 좋아요 갯수 변경할 때,")
+    @Nested
+    class AdjustLikeCount{
+        @DisplayName("상품의 좋아요를 추가하면, 좋아요 갯수가 1개 올라간다..")
+        @Test
+        void increaseLikeCountByOne_whenLikeIsAddedToProduct(){
+
+            //arrange
+            Long BRAND_ID = 1L;
+
+            String  name = "테스트 상품";
+            Long stock = 0L;
+            Long price = 0L;
+            ProductStatus status = ProductStatus.SELL;
+
+            ProductModel productModel =
+                    new ProductModel(name,stock, price, status, BRAND_ID);
+
+            ProductModel response = productRepository.save(productModel);
+
+            //act
+            ProductModel result = productService.adjustLikeCount(response, LikeToggleResult.LIKED);
+
+            //assert
+            assertAll(
+                    () -> assertThat(result).isNotNull(),
+                    () -> assertThat(result.getLikeCount()).isEqualTo(1L)
+            );
+
+        }
+
+        @DisplayName("상품의 좋아요를 취소하면, 좋아요 갯수가 1개 내려간다..")
+        @Test
+        void decreaseLikeCountByOne_whenLikeIsRemovedFromProduct(){
+
+            //arrange
+            Long BRAND_ID = 1L;
+
+            String  name = "테스트 상품";
+            Long stock = 0L;
+            Long price = 0L;
+            ProductStatus status = ProductStatus.SELL;
+
+            ProductModel productModel =
+                    new ProductModel(name,stock, price, status, BRAND_ID);
+
+            ProductModel response = productRepository.save(productModel);
+
+            //act
+            productService.adjustLikeCount(response, LikeToggleResult.LIKED);
+            ProductModel result = productService.adjustLikeCount(response, LikeToggleResult.UNLIKED);
+
+            //assert
+            assertAll(
+                    () -> assertThat(result).isNotNull(),
+                    () -> assertThat(result.getLikeCount()).isEqualTo(0L)
+            );
+
+        }
+
     }
 }

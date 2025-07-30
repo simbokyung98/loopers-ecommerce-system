@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ProductStatus{
-    AVAILABLE("판매중"),
+    SELL("판매중"),
     OUT_OF_STOCK("품절"),
     DISCONTINUED("판매중지"),
     HIDDEN("숨김처리");

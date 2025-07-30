@@ -27,7 +27,7 @@ class ProductModelTest {
             Long brandId = 1L;
 
             Throwable throwable = catchThrowable(() ->
-                    new ProductModel(null,0L, 0L, ProductStatus.AVAILABLE, BRAND_ID));
+                    new ProductModel(null,0L, 0L, ProductStatus.SELL, BRAND_ID));
 
             assertThat(throwable)
                     .isInstanceOf(CoreException.class)
@@ -43,7 +43,7 @@ class ProductModelTest {
         @ParameterizedTest
         void throwsBadRequestException_whenStockNullOrNegative(Long stock){
             Throwable throwable = catchThrowable(() ->
-                    new ProductModel("테스트 상품",stock, 0L, ProductStatus.AVAILABLE, BRAND_ID));
+                    new ProductModel("테스트 상품",stock, 0L, ProductStatus.SELL, BRAND_ID));
 
             assertThat(throwable)
                     .isInstanceOf(CoreException.class)
@@ -59,7 +59,7 @@ class ProductModelTest {
         @ParameterizedTest
         void throwsBadRequestException_whenPriceNullOrNegative(Long price){
             Throwable throwable = catchThrowable(() ->
-                    new ProductModel("테스트 상품",0L, price, ProductStatus.AVAILABLE, BRAND_ID));
+                    new ProductModel("테스트 상품",0L, price, ProductStatus.SELL, BRAND_ID));
 
             assertThat(throwable)
                     .isInstanceOf(CoreException.class)
@@ -83,7 +83,7 @@ class ProductModelTest {
         @Test
         void throwsBadRequestException_whenBrandIdIsNull(){
             Throwable throwable = catchThrowable(() ->
-                    new ProductModel("테스트 상품",0L, 0L, ProductStatus.AVAILABLE, null));
+                    new ProductModel("테스트 상품",0L, 0L, ProductStatus.SELL, null));
 
             assertThat(throwable)
                     .isInstanceOf(CoreException.class)
@@ -97,7 +97,7 @@ class ProductModelTest {
             String  name = "테스트 상품";
             Long stock = 0L;
             Long price = 0L;
-            ProductStatus status = ProductStatus.AVAILABLE;
+            ProductStatus status = ProductStatus.SELL;
 
             ProductModel productModel =
                     new ProductModel(name,stock, price, status, BRAND_ID);
