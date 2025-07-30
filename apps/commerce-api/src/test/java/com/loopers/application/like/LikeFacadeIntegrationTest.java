@@ -1,6 +1,7 @@
 package com.loopers.application.like;
 
 
+import com.loopers.application.like.dto.LikeProductInfo;
 import com.loopers.application.like.dto.LikeToggleInfo;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
@@ -13,8 +14,10 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest
 class LikeFacadeIntegrationTest {
@@ -113,6 +116,61 @@ class LikeFacadeIntegrationTest {
 
             }
         }
+
+    @DisplayName("내 좋아요 상품 정보를 조회할 떄 , ")
+    @Nested
+    class GetLikedProducts{
+
+        @BeforeEach
+        void setup(){
+            UserModel requestModel = new UserModel(
+                    "testId",
+                    Gender.MALE.getCode(),
+                    "2024-05-22",
+                    "loopers@test.com"
+            );
+            UserModel user = userRepository.save(requestModel);
+
+            Long BRAND_ID = 1L;
+
+            ProductModel p1 =
+                    new ProductModel(
+                            "테스트 상품",
+                            0L,
+                            0L,
+                            ProductStatus.SELL, BRAND_ID);
+            ProductModel p2 =
+                    new ProductModel(
+                            "루퍼스 상품",
+                            0L,
+                            0L,
+                            ProductStatus.SELL, BRAND_ID);
+            ProductModel product1 = productRepository.save(p1);
+            ProductModel product2 = productRepository.save(p2);
+
+            likeFacade.toggle(user.getId(), product1.getId());
+            likeFacade.toggle(user.getId(), product2.getId());
+        }
+
+        @DisplayName("내 유저 정보로 좋아요 상품을 조회할 경우, 상품 정보를 반환한다")
+        @Test
+        void returnProductInfo_whenMyUserId(){
+
+            Long userId = 1L;
+
+            List<LikeProductInfo> result=
+                likeFacade.getLikedProducts(userId);
+
+            assertAll(
+                    () -> assertThat(result).isNotNull(),
+                    () -> assertThat(result.size()).isEqualTo(2)
+            );
+
+        }
+    }
+
+
+
 
 
 }
