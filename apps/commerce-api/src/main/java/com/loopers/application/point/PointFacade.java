@@ -18,7 +18,7 @@ public class PointFacade {
 
     public Long charge(Long userId, Long point){
 
-        userService.checkExist(userId);
+        userService.checkExistUser(userId);
 
         PointModel pointModel = pointService.charge(userId, point);
 
@@ -27,7 +27,7 @@ public class PointFacade {
 
     public Long getPointAmount(Long userId){
 
-        userService.checkExist(userId);
+        userService.checkExistUser(userId);
         PointModel pointModel = pointService.get(userId);
 
         if(pointModel == null){

@@ -28,12 +28,12 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public Optional<ProductModel> findById(Long id) {
-        return productJpaRepository.findById(id);
+    public Boolean existProduct(Long id) {
+        return productJpaRepository.existsById(id);
     }
 
     @Override
-    public Page<ProductModel> findAllByPaging(int page, int size, String orderType) {
+    public Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType) {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         List<ProductModel> productModelList = jpaQueryFactory.selectFrom(productModel)
@@ -58,9 +58,14 @@ public class ProductRepositoryImpl implements ProductRepository {
         return productJpaRepository.findByIdIn(ids);
     }
 
+    @Override
+    public Optional<ProductModel> getProduct(Long id) {
+        return productJpaRepository.findById(id);
+    }
 
-    private OrderSpecifier<?> order(String orderType){
-        return switch (OrderType.fromValue(orderType)){
+
+    private OrderSpecifier<?> order(OrderType orderType){
+        return switch (orderType){
             case 오래된순 -> productModel.createdAt.asc();
             case 최신순 -> productModel.createdAt.desc();
             case 낮은가격순 -> productModel.price.asc();
