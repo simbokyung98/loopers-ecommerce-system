@@ -1,6 +1,6 @@
 package com.loopers.application.like;
 
-import com.loopers.application.like.dto.LikeProductInfo;
+import com.loopers.application.like.dto.LikeInfo;
 import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
@@ -66,10 +66,10 @@ class LikeFacadeTest {
             when(productService.getListByIds(likedProductIds)).thenReturn(products);
 
             // act
-            List<LikeProductInfo> result = likeFacade.getLikedProducts(userId);
+            LikeInfo.LikeProducts result = likeFacade.getLikedProducts(userId);
 
             // assert
-            assertThat(result).hasSize(2);
+            assertThat(result.likeProducts()).hasSize(2);
         }
 
         @Test
@@ -80,10 +80,10 @@ class LikeFacadeTest {
             when(likeService.getLikedProductIdsByUser(userId)).thenReturn(List.of());
 
             // act
-            List<LikeProductInfo> result = likeFacade.getLikedProducts(userId);
+            LikeInfo.LikeProducts result = likeFacade.getLikedProducts(userId);
 
             // assert
-            assertThat(result).isEmpty();
+            assertThat(result.likeProducts()).isEmpty();
             verify(productService, never()).getListByIds(any());
         }
 

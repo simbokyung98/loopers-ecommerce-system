@@ -1,6 +1,7 @@
 package com.loopers.application.like;
 
-import com.loopers.application.like.dto.LikeProductInfo;
+import com.loopers.application.like.dto.LikeCommand;
+import com.loopers.application.like.dto.LikeInfo;
 import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
@@ -18,35 +19,35 @@ public class LikeFacade {
     private final LikeService likeService;
     private final ProductService productService;
 
-    public void like(Long userId, Long productId){
+    public void like(LikeCommand.Like command){
 
-        userService.checkExistUser(userId);
-        productService.checkExistProduct(productId);
+        userService.checkExistUser(command.userId());
+        productService.checkExistProduct(command.productId());
 
-        likeService.like(userId, productId);
-
-    }
-
-
-    public void dislike(Long userId, Long productId){
-
-        userService.checkExistUser(userId);
-        likeService.dislike(userId, productId);
+        likeService.like(command.userId(), command.productId());
 
     }
 
-    public List<LikeProductInfo> getLikedProducts(Long userId){
+
+    public void dislike(LikeCommand.Dislike command){
+
+        userService.checkExistUser(command.userId());
+        likeService.dislike(command.userId(), command.productId());
+
+    }
+
+    public LikeInfo.LikeProducts getLikedProducts(Long userId){
         userService.checkExistUser(userId);
 
         List<Long> likedProductIds = likeService.getLikedProductIdsByUser(userId);
 
         if(likedProductIds.isEmpty()){
-            return List.of();
+            return LikeInfo.LikeProducts.of(userId, List.of());
         }
 
         List<ProductModel> productModels = productService.getListByIds(likedProductIds);
 
-        return productModels.stream().map(LikeProductInfo::from).toList();
+        return LikeInfo.LikeProducts.of(userId, productModels);
         
     }
 

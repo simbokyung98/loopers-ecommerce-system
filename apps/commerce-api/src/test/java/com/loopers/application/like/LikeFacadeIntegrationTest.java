@@ -1,7 +1,8 @@
 package com.loopers.application.like;
 
 
-import com.loopers.application.like.dto.LikeProductInfo;
+import com.loopers.application.like.dto.LikeCommand;
+import com.loopers.application.like.dto.LikeInfo;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.ProductStatus;
@@ -12,8 +13,6 @@ import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -69,8 +68,8 @@ class LikeFacadeIntegrationTest {
             ProductModel product1 = productRepository.save(p1);
             ProductModel product2 = productRepository.save(p2);
 
-            likeFacade.like(user.getId(), product1.getId());
-            likeFacade.like(user.getId(), product2.getId());
+            likeFacade.like(LikeCommand.Like.of(user.getId(), product1.getId()));
+            likeFacade.like(LikeCommand.Like.of(user.getId(), product2.getId()));
         }
 
         @DisplayName("내 유저 정보로 좋아요 상품을 조회할 경우, 상품 정보를 반환한다")
@@ -79,12 +78,12 @@ class LikeFacadeIntegrationTest {
 
             Long userId = 1L;
 
-            List<LikeProductInfo> result=
+            LikeInfo.LikeProducts result=
                 likeFacade.getLikedProducts(userId);
 
             assertAll(
-                    () -> assertThat(result).isNotNull(),
-                    () -> assertThat(result.size()).isEqualTo(2)
+                    () -> assertThat(result.likeProducts()).isNotNull(),
+                    () -> assertThat(result.likeProducts().size()).isEqualTo(2)
             );
 
         }
