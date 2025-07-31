@@ -1,15 +1,12 @@
 package com.loopers.application.like;
 
 import com.loopers.application.like.dto.LikeProductInfo;
-import com.loopers.application.like.dto.LikeToggleInfo;
 import com.loopers.domain.Like.LikeService;
-import com.loopers.domain.Like.LikeToggleResult;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,21 +18,26 @@ public class LikeFacade {
     private final LikeService likeService;
     private final ProductService productService;
 
-    @Transactional
-    public LikeToggleInfo toggle(Long userId, Long productId){
+    public void like(Long userId, Long productId){
 
-        userService.checkExist(userId);
-        ProductModel productModel = productService.checkSellable(productId);
+        userService.checkExistUser(userId);
+        productService.checkExistProduct(productId);
 
-        LikeToggleResult likeToggleResult = likeService.likeToggle(userId, productId);
-        ProductModel result = productService.adjustLikeCount(productModel, likeToggleResult);
+        likeService.like(userId, productId);
 
-        return new LikeToggleInfo(likeToggleResult == LikeToggleResult.LIKED, result.getLikeCount());
+    }
+
+
+    public void dislike(Long userId, Long productId){
+
+        userService.checkExistUser(userId);
+
+        likeService.dislike(userId, productId);
 
     }
 
     public List<LikeProductInfo> getLikedProducts(Long userId){
-        userService.checkExist(userId);
+        userService.checkExistUser(userId);
 
         List<Long> likedProductIds = likeService.getLikedProductIdsByUser(userId);
 

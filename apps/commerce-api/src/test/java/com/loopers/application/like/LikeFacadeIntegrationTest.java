@@ -2,7 +2,6 @@ package com.loopers.application.like;
 
 
 import com.loopers.application.like.dto.LikeProductInfo;
-import com.loopers.application.like.dto.LikeToggleInfo;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.ProductStatus;
@@ -39,84 +38,6 @@ class LikeFacadeIntegrationTest {
         databaseCleanUp.truncateAllTables();
     }
 
-    @DisplayName("좋아요 토글 할 때, ")
-    @Nested
-    class toggle {
-        @DisplayName("좋아요 요청 시, 좋아요 결과가 반환된다")
-        @Test
-        void returnLikeResult_whenLikeIsToggled(){
-            //arrange
-
-            UserModel requestModel = new UserModel(
-                    "testId",
-                    Gender.MALE.getCode(),
-                    "2024-05-22",
-                    "loopers@test.com"
-            );
-            UserModel user = userRepository.save(requestModel);
-
-            Long BRAND_ID = 1L;
-
-            ProductModel productModel =
-                    new ProductModel(
-                            "테스트 상품",
-                            0L,
-                            0L,
-                            ProductStatus.SELL, BRAND_ID);
-            ProductModel product = productRepository.save(productModel);
-
-            //act
-            LikeToggleInfo likeToggleInfo = likeFacade.toggle(user.getId(), product.getId());
-
-            //assert
-            assertAll(
-                    () -> assertThat(likeToggleInfo).isNotNull(),
-                    () -> assertThat(likeToggleInfo.totalLikeCount()).isEqualTo(product.getLikeCount()+1),
-                    () -> assertThat(likeToggleInfo.liked()).isEqualTo(true)
-            );
-
-
-
-        }
-
-            @DisplayName("좋아요 요청 취소 시, 좋아요 취소 결과가 반환된다")
-            @Test
-            void returnUnlikeResult_whenLikeIsCancelled(){
-                //arrange
-
-                UserModel requestModel = new UserModel(
-                        "testId",
-                        Gender.MALE.getCode(),
-                        "2024-05-22",
-                        "loopers@test.com"
-                );
-                UserModel user = userRepository.save(requestModel);
-
-                Long BRAND_ID = 1L;
-
-                ProductModel productModel =
-                        new ProductModel(
-                                "테스트 상품",
-                                0L,
-                                0L,
-                                ProductStatus.SELL, BRAND_ID);
-                ProductModel product = productRepository.save(productModel);
-
-                //act
-                likeFacade.toggle(user.getId(), product.getId());
-                LikeToggleInfo likeToggleInfo = likeFacade.toggle(user.getId(), product.getId());
-
-                //assert
-                assertAll(
-                        () -> assertThat(likeToggleInfo).isNotNull(),
-                        () -> assertThat(likeToggleInfo.totalLikeCount()).isEqualTo(product.getLikeCount()),
-                        () -> assertThat(likeToggleInfo.liked()).isEqualTo(false)
-                );
-
-
-            }
-        }
-
     @DisplayName("내 좋아요 상품 정보를 조회할 떄 , ")
     @Nested
     class GetLikedProducts{
@@ -148,8 +69,8 @@ class LikeFacadeIntegrationTest {
             ProductModel product1 = productRepository.save(p1);
             ProductModel product2 = productRepository.save(p2);
 
-            likeFacade.toggle(user.getId(), product1.getId());
-            likeFacade.toggle(user.getId(), product2.getId());
+            likeFacade.like(user.getId(), product1.getId());
+            likeFacade.like(user.getId(), product2.getId());
         }
 
         @DisplayName("내 유저 정보로 좋아요 상품을 조회할 경우, 상품 정보를 반환한다")

@@ -9,7 +9,7 @@ public interface LikeRepository {
 
     void delete(LikeModel likeModel);
 
-    Optional<LikeModel> findByUserIdAndProductId(Long userId, Long productId);
+    Optional<LikeModel> findLike(Long userId, Long productId);
 
     List<Long> findAllProductIdByUserId(Long userId);
 }

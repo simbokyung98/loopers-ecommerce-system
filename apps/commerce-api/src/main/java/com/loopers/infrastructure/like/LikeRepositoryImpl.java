@@ -29,7 +29,7 @@ public class LikeRepositoryImpl implements LikeRepository {
     }
 
     @Override
-    public Optional<LikeModel> findByUserIdAndProductId(Long userId, Long productId) {
+    public Optional<LikeModel> findLike(Long userId, Long productId) {
         return likeJpaRepository.findByUserIdAndProductId(userId, productId);
     }
 

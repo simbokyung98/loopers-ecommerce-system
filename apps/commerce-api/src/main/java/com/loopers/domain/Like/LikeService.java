@@ -2,9 +2,9 @@ package com.loopers.domain.Like;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -12,17 +12,19 @@ public class LikeService {
 
     private final LikeRepository likeRepository;
 
-    public LikeToggleResult likeToggle(Long userId, Long productId){
-        Optional<LikeModel> existing = likeRepository.findByUserIdAndProductId(userId, productId);
+    @Transactional
+    public void like(Long userId, Long productId){
+        likeRepository.findLike(userId, productId)
+                .orElseGet(() -> {
+                    LikeModel likeModel = new LikeModel(userId, productId);
+                    return likeRepository.save(likeModel);
+                });
+    }
 
-        if(existing.isPresent()){
-            likeRepository.delete(existing.get());
-            return LikeToggleResult.UNLIKED;
-        }else{
-            LikeModel likeModel = new LikeModel(userId, productId);
-            likeRepository.save(likeModel);
-            return LikeToggleResult.LIKED;
-        }
+    @Transactional
+    public void dislike(Long userId, Long productId){
+        likeRepository.findLike(userId, productId)
+                .ifPresent(likeRepository::delete);
     }
 
     public List<Long> getLikedProductIdsByUser(Long userId){
