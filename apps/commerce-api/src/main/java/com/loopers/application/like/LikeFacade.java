@@ -31,7 +31,6 @@ public class LikeFacade {
     public void dislike(Long userId, Long productId){
 
         userService.checkExistUser(userId);
-
         likeService.dislike(userId, productId);
 
     }
