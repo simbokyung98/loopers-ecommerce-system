@@ -147,7 +147,7 @@ public class UserServiceIntegrationTest {
 
 
             assertThatException()
-                    .isThrownBy(() -> userService.checkExist(notExistUserId))
+                    .isThrownBy(() -> userService.checkExistUser(notExistUserId))
                     .isInstanceOf(CoreException.class)
                     .extracting("errorType", type(ErrorType.class))
                     .isEqualTo(ErrorType.BAD_REQUEST);

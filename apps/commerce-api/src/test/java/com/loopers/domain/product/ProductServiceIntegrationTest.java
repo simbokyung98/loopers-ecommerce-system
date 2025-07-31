@@ -99,36 +99,10 @@ public class ProductServiceIntegrationTest {
 
 
             assertThatException()
-                    .isThrownBy(() -> productService.checkSellable(notExistProductId))
+                    .isThrownBy(() -> productService.checkExistProduct(notExistProductId))
                     .isInstanceOf(CoreException.class)
                     .extracting("errorType", type(ErrorType.class))
                     .isEqualTo(ErrorType.NOT_FOUND);
-        }
-
-        @DisplayName("상품이 판매중이지 않을 경우, CONFLICT 예외가 발생하며 실패한다")
-        @Test
-        void throwsNotFoundException_whenDoNotSell(){
-
-            //arrange
-            Long BRAND_ID = 1L;
-
-            String  name = "테스트 상품";
-            Long stock = 0L;
-            Long price = 0L;
-            Long likeCount = 0L;
-            ProductStatus status = ProductStatus.DISCONTINUED;
-
-            ProductModel productModel =
-                    new ProductModel(name,stock, price, status, BRAND_ID);
-
-            ProductModel response = productRepository.save(productModel);
-
-
-            assertThatException()
-                    .isThrownBy(() -> productService.checkSellable(response.getId()))
-                    .isInstanceOf(CoreException.class)
-                    .extracting("errorType", type(ErrorType.class))
-                    .isEqualTo(ErrorType.CONFLICT);
         }
 
     }

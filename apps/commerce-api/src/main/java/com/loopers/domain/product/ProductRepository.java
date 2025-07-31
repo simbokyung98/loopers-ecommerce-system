@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import com.loopers.interfaces.api.product.OrderType;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -10,10 +11,12 @@ public interface ProductRepository {
 
     ProductModel save(ProductModel productModel);
 
-    Optional<ProductModel> findById(Long id);
+    Boolean existProduct(Long id);
 
-    Page<ProductModel> findAllByPaging(int page, int size, String orderType);
+    Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType);
 
     List<ProductModel> findByIdIn(List<Long> ids);
+
+    Optional<ProductModel> getProduct(Long id);
 
 }

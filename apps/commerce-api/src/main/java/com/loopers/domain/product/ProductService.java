@@ -1,6 +1,7 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.Like.LikeToggleResult;
+import com.loopers.interfaces.api.product.OrderType;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductModel get(Long id){
         Optional<ProductModel> optionalProductModel =
-                productRepository.findById(id);
+                productRepository.getProduct(id);
         if(optionalProductModel.isEmpty()){
             throw new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다.");
         }
@@ -28,7 +29,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductModel> getListWithPaging(int page, int size, String orderType){
+    public Page<ProductModel> getListWithPaging(int page, int size, OrderType orderType){
         return productRepository.findAllByPaging(page, size, orderType);
     }
 
@@ -40,16 +41,12 @@ public class ProductService {
 
     }
 
-    public ProductModel checkSellable(Long id){
-        ProductModel productModel = productRepository.findById(id)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));
+    public void checkExistProduct(Long id){
+        Boolean existProduct = productRepository.existProduct(id);
 
-        if(!productModel.isOnSell()){
-            throw new CoreException(ErrorType.CONFLICT, "판매중인 상품이 아닙니다.");
+        if(!existProduct){
+            throw new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다.");
         }
-
-        return productModel;
-
     }
 
     public ProductModel adjustLikeCount(ProductModel productModel, LikeToggleResult like){
