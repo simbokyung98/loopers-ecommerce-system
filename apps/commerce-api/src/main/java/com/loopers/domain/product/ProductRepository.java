@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface ProductRepository {
 
-    ProductModel save(ProductModel productModel);
+    ProductModel saveProduct(ProductModel productModel);
 
     Boolean existProduct(Long id);
 
@@ -18,5 +18,7 @@ public interface ProductRepository {
     List<ProductModel> findByIdIn(List<Long> ids);
 
     Optional<ProductModel> getProduct(Long id);
+
+    void saveProducts(List<ProductModel> productModels);
 
 }

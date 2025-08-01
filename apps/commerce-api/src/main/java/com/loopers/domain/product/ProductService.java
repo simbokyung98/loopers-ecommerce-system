@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -37,7 +40,7 @@ public class ProductService {
     public ProductModel save(String name, Long stock, Long price,
                              ProductStatus productStatus, Long brandId){
         ProductModel productModel = new ProductModel(name, stock, price, productStatus, brandId);
-        return productRepository.save(productModel);
+        return productRepository.saveProduct(productModel);
 
     }
 
@@ -52,12 +55,31 @@ public class ProductService {
     public ProductModel adjustLikeCount(ProductModel productModel, LikeToggleResult like){
         productModel.applyLikeToggle(like);
 
-        return productRepository.save(productModel);
+        return productRepository.saveProduct(productModel);
 
     }
 
     public List<ProductModel> getListByIds(List<Long> ids){
         return productRepository.findByIdIn(ids);
+    }
+
+    @Transactional
+    public void deductStocks(ProductCommand.DeductStocks command){
+
+        List<Long> productIds = command.productQuantities().stream()
+                .map(ProductCommand.ProductQuantity::productId).toList();
+
+       Map<Long, ProductModel> productModelMap = productRepository.findByIdIn(productIds)
+               .stream().collect(Collectors.toMap(ProductModel::getId, Function.identity()));
+
+        for(ProductCommand.ProductQuantity quantity : command.productQuantities()){
+            ProductModel productModel = productModelMap.get(quantity.productId());
+            productModel.deduct(quantity.quantity());
+
+        }
+        productRepository.saveProducts(List.copyOf(productModelMap.values()));
+
+
     }
 
 
