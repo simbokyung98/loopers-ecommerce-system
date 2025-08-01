@@ -57,7 +57,7 @@ public class BrandServiceIntegrationTest {
             BrandModel brandModel = new BrandModel(name);
 
             BrandModel response =
-                    brandRepository.save(brandModel);
+                    brandRepository.saveBrand(brandModel);
 
             //act
             BrandModel result = brandService.get(response.getId());
