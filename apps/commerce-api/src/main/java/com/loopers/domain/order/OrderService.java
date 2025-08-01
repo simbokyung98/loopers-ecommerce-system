@@ -13,7 +13,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public void placeOrder(OrderCommand.PlaceOrder command){
+    public OrderModel placeOrder(OrderCommand.PlaceOrder command){
 
         OrderModel orderModel = new OrderModel(
                 command.userId(),
@@ -31,6 +31,9 @@ public class OrderService {
                 )).toList();
 
         orderRepository.saveOrderItems(orderItemModels);
-        
+
+        return order;
     }
+
+
 }

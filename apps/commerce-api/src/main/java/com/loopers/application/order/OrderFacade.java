@@ -2,7 +2,9 @@ package com.loopers.application.order;
 
 
 import com.loopers.application.order.dto.OrderCriteria;
+import com.loopers.application.order.dto.OrderInfo;
 import com.loopers.domain.order.OrderCommand;
+import com.loopers.domain.order.OrderModel;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.point.PointService;
 import com.loopers.domain.product.ProductModel;
@@ -30,7 +32,7 @@ public class OrderFacade {
     private PointService pointService;
 
     @Transactional
-    public void order(OrderCriteria.Order criteria){
+    public OrderInfo.Order order(OrderCriteria.Order criteria){
         //유저 체크
         userService.checkExistUser(criteria.userId());
 
@@ -70,7 +72,9 @@ public class OrderFacade {
 
         //주문 생성
         OrderCommand.PlaceOrder placeOrder = criteria.toCommand(totalAmount, commandProducts);
-        orderService.placeOrder(placeOrder);
+        OrderModel orderModel = orderService.placeOrder(placeOrder);
+
+        return OrderInfo.Order.from(orderModel);
 
     }
 }

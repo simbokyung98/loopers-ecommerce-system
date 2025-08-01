@@ -97,10 +97,11 @@ public class ProductModel extends BaseEntity {
         }
         this.stock = deductedStock;
     }
-
-
-
-
+    public void validateSellable(){
+        if(this.status != ProductStatus.SELL){
+            throw  new CoreException(ErrorType.CONFLICT, "주문할 수 없는 상품합니다.");
+        }
+    }
 
 
 }
