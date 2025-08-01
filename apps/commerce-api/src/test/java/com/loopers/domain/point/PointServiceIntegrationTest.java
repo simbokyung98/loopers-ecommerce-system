@@ -44,7 +44,7 @@ class PointServiceIntegrationTest {
          * - [ ]  해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다.
          */
 
-        @DisplayName("해당 ID의 회원이 존재할 경우, 보유 포인트가 반환된")
+        @DisplayName("해당 ID의 회원이 존재할 경우, 보유 포인트가 반환된다")
         @Test
         void returnsCurrentPoint_whenUserExistsById() {
             //arrange
@@ -59,7 +59,7 @@ class PointServiceIntegrationTest {
             //assert
             assertAll(
                     () -> assertThat(result).isNotNull(),
-                    () -> assertThat(result.getAmount()).isEqualTo(pointModel.getAmount())
+                    () -> assertThat(result.getTotalAmount()).isEqualTo(pointModel.getTotalAmount())
             );
         }
 
@@ -74,5 +74,6 @@ class PointServiceIntegrationTest {
             assertThat(result).isNull();
         }
     }
+
 
 }
