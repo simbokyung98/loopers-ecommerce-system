@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
 @Component
 public class OrderFacade {
 
-    private UserService userService;
-    private ProductService productService;
-    private OrderService orderService;
-    private PointService pointService;
+    private final UserService userService;
+    private final ProductService productService;
+    private final OrderService orderService;
+    private final PointService pointService;
 
     @Transactional
     public OrderInfo.Order order(OrderCriteria.Order criteria){
