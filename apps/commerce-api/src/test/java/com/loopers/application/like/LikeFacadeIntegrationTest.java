@@ -1,7 +1,7 @@
 package com.loopers.application.like;
 
 
-import com.loopers.application.like.dto.LikeCommand;
+import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.like.dto.LikeInfo;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
@@ -65,11 +65,11 @@ class LikeFacadeIntegrationTest {
                             0L,
                             0L,
                             ProductStatus.SELL, BRAND_ID);
-            ProductModel product1 = productRepository.save(p1);
-            ProductModel product2 = productRepository.save(p2);
+            ProductModel product1 = productRepository.saveProduct(p1);
+            ProductModel product2 = productRepository.saveProduct(p2);
 
-            likeFacade.like(LikeCommand.Like.of(user.getId(), product1.getId()));
-            likeFacade.like(LikeCommand.Like.of(user.getId(), product2.getId()));
+            likeFacade.like(LikeCriteria.Like.of(user.getId(), product1.getId()));
+            likeFacade.like(LikeCriteria.Like.of(user.getId(), product2.getId()));
         }
 
         @DisplayName("내 유저 정보로 좋아요 상품을 조회할 경우, 상품 정보를 반환한다")

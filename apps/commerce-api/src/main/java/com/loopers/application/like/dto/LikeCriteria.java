@@ -1,7 +1,7 @@
 package com.loopers.application.like.dto;
 
 
-public class LikeCommand {
+public class LikeCriteria {
     public record Like(
             Long userId,
             Long productId
@@ -19,4 +19,5 @@ public class LikeCommand {
             return new Dislike(userId, productId);
         }
     }
+
 }
