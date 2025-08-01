@@ -7,7 +7,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -28,8 +32,12 @@ public class BrandService {
     public BrandModel save(String name){
 
         BrandModel brandModel = new BrandModel(name);
-        return brandRepository.save(brandModel);
+        return brandRepository.saveBrand(brandModel);
     }
 
+    public Map<Long, BrandModel> getBrandMapByIds(List<Long> brandIds) {
+        List<BrandModel> brands = brandRepository.findByIdIn(brandIds);
+        return brands.stream().collect(Collectors.toMap(BrandModel::getId, Function.identity()));
+    }
 
 }

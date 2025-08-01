@@ -35,7 +35,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductModel> getListWithPaging(int page, int size, OrderType orderType){
+    public Page<ProductModel> getProductsWithPageAndSort(int page, int size, OrderType orderType){
         return productRepository.findAllByPaging(page, size, orderType);
     }
 
@@ -55,14 +55,6 @@ public class ProductService {
         }
     }
 
-    public void checkSellableProduct(Long id){
-        Boolean existProduct = productRepository.existProductByStatus(id, ProductStatus.SELL);
-
-        if(!existProduct){
-            throw new CoreException(ErrorType.NOT_FOUND, "판매할 수 없는 상품입니다.");
-        }
-
-    }
 
     public ProductModel adjustLikeCount(ProductModel productModel, LikeToggleResult like){
         productModel.applyLikeToggle(like);

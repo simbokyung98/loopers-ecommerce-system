@@ -1,13 +1,13 @@
 package com.loopers.domain.brand;
 
 
-import com.loopers.domain.brand.BrandModel;
-
+import java.util.List;
 import java.util.Optional;
 
 public interface BrandRepository {
 
-    BrandModel save(BrandModel brandModel);
+    BrandModel saveBrand(BrandModel brandModel);
 
     Optional<BrandModel> findById(Long id);
+    List<BrandModel> findByIdIn(List<Long> id);
 }

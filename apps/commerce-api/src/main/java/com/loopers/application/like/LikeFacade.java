@@ -19,12 +19,12 @@ public class LikeFacade {
     private final LikeService likeService;
     private final ProductService productService;
 
-    public void like(LikeCriteria.Like command){
+    public void like(LikeCriteria.Like criteria){
 
-        userService.checkExistUser(command.userId());
-        productService.checkExistProduct(command.productId());
+        userService.checkExistUser(criteria.userId());
+        productService.checkExistProduct(criteria.productId());
 
-        likeService.like(command.userId(), command.productId());
+        likeService.like(criteria.userId(), criteria.productId());
 
     }
 

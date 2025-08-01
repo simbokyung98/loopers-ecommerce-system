@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -29,5 +30,11 @@ public class LikeService {
 
     public List<Long> getLikedProductIdsByUser(Long userId){
         return likeRepository.findAllProductIdByUserId(userId);
+    }
+
+    public Long countLikeByProductId(Long productId) {return likeRepository.countByProductId(productId);}
+
+    public Map<Long, Long> countLikeByProductIds(List<Long> productIds){
+        return likeRepository.countByProductIds(productIds);
     }
 }
