@@ -70,7 +70,7 @@ public class ProductServiceIntegrationTest {
             ProductModel productModel =
                     new ProductModel(name,stock, price, status, BRAND_ID);
 
-            ProductModel response = productRepository.save(productModel);
+            ProductModel response = productRepository.saveProduct(productModel);
 
             //act
             ProductModel result = productService.get(response.getId());
@@ -126,7 +126,7 @@ public class ProductServiceIntegrationTest {
             ProductModel productModel =
                     new ProductModel(name,stock, price, status, BRAND_ID);
 
-            ProductModel response = productRepository.save(productModel);
+            ProductModel response = productRepository.saveProduct(productModel);
 
             //act
             ProductModel result = productService.adjustLikeCount(response, LikeToggleResult.LIKED);
@@ -154,7 +154,7 @@ public class ProductServiceIntegrationTest {
             ProductModel productModel =
                     new ProductModel(name,stock, price, status, BRAND_ID);
 
-            ProductModel response = productRepository.save(productModel);
+            ProductModel response = productRepository.saveProduct(productModel);
 
             //act
             productService.adjustLikeCount(response, LikeToggleResult.LIKED);

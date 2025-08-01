@@ -52,7 +52,7 @@ class ProductFacadeIntegrationTest {
                             0L,
                             0L,
                             ProductStatus.SELL, brand.getId());
-            ProductModel product = productRepository.save(productModel);
+            ProductModel product = productRepository.saveProduct(productModel);
 
             ProductInfo productInfo = productFacade.get(product.getId());
 
