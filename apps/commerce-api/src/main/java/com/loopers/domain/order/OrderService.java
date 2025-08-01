@@ -1,5 +1,7 @@
 package com.loopers.domain.order;
 
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,23 @@ public class OrderService {
         orderRepository.saveOrderItems(orderItemModels);
 
         return order;
+    }
+
+    public List<OrderModel> getOrdersByUserId(Long userId){
+        return orderRepository.findOrdersByUserId(userId);
+    }
+
+    public OrderResult.Order getOrderDetailById(Long orderId){
+        OrderModel orderModel = orderRepository.findOrderById(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문정보가 존재하지 않습니다."));
+
+        List<OrderItemModel> orderItemModels = getOrderItemByOrderId(orderModel.getId());
+
+        return OrderResult.Order.from(orderModel, orderItemModels);
+    }
+
+    public List<OrderItemModel> getOrderItemByOrderId(Long orderId){
+        return orderRepository.findOrderItemsByOrderId(orderId);
     }
 
 
