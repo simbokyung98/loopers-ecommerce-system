@@ -19,7 +19,7 @@ public class PointModel extends BaseEntity {
     @Column(name = "user_id",unique = true, nullable = false)
     private Long userId;
     @Column(name = "amount", nullable = false)
-    private Long amount;
+    private Long totalAmount;
 
     public PointModel(Long userId){
         if(userId == null){
@@ -27,13 +27,27 @@ public class PointModel extends BaseEntity {
         }
 
         this.userId = userId;
-        this.amount = 0L;
+        this.totalAmount = 0L;
     }
 
-    public void charge(Long newPoint){
-        if(newPoint <= 0) throw new CoreException(ErrorType.BAD_REQUEST, "충전금액은 0 보다 커야합니다.");
+    public void charge(Long amount){
+        if(amount <= 0) throw new CoreException(ErrorType.BAD_REQUEST, "충전금액은 0 보다 커야합니다.");
 
-        this.amount += newPoint;
+        this.totalAmount += amount;
+    }
+
+    public void spand(Long amount){
+        if(amount <= 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "사용금액은 0 보다 커야합니다.");
+        }
+
+        long spendAmount = this.totalAmount - amount;
+
+        if(spendAmount < 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다.");
+        }
+
+        this.totalAmount = spendAmount;
     }
 
 }

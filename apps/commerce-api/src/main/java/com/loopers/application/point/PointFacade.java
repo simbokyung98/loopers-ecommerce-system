@@ -22,7 +22,7 @@ public class PointFacade {
 
         PointModel pointModel = pointService.charge(userId, point);
 
-        return pointModel.getAmount();
+        return pointModel.getTotalAmount();
     }
 
     public Long getPointAmount(Long userId){
@@ -33,7 +33,7 @@ public class PointFacade {
         if(pointModel == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "사용자 포인트 정보가 존재하지 않습니다..");
         }
-        return pointModel.getAmount();
+        return pointModel.getTotalAmount();
     }
 
 }

@@ -23,7 +23,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     private final ProductJpaRepository productJpaRepository;
     private final JPAQueryFactory jpaQueryFactory;
     @Override
-    public ProductModel save(ProductModel productModel) {
+    public ProductModel saveProduct(ProductModel productModel) {
         return productJpaRepository.save(productModel);
     }
 
@@ -61,6 +61,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public Optional<ProductModel> getProduct(Long id) {
         return productJpaRepository.findById(id);
+    }
+
+    @Override
+    public void saveProducts(List<ProductModel> productModels) {
+        productJpaRepository.saveAll(productModels);
     }
 
 

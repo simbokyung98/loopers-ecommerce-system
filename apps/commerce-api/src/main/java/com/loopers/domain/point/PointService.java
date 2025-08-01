@@ -16,14 +16,10 @@ public class PointService {
         return pointRepository.save(pointModel);
     }
 
-    public PointModel charge(Long userId, Long point){
+    public PointModel charge(Long userId, Long amount){
         PointModel pointModel = pointRepository.findByUserId(userId);
 
-//        if(pointModel == null){
-//         pointModel = pointRepository.save(new PointModel(userId, 0L));
-//        }
-
-        pointModel.charge(point);
+        pointModel.charge(amount);
 
         return pointRepository.save(pointModel);
 
@@ -32,5 +28,14 @@ public class PointService {
     @Transactional(readOnly = true)
     public PointModel get(Long userId){
         return pointRepository.findByUserId(userId);
+    }
+
+    public void spend(Long userId, Long amount){
+        PointModel pointModel = pointRepository.findByUserId(userId);
+        pointModel.spand(amount);
+
+        pointRepository.save(pointModel);
+
+
     }
 }
