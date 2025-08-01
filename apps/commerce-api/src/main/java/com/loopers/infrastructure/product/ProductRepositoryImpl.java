@@ -1,7 +1,9 @@
 package com.loopers.infrastructure.product;
 
+import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.product.ProductStatus;
 import com.loopers.interfaces.api.product.OrderType;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -30,6 +32,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public Boolean existProduct(Long id) {
         return productJpaRepository.existsById(id);
+    }
+
+    @Override
+    public Boolean existProductByStatus(Long id, ProductStatus productStatus) {
+        return productJpaRepository.existsByStatus(productStatus);
     }
 
     @Override

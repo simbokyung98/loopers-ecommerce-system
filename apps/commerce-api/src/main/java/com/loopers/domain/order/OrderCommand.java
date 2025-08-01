@@ -10,9 +10,9 @@ public class OrderCommand {
             String address,
             String phoneNumber,
             String name,
-            OrderStatus status,
             List<Product> products
-    ){}
+    ){
+    }
 
     public record Product(
             Long productId,

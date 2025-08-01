@@ -30,6 +30,9 @@ public class ProductService {
         }
         return optionalProductModel.get();
     }
+    public List<ProductModel> getListByIds(List<Long> ids){
+        return productRepository.findByIdIn(ids);
+    }
 
     @Transactional(readOnly = true)
     public Page<ProductModel> getListWithPaging(int page, int size, OrderType orderType){
@@ -52,6 +55,15 @@ public class ProductService {
         }
     }
 
+    public void checkSellableProduct(Long id){
+        Boolean existProduct = productRepository.existProductByStatus(id, ProductStatus.SELL);
+
+        if(!existProduct){
+            throw new CoreException(ErrorType.NOT_FOUND, "판매할 수 없는 상품입니다.");
+        }
+
+    }
+
     public ProductModel adjustLikeCount(ProductModel productModel, LikeToggleResult like){
         productModel.applyLikeToggle(like);
 
@@ -59,9 +71,7 @@ public class ProductService {
 
     }
 
-    public List<ProductModel> getListByIds(List<Long> ids){
-        return productRepository.findByIdIn(ids);
-    }
+
 
     @Transactional
     public void deductStocks(ProductCommand.DeductStocks command){
