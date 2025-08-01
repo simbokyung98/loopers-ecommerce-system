@@ -24,7 +24,7 @@ class OrderModelTest {
 
 
             Throwable throwable = catchThrowable(() ->
-                    new OrderModel(1L, 1L, "testAddress", phoneNumber, "testName", OrderStatus.PAID)
+                    new OrderModel(1L, 1L, "testAddress", phoneNumber, "testName")
             );
 
             assertThat(throwable)
@@ -41,7 +41,7 @@ class OrderModelTest {
 
 
             Throwable throwable = catchThrowable(() ->
-                    new OrderModel(1L, negativeAmount, "testAddress", "01011112222", "testName", OrderStatus.PAID)
+                    new OrderModel(1L, negativeAmount, "testAddress", "01011112222", "testName")
             );
 
             assertThat(throwable)

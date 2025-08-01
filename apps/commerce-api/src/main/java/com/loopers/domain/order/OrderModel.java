@@ -33,11 +33,10 @@ public class OrderModel extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "status", nullable = false)
-    private OrderStatus status;
+
 
     public OrderModel(Long userId, Long amount, String address, String phoneNumber,
-                      String name, OrderStatus staus){
+                      String name){
         if(userId == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "유저 아이디 없이 주문을 생성할 수 없습니다.");
         }
@@ -53,15 +52,11 @@ public class OrderModel extends BaseEntity {
         if(name == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "이름 없이 주문을 생성할 수 없습니다.");
         }
-        if(staus == null){
-            throw new CoreException(ErrorType.BAD_REQUEST, "주문상태 없이 주문을 생성할 수 없습니다.");
-        }
 
         this.userId = userId;
         this.amount = amount;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.name = name;
-        this.status = staus;
     }
 }

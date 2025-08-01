@@ -27,6 +27,8 @@ public class OrderItemModel extends BaseEntity {
     private Long price;
     @Column(name = "quantity", nullable = false)
     private Long quantity;
+    @Column(name = "status", nullable = false)
+    private OrderStatus status;
 
     public OrderItemModel(Long orderId, Long productId, String name, Long price, Long quantity){
         if(orderId == null){
@@ -54,6 +56,6 @@ public class OrderItemModel extends BaseEntity {
         this.name = name;
         this.price = price;
         this.quantity = quantity;
-
+        this.status = OrderStatus.PAID;
     }
 }
