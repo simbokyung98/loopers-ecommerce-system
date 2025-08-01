@@ -20,8 +20,7 @@
             PS-->LC: 404 not found
             else 판매중이지 않는 상품
             PS-->>LC : 409 CONFLICT
-            else 
-            PS-->>LC: 상품 정보
+            else
             LC->>LS : 좋아요 처리 요청(userId, productId)
             LS->>LR : 좋아요 항목 조회(userID, productId)
             alt 좋아요가 존재할 경우
@@ -29,6 +28,9 @@
             else 좋아요가 존재하지 않을 경우
             LS->>LR : 좋아요 등록(userId, productId)
             end
+            LR-->>LC : 좋아요 반영 결과 반환
+            LC->>PS : 상품 좋아요 카운트 수에 결과 반영
+            
                 alt 저장 실패 ( 사유 불문 )
                     LR -->> LC: 500 Internal Server Error
                 else 저장 성공

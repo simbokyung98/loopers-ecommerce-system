@@ -59,7 +59,7 @@ class PointServiceIntegrationTest {
             //assert
             assertAll(
                     () -> assertThat(result).isNotNull(),
-                    () -> assertThat(result.getAmount()).isEqualTo(pointModel.getAmount())
+                    () -> assertThat(result.getTotalAmount()).isEqualTo(pointModel.getTotalAmount())
             );
         }
 
@@ -74,5 +74,6 @@ class PointServiceIntegrationTest {
             assertThat(result).isNull();
         }
     }
+
 
 }
