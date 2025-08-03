@@ -109,7 +109,7 @@ public class UserServiceIntegrationTest {
             userRepository.save(requestModel);
 
             // act
-            UserModel result = userService.getByLoginId(requestModel.getLoginId());
+            UserModel result = userService.getUserByLoginId(requestModel.getLoginId());
 
             // assert
             assertAll(
@@ -128,7 +128,7 @@ public class UserServiceIntegrationTest {
             String loginId = "testId";
 
             // act
-            UserModel result = userService.getByLoginId(loginId);
+            UserModel result = userService.getUserByLoginId(loginId);
 
             // assert
             assertThat(result).isNull();
