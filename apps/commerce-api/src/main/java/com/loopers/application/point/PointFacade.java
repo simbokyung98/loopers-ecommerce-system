@@ -28,7 +28,7 @@ public class PointFacade {
     public Long getPointAmount(Long userId){
 
         userService.checkExistUser(userId);
-        PointModel pointModel = pointService.get(userId);
+        PointModel pointModel = pointService.getPoint(userId);
 
         if(pointModel == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "사용자 포인트 정보가 존재하지 않습니다..");

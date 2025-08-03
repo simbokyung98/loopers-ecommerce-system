@@ -14,7 +14,7 @@ public class PointService {
     private final PointRepository pointRepository;
 
     @Transactional(readOnly = true)
-    public PointModel get(Long userId){
+    public PointModel getPoint(Long userId){
         return pointRepository.findByUserId(userId)
                 .orElse(null);
     }
@@ -36,12 +36,12 @@ public class PointService {
 
 
 
-    public PointModel spend(Long userId, Long amount){
+    public void spend(Long userId, Long amount){
         PointModel pointModel = pointRepository.findByUserId(userId)
                 .orElseThrow(() ->  new CoreException(ErrorType.BAD_REQUEST, "사용자 포인트 정보가 존재하지 않습니다.."));
         pointModel.spand(amount);
 
-        return pointRepository.save(pointModel);
+       pointRepository.save(pointModel);
 
     }
 }

@@ -27,7 +27,7 @@ public class ProductFacade {
     public ProductInfo.Product getProduct(Long productId){
 
         ProductModel productModel = productService.get(productId);
-        BrandModel brandModel = brandService.get(productModel.getId());
+        BrandModel brandModel = brandService.getBrand(productModel.getId());
         Long likeCount = likeService.countLikeByProductId(productId);
 
 

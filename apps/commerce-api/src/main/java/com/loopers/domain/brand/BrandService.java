@@ -20,7 +20,7 @@ public class BrandService {
     private final BrandRepository brandRepository;
 
     @Transactional(readOnly = true)
-    public BrandModel get(Long id){
+    public BrandModel getBrand(Long id){
         Optional<BrandModel> optionalProductModel = brandRepository.findById(id);
 
         if(optionalProductModel.isEmpty()){

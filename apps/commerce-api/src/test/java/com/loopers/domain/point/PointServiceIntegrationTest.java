@@ -54,7 +54,7 @@ class PointServiceIntegrationTest {
             PointModel pointModel = pointJpaRepository.save(new PointModel(1L));
 
             //act
-            PointModel result = pointService.get(1L);
+            PointModel result = pointService.getPoint(1L);
 
             //assert
             assertAll(
@@ -68,7 +68,7 @@ class PointServiceIntegrationTest {
         void returnsNull_whenUserDoesNotExistById() {
 
             //act
-            PointModel result = pointService.get(1L);
+            PointModel result = pointService.getPoint(1L);
 
             //assert
             assertThat(result).isNull();

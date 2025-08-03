@@ -42,7 +42,7 @@ public class BrandServiceIntegrationTest {
             Long notExistBrandId = 999L;
 
             assertThatException()
-                    .isThrownBy(() -> brandService.get(notExistBrandId))
+                    .isThrownBy(() -> brandService.getBrand(notExistBrandId))
                     .isInstanceOf(CoreException.class)
                     .extracting("errorType", type(ErrorType.class))
                     .isEqualTo(ErrorType.NOT_FOUND);
@@ -60,7 +60,7 @@ public class BrandServiceIntegrationTest {
                     brandRepository.saveBrand(brandModel);
 
             //act
-            BrandModel result = brandService.get(response.getId());
+            BrandModel result = brandService.getBrand(response.getId());
 
             //assert
             assertAll(

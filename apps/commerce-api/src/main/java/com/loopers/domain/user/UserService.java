@@ -23,7 +23,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserModel getByLoginId(String loginId){
+    public UserModel getUserByLoginId(String loginId){
         return userRepository.findByLoginId(loginId);
     }
 
