@@ -25,7 +25,7 @@ public class UserFacade {
     }
 
     public UserInfo getByLoginId(String loginId){
-        UserModel userModel = userService.getByLoginId(loginId);
+        UserModel userModel = userService.getUserByLoginId(loginId);
         if(userModel == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "존재하지 않는 사용자 입니다.");
         }

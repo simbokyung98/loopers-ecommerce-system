@@ -18,26 +18,22 @@ public class PointFacade {
 
     public Long charge(Long userId, Long point){
 
-        if(!userService.existsById(userId)){
-            throw new CoreException(ErrorType.BAD_REQUEST, "존재하지 않는 사용자 입니다.");
-        }
+        userService.checkExistUser(userId);
 
         PointModel pointModel = pointService.charge(userId, point);
 
-        return pointModel.getAmount();
+        return pointModel.getTotalAmount();
     }
 
     public Long getPointAmount(Long userId){
 
-        if(!userService.existsById(userId)){
-            throw new CoreException(ErrorType.BAD_REQUEST, "존재하지 않는 사용자 입니다.");
-        }
-        PointModel pointModel = pointService.get(userId);
+        userService.checkExistUser(userId);
+        PointModel pointModel = pointService.getPoint(userId);
 
         if(pointModel == null){
             throw new CoreException(ErrorType.BAD_REQUEST, "사용자 포인트 정보가 존재하지 않습니다..");
         }
-        return pointModel.getAmount();
+        return pointModel.getTotalAmount();
     }
 
 }
