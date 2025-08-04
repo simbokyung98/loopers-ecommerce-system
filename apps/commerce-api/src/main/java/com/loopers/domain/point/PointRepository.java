@@ -8,4 +8,6 @@ public interface PointRepository {
     PointModel save(PointModel pointModel);
 
     Optional<PointModel> findByUserId(Long userId);
+
+    Optional<PointModel> findByUserIdWithPessimisticLock(Long userId);
 }

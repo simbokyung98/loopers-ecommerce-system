@@ -85,17 +85,16 @@ public class ProductModel extends BaseEntity {
         }
     }
 
+
     public void deduct(Long quantity){
         if(quantity < 0 ){
             throw new CoreException(ErrorType.BAD_REQUEST, "차감할 재고의 수는 0 이하일 수 없습니다.");
         }
 
-        long deductedStock = this.stock - quantity;
-
-        if(deductedStock < 0){
+        if(this.stock < quantity){
             throw new CoreException(ErrorType.CONFLICT, "상품의 재고가 부족합니다.");
         }
-        this.stock = deductedStock;
+        this.stock -= quantity;
     }
     public void validateSellable(){
         if(this.status != ProductStatus.SELL){

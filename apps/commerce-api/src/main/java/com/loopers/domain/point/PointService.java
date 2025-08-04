@@ -37,7 +37,7 @@ public class PointService {
 
 
     public void spend(Long userId, Long amount){
-        PointModel pointModel = pointRepository.findByUserId(userId)
+        PointModel pointModel = pointRepository.findByUserIdWithPessimisticLock(userId)
                 .orElseThrow(() ->  new CoreException(ErrorType.BAD_REQUEST, "사용자 포인트 정보가 존재하지 않습니다.."));
         pointModel.spand(amount);
 

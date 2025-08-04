@@ -68,18 +68,36 @@ public class ProductService {
     @Transactional
     public void deductStocks(ProductCommand.DeductStocks command){
 
-        List<Long> productIds = command.productQuantities().stream()
-                .map(ProductCommand.ProductQuantity::productId).toList();
+//        List<Long> productIds = command.productQuantities().stream()
+//                .map(ProductCommand.ProductQuantity::productId).toList();
+        System.out.println("1️⃣ 락 획득 직전: " + Thread.currentThread().getName());
+        //데드락 방지를 위해 정렬
+        List<Long> sortedProductIds = command.productQuantities().stream()
+                .map(ProductCommand.ProductQuantity::productId)
+                .distinct()
+                .sorted()
+                .toList();
 
-       Map<Long, ProductModel> productModelMap = productRepository.findByIdIn(productIds)
-               .stream().collect(Collectors.toMap(ProductModel::getId, Function.identity()));
+        List<ProductModel> products = productRepository.findByIdInWithPessimisticLock(sortedProductIds);
+        System.out.println("2️⃣ 락 획득 완료: " + Thread.currentThread().getName());
+
+        Map<Long, ProductModel> productModelMap = products.stream()
+                .collect(Collectors.toMap(ProductModel::getId, Function.identity()));
 
         for(ProductCommand.ProductQuantity quantity : command.productQuantities()){
             ProductModel productModel = productModelMap.get(quantity.productId());
+            if (productModel == null) {
+                throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다: " + quantity.productId());
+            }
+            System.out.println("3️⃣ 차감 전 stock: " + productModel.getStock() + " / 상품 ID: " + productModel.getId() + " / Thread: " + Thread.currentThread().getName());
+
             productModel.deduct(quantity.quantity());
 
+
+            System.out.println("4️⃣ 차감 후 stock: " + productModel.getStock() + " / 상품 ID: " + productModel.getId() + " / Thread: " + Thread.currentThread().getName());
+
         }
-        productRepository.saveProducts(List.copyOf(productModelMap.values()));
+//        productRepository.saveProducts(products);
 
 
     }

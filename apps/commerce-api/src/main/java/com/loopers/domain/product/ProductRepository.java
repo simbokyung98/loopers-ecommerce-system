@@ -23,4 +23,6 @@ public interface ProductRepository {
 
     void saveProducts(List<ProductModel> productModels);
 
+    List<ProductModel> findByIdInWithPessimisticLock(List<Long> productIds);
+
 }
