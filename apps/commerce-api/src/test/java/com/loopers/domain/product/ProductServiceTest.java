@@ -58,7 +58,7 @@ class ProductServiceTest {
             );
             ProductCommand.DeductStocks command = new ProductCommand.DeductStocks(quantities);
 
-            when(productRepository.findByIdIn(List.of(productId1, productId2)))
+            when(productRepository.findByIdInForUpdate(List.of(productId1, productId2)))
                     .thenReturn(List.of(product1, product2));
 
             // act
@@ -68,9 +68,6 @@ class ProductServiceTest {
             assertThat(product1.getStock()).isEqualTo(7); // 10 - 3
             assertThat(product2.getStock()).isEqualTo(3); // 5 - 2
 
-            verify(productRepository).saveProducts(argThat(products ->
-                    products.containsAll(List.of(product1, product2)) && products.size() == 2
-            ));
         }
 
 
