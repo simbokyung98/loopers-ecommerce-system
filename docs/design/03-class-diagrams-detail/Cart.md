@@ -1,8 +1,8 @@
 ```mermaid 
     classDiagram
     class Cart{
-    - List<CartItem> items
-    + addItem(Product, quantity)
+        - List<CartItem> items
+        + addItem(Product, quantity)
     
     }
     class CartItem{
@@ -14,8 +14,8 @@
     
     }
     class Product {
-    + id
-    + status
+        + id
+        + status
     }
     
     Cart --> "N" CartItem : 소유
