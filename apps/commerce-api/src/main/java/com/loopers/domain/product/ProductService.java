@@ -4,6 +4,7 @@ import com.loopers.domain.Like.LikeToggleResult;
 import com.loopers.interfaces.api.product.OrderType;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    private final EntityManager em;
+
     @Transactional(readOnly = true)
     public ProductModel get(Long id){
         Optional<ProductModel> optionalProductModel =
@@ -30,6 +33,11 @@ public class ProductService {
         }
         return optionalProductModel.get();
     }
+    public List<ProductSnapshotResult> getProductsForSnapshot(List<Long> ids){
+        return productRepository.getProductsForSnapshot(ids);
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductModel> getListByIds(List<Long> ids){
         return productRepository.findByIdIn(ids);
     }
@@ -68,18 +76,37 @@ public class ProductService {
     @Transactional
     public void deductStocks(ProductCommand.DeductStocks command){
 
-        List<Long> productIds = command.productQuantities().stream()
-                .map(ProductCommand.ProductQuantity::productId).toList();
+        //데드락 방지를 위해 정렬
+        List<Long> sortedProductIds = command.productQuantities().stream()
+                .map(ProductCommand.ProductQuantity::productId)
+                .distinct()
+                .sorted()
+                .toList();
 
-       Map<Long, ProductModel> productModelMap = productRepository.findByIdIn(productIds)
-               .stream().collect(Collectors.toMap(ProductModel::getId, Function.identity()));
+        List<ProductModel> products = productRepository.findByIdInForUpdate(sortedProductIds);
+
+
+        Map<Long, ProductModel> productModelMap = products.stream()
+                .collect(Collectors.toMap(ProductModel::getId, Function.identity()));
 
         for(ProductCommand.ProductQuantity quantity : command.productQuantities()){
             ProductModel productModel = productModelMap.get(quantity.productId());
+            if (productModel == null) {
+                throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다: " + quantity.productId());
+            }
+
+
             productModel.deduct(quantity.quantity());
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+
 
         }
-        productRepository.saveProducts(List.copyOf(productModelMap.values()));
+//        productRepository.saveProducts(products);
 
 
     }

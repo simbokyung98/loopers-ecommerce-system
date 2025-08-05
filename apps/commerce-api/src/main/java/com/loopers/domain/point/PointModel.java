@@ -6,6 +6,7 @@ import com.loopers.support.error.ErrorType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,9 @@ public class PointModel extends BaseEntity {
     private Long userId;
     @Column(name = "amount", nullable = false)
     private Long totalAmount;
+
+    @Version
+    private Long version;
 
     public PointModel(Long userId){
         if(userId == null){

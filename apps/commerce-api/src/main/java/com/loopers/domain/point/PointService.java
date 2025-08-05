@@ -37,11 +37,16 @@ public class PointService {
 
 
     public void spend(Long userId, Long amount){
-        PointModel pointModel = pointRepository.findByUserId(userId)
+        System.out.println("1️⃣ 락 획득 직전: " + Thread.currentThread().getName());
+        PointModel pointModel = pointRepository.findByUserIdForUpdate(userId)
                 .orElseThrow(() ->  new CoreException(ErrorType.BAD_REQUEST, "사용자 포인트 정보가 존재하지 않습니다.."));
-        pointModel.spand(amount);
+        System.out.println("2️⃣ 락 획득 완료: " + Thread.currentThread().getName());
+        System.out.println("3️⃣ 차감 전 amount: " + pointModel.getTotalAmount() + " / 포인트 ID: " + pointModel.getId() + " / Thread: " + Thread.currentThread().getName());
 
-       pointRepository.save(pointModel);
+        pointModel.spand(amount);
+        System.out.println("4️⃣ 차감 후 amount: " + pointModel.getTotalAmount() + " / 포인트 ID: " + pointModel.getId() + " / Thread: " + Thread.currentThread().getName());
+
+//       pointRepository.save/(pointModel);
 
     }
 }
