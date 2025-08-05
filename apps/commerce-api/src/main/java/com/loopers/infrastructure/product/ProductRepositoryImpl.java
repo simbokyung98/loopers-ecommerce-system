@@ -8,6 +8,7 @@ import com.loopers.interfaces.api.product.OrderType;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -87,8 +88,13 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<ProductModel> findByIdInWithPessimisticLock(List<Long> productIds) {
-        return productJpaRepository.findAllByIdIn(productIds);
+    public List<ProductModel> findByIdInForUpdate(List<Long> productIds) {
+        return  jpaQueryFactory
+                .selectFrom(productModel)
+                .where(productModel.id.in(productIds))
+                .orderBy(productModel.id.asc()) // ✅ deadlock 방지
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE) // ✅ 락 설정
+                .fetch();
     }
 
     @Override

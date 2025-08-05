@@ -4,6 +4,7 @@ import com.loopers.domain.Like.LikeToggleResult;
 import com.loopers.interfaces.api.product.OrderType;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+
+    private final EntityManager em;
 
     @Transactional(readOnly = true)
     public ProductModel get(Long id){
@@ -77,6 +80,18 @@ public class ProductService {
 //                .map(ProductCommand.ProductQuantity::productId).toList();
 
         System.out.println("1️⃣ 락 획득 직전: " + Thread.currentThread().getName());
+
+        // DB 조회 없이 프록시 객체 생성
+        ProductModel proxy = em.getReference(ProductModel.class, 1L);
+
+        // 1차 캐시에 존재하는지 확인
+        boolean isInCache = em.contains(proxy);
+
+        System.out.println("==== 캐시 확인 ====");
+        System.out.println("Product ID: " + 1L + "영속성 컨텍스트에 존재하는가? " + isInCache);
+
+
+
         //데드락 방지를 위해 정렬
         List<Long> sortedProductIds = command.productQuantities().stream()
                 .map(ProductCommand.ProductQuantity::productId)
@@ -84,7 +99,7 @@ public class ProductService {
                 .sorted()
                 .toList();
 
-        List<ProductModel> products = productRepository.findByIdInWithPessimisticLock(sortedProductIds);
+        List<ProductModel> products = productRepository.findByIdInForUpdate(sortedProductIds);
         System.out.println("2️⃣ 락 획득 완료: " + Thread.currentThread().getName());
 
         Map<Long, ProductModel> productModelMap = products.stream()
@@ -96,6 +111,7 @@ public class ProductService {
                 throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다: " + quantity.productId());
             }
             System.out.println("3️⃣ 차감 전 stock: " + productModel.getStock() + " / 상품 ID: " + productModel.getId() + " / Thread: " + Thread.currentThread().getName());
+
 
             productModel.deduct(quantity.quantity());
             try {
