@@ -92,7 +92,11 @@ public class ProductService {
             System.out.println("3️⃣ 차감 전 stock: " + productModel.getStock() + " / 상품 ID: " + productModel.getId() + " / Thread: " + Thread.currentThread().getName());
 
             productModel.deduct(quantity.quantity());
-
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
             System.out.println("4️⃣ 차감 후 stock: " + productModel.getStock() + " / 상품 ID: " + productModel.getId() + " / Thread: " + Thread.currentThread().getName());
 

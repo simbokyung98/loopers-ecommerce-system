@@ -13,8 +13,9 @@ import com.loopers.domain.user.UserService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-@Component
+@Service
 public class OrderFacade {
 
     private final UserService userService;
@@ -33,6 +34,10 @@ public class OrderFacade {
 
     @Transactional
     public OrderInfo.Order order(OrderCriteria.Order criteria){
+        System.out.println("🧾 트랜잭션 활성화 여부: " + TransactionSynchronizationManager.isActualTransactionActive());
+        System.out.println("🧾 현재 쓰레드 이름: " + Thread.currentThread().getName());
+
+
         //유저 체크
         userService.checkExistUser(criteria.userId());
 
