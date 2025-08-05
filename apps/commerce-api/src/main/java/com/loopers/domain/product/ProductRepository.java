@@ -17,12 +17,13 @@ public interface ProductRepository {
 
     Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType);
 
-    List<ProductModel> findByIdIn(List<Long> ids);
+    List<ProductSnapshotResult> getProductsForSnapshot(List<Long> ids);
 
     Optional<ProductModel> getProduct(Long id);
 
     void saveProducts(List<ProductModel> productModels);
 
     List<ProductModel> findByIdInWithPessimisticLock(List<Long> productIds);
+    List<ProductModel> findByIdIn(List<Long> productIds);
 
 }

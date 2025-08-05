@@ -30,6 +30,11 @@ public class ProductService {
         }
         return optionalProductModel.get();
     }
+    public List<ProductSnapshotResult> getProductsForSnapshot(List<Long> ids){
+        return productRepository.getProductsForSnapshot(ids);
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductModel> getListByIds(List<Long> ids){
         return productRepository.findByIdIn(ids);
     }
@@ -70,6 +75,7 @@ public class ProductService {
 
 //        List<Long> productIds = command.productQuantities().stream()
 //                .map(ProductCommand.ProductQuantity::productId).toList();
+
         System.out.println("1️⃣ 락 획득 직전: " + Thread.currentThread().getName());
         //데드락 방지를 위해 정렬
         List<Long> sortedProductIds = command.productQuantities().stream()
