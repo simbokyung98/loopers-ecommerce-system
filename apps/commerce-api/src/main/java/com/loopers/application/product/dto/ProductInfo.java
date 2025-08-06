@@ -42,7 +42,7 @@ public class ProductInfo{
             Long likeCount,
             String brandName
     ) {
-        public static Product from(ProductModel productModel, BrandModel brandModel, Long likeCount){
+        public static Product from(ProductModel productModel, BrandModel brandModel){
             return new Product(
                     productModel.getId(),
                     productModel.getName(),
@@ -50,7 +50,7 @@ public class ProductInfo{
                     productModel.getPrice(),
                     productModel.getStatus(),
                     productModel.getBrandId(),
-                    likeCount,
+                    productModel.getLikeCount(),
                     brandModel.getName()
             );
         }

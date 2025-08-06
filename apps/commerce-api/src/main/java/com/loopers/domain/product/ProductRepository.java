@@ -13,17 +13,17 @@ public interface ProductRepository {
 
     Boolean existProduct(Long id);
 
-    Boolean existProductByStatus(Long id, ProductStatus productStatus);
-
     Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType);
 
     List<ProductSnapshotResult> getProductsForSnapshot(List<Long> ids);
 
     Optional<ProductModel> getProduct(Long id);
 
+    Optional<ProductModel> getProductForUpdate(Long id);
+
     void saveProducts(List<ProductModel> productModels);
 
-    List<ProductModel> findByIdInForUpdate(List<Long> productIds);
-    List<ProductModel> findByIdIn(List<Long> productIds);
+    List<ProductModel> getProductsByIdInForUpdate(List<Long> productIds);
+    List<ProductModel> getProductsByIdIn(List<Long> productIds);
 
 }

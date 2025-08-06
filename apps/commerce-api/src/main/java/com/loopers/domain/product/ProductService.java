@@ -4,7 +4,6 @@ import com.loopers.domain.Like.LikeToggleResult;
 import com.loopers.interfaces.api.product.OrderType;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -22,8 +21,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    private final EntityManager em;
-
     @Transactional(readOnly = true)
     public ProductModel get(Long id){
         Optional<ProductModel> optionalProductModel =
@@ -39,7 +36,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductModel> getListByIds(List<Long> ids){
-        return productRepository.findByIdIn(ids);
+        return productRepository.getProductsByIdIn(ids);
     }
 
     @Transactional(readOnly = true)
@@ -72,6 +69,20 @@ public class ProductService {
     }
 
 
+    public void increaseLikeCount(Long productId){
+        ProductModel productModel = productRepository.getProductForUpdate(productId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));
+        productModel.increaseLikeCount();
+
+    }
+
+    public void decreaseLikeCount(Long productId){
+        ProductModel productModel = productRepository.getProductForUpdate(productId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));
+        productModel.decreaseLikeCount();
+
+    }
+
 
     @Transactional
     public void deductStocks(ProductCommand.DeductStocks command){
@@ -83,7 +94,7 @@ public class ProductService {
                 .sorted()
                 .toList();
 
-        List<ProductModel> products = productRepository.findByIdInForUpdate(sortedProductIds);
+        List<ProductModel> products = productRepository.getProductsByIdInForUpdate(sortedProductIds);
 
 
         Map<Long, ProductModel> productModelMap = products.stream()

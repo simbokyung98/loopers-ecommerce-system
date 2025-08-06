@@ -58,7 +58,7 @@ class ProductServiceTest {
             );
             ProductCommand.DeductStocks command = new ProductCommand.DeductStocks(quantities);
 
-            when(productRepository.findByIdInForUpdate(List.of(productId1, productId2)))
+            when(productRepository.getProductsByIdInForUpdate(List.of(productId1, productId2)))
                     .thenReturn(List.of(product1, product2));
 
             // act

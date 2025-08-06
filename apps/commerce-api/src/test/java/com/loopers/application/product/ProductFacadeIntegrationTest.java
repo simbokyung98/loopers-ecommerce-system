@@ -1,23 +1,28 @@
 package com.loopers.application.product;
 
 
+import com.loopers.application.like.LikeFacade;
+import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.product.dto.ProductCriteria;
 import com.loopers.application.product.dto.ProductInfo;
-import com.loopers.domain.Like.LikeModel;
-import com.loopers.domain.Like.LikeRepository;
 import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.ProductStatus;
+import com.loopers.domain.user.UserModel;
+import com.loopers.domain.user.UserRepository;
 import com.loopers.interfaces.api.product.OrderType;
 import com.loopers.utils.DatabaseCleanUp;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest
 class ProductFacadeIntegrationTest {
@@ -32,7 +37,10 @@ class ProductFacadeIntegrationTest {
     private BrandRepository brandRepository;
 
     @Autowired
-    private LikeRepository likeRepository;
+    private LikeFacade likeFacade;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -77,10 +85,14 @@ class ProductFacadeIntegrationTest {
             BrandModel brand = brandRepository.saveBrand(new BrandModel("나이키"));
             ProductModel p1 = productRepository.saveProduct(new ProductModel("신발", 10L, 10000L, ProductStatus.SELL, brand.getId()));
             ProductModel p2 = productRepository.saveProduct(new ProductModel("옷", 5L, 20000L, ProductStatus.SELL, brand.getId()));
+            UserModel user1 = userRepository.save(new UserModel("testId1" , "M", "2024-01-01", "test@example.com"));
+            UserModel user2 = userRepository.save(new UserModel("testId2" , "M", "2024-01-01", "test@example.com"));
+            UserModel user3 = userRepository.save(new UserModel("testId3" , "M", "2024-01-01", "test@example.com"));
 
-            likeRepository.save(new LikeModel(1L, p1.getId()));
-            likeRepository.save(new LikeModel(2L, p1.getId()));
-            likeRepository.save(new LikeModel(3L, p2.getId()));
+
+            likeFacade.like(LikeCriteria.Like.of(user1.getId(), p1.getId()));
+            likeFacade.like(LikeCriteria.Like.of(user2.getId(), p1.getId()));
+            likeFacade.like(LikeCriteria.Like.of(user3.getId(), p2.getId()));
 
             ProductCriteria.SearchProducts criteria = new ProductCriteria.SearchProducts(0, 10, OrderType.낮은가격순);
 

@@ -5,7 +5,6 @@ import com.loopers.domain.point.PointModel;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.ProductStatus;
 import com.loopers.domain.user.UserModel;
 import com.loopers.domain.user.UserRepository;
@@ -30,9 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  class OrderFacadeConcurrencyTest {
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private ProductService productService;
 
     @Autowired
     private PointRepository pointRepository;

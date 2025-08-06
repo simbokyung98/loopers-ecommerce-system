@@ -37,11 +37,6 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public Boolean existProductByStatus(Long id, ProductStatus productStatus) {
-        return productJpaRepository.existsByStatus(productStatus);
-    }
-
-    @Override
     public Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType) {
         PageRequest pageRequest = PageRequest.of(page, size);
 
@@ -81,6 +76,15 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+    public Optional<ProductModel> getProductForUpdate(Long id) {
+        return jpaQueryFactory
+                .selectFrom(productModel)
+                .where(productModel.id.eq(id))
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .stream().findFirst();
+    }
+
+    @Override
     public void saveProducts(List<ProductModel> productModels) {
 
         productJpaRepository.saveAll(productModels);
@@ -88,7 +92,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<ProductModel> findByIdInForUpdate(List<Long> productIds) {
+    public List<ProductModel> getProductsByIdInForUpdate(List<Long> productIds) {
         return  jpaQueryFactory
                 .selectFrom(productModel)
                 .where(productModel.id.in(productIds))
@@ -98,7 +102,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<ProductModel> findByIdIn(List<Long> productIds) {
+    public List<ProductModel> getProductsByIdIn(List<Long> productIds) {
         return productJpaRepository.findByIdIn(productIds);
     }
 
