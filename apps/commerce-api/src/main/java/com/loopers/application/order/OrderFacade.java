@@ -3,6 +3,7 @@ package com.loopers.application.order;
 
 import com.loopers.application.order.dto.OrderCriteria;
 import com.loopers.application.order.dto.OrderInfo;
+import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderModel;
 import com.loopers.domain.order.OrderService;
@@ -15,7 +16,6 @@ import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +31,10 @@ public class OrderFacade {
     private final ProductService productService;
     private final OrderService orderService;
     private final PointService pointService;
+    private final CouponService couponService;
 
     @Transactional
     public OrderInfo.Order order(OrderCriteria.Order criteria){
-        System.out.println("🧾 트랜잭션 활성화 여부: " + TransactionSynchronizationManager.isActualTransactionActive());
-        System.out.println("🧾 현재 쓰레드 이름: " + Thread.currentThread().getName());
-
 
         //유저 체크
         userService.checkExistUser(criteria.userId());
@@ -68,6 +66,11 @@ public class OrderFacade {
 
         //총금액계산
         long totalAmount = OrderAmountCalculator.calculateTotalAmount(commandProducts);
+
+        //쿠폰사용
+        if(criteria.issueCouponId() != null){
+            totalAmount = couponService.useCoupon(criteria.userId(), criteria.issueCouponId(), totalAmount);
+        }
 
         //포인트 차감
         pointService.spend(criteria.userId(), totalAmount);
