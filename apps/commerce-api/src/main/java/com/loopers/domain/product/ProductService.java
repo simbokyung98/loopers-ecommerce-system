@@ -30,8 +30,14 @@ public class ProductService {
         }
         return optionalProductModel.get();
     }
-    public List<ProductSnapshotResult> getProductsForSnapshot(List<Long> ids){
-        return productRepository.getProductsForSnapshot(ids);
+    public List<ProductModel> getSellableProductsByIdInForUpdate(List<Long> ids){
+        //데드락 방지를 위해 정렬
+        List<Long> sortedProductIds = ids.stream()
+                .distinct()
+                .sorted()
+                .toList();
+
+        return productRepository.getSellableProductsByIdInForUpdate(sortedProductIds);
     }
 
     @Transactional(readOnly = true)
@@ -87,14 +93,13 @@ public class ProductService {
     @Transactional
     public void deductStocks(ProductCommand.DeductStocks command){
 
-        //데드락 방지를 위해 정렬
         List<Long> sortedProductIds = command.productQuantities().stream()
                 .map(ProductCommand.ProductQuantity::productId)
                 .distinct()
                 .sorted()
                 .toList();
 
-        List<ProductModel> products = productRepository.getProductsByIdInForUpdate(sortedProductIds);
+        List<ProductModel> products = productRepository.getProductsByIdIn(sortedProductIds);
 
 
         Map<Long, ProductModel> productModelMap = products.stream()
@@ -108,17 +113,8 @@ public class ProductService {
 
 
             productModel.deduct(quantity.quantity());
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-
 
         }
-//        productRepository.saveProducts(products);
-
 
     }
 

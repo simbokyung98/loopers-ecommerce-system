@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest
 class ProductFacadeConcurrencyTest {
@@ -74,16 +75,17 @@ class ProductFacadeConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
 
+        //act
         for (int i = 0; i < threadCount; i++) {
-            final int userSuffix = i;
+            final int index = i;
             executorService.execute(() -> {
                 try {
-                    UserModel user = userRepository.save(new UserModel("user" + userSuffix, "F", "1990-01-01", "user" + userSuffix + "@example.com"));
+                    UserModel user = userRepository.save(new UserModel("user" + index, "F", "1990-01-01", "user" + index + "@example.com"));
                     likeFacade.like(LikeCriteria.Like.of(user.getId(), product.getId()));
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     failCount.incrementAndGet();
-                    System.out.println("실패: " + e.getMessage());
+                    System.err.println("실패한 예외 (thread: " + Thread.currentThread().getName() + "):");
                 } finally {
                     latch.countDown();
                 }
@@ -91,12 +93,17 @@ class ProductFacadeConcurrencyTest {
         }
 
         latch.await();
+        executorService.shutdown();
 
-        // when
+        // assert
         ProductInfo.Product productInfo = productFacade.getProduct(product.getId());
 
-        // then
-        assertThat(successCount.get()).isEqualTo(threadCount);
-        assertThat(productInfo.likeCount()).isEqualTo(threadCount);
+        assertAll(
+                () -> assertThat(successCount.get()).isEqualTo(threadCount),
+                () -> assertThat(failCount.get()).isEqualTo(0),
+                () -> assertThat(productInfo.likeCount())
+                        .as("좋아요 수는 실행수와 동일해야한다.")
+                        .isEqualTo(threadCount)
+        );
     }
 }

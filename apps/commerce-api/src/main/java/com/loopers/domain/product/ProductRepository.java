@@ -23,7 +23,7 @@ public interface ProductRepository {
 
     void saveProducts(List<ProductModel> productModels);
 
-    List<ProductModel> getProductsByIdInForUpdate(List<Long> productIds);
+    List<ProductModel> getSellableProductsByIdInForUpdate(List<Long> productIds);
     List<ProductModel> getProductsByIdIn(List<Long> productIds);
 
 }

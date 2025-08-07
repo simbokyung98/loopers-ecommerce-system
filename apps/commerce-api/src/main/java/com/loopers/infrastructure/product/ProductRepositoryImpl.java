@@ -92,10 +92,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<ProductModel> getProductsByIdInForUpdate(List<Long> productIds) {
+    public List<ProductModel> getSellableProductsByIdInForUpdate(List<Long> productIds) {
         return  jpaQueryFactory
                 .selectFrom(productModel)
-                .where(productModel.id.in(productIds))
+                .where(productModel.id.in(productIds),
+                        productModel.status.eq(ProductStatus.SELL))
                 .orderBy(productModel.id.asc()) // ✅ deadlock 방지
                 .setLockMode(LockModeType.PESSIMISTIC_WRITE) // ✅ 락 설정
                 .fetch();

@@ -60,7 +60,6 @@ public class OrderFacadeIntegrationTest {
     @Nested
     class Order {
 
-
         @Test
         @DisplayName("주문 요청 시, 포인트 차감 및 주문이 생성된다")
         void order_success(){

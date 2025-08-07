@@ -103,9 +103,8 @@
         varchar name
         varchar discount_type
         bigint discount_value
-        bigint max_discount_amount 
-        bigint min_order_price
         bigint issued_limit
+        bigint issued_count
         datetime expires_at
         datetime create_at
         datetime update_at
@@ -114,8 +113,8 @@
     
     IssuedCoupon {
         bigint id pk
-        bigint coupon_id fk "UNIQUE(user_id, coupon_id)"
-        bigint user_id fk "UNIQUE(user_id, coupon_id)"
+        bigint coupon_id fk 
+        bigint user_id fk 
         datetime issued_at
         datetime used_at 
         datetime create_at

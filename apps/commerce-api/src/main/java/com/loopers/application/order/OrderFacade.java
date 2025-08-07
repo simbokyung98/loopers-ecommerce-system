@@ -8,8 +8,8 @@ import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderModel;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.point.PointService;
+import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
-import com.loopers.domain.product.ProductSnapshotResult;
 import com.loopers.domain.user.UserService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -42,7 +42,8 @@ public class OrderFacade {
         Map<Long, OrderCriteria.ProductQuantity> productQuantityMap =
                criteria.productQuantities().stream().collect(Collectors.toMap(OrderCriteria.ProductQuantity::productId, Function.identity()));
 
-        List<ProductSnapshotResult> productModels = productService.getProductsForSnapshot(productQuantityMap.keySet().stream().toList());
+        //재고 확보 및 주문 스냅샷을 위한 재고 리스트 get(락 걸기)
+        List<ProductModel> productModels = productService.getSellableProductsByIdInForUpdate(productQuantityMap.keySet().stream().toList());
 
         //상품 체크
         if(productQuantityMap.size() != productModels.size()){
@@ -52,14 +53,13 @@ public class OrderFacade {
         //주문 아이템 생성
         List<OrderCommand.Product> commandProducts = new ArrayList<>();
 
-        for(ProductSnapshotResult productSnapshotResult : productModels){
-//            productModel.validateSellable();
-            OrderCriteria.ProductQuantity productQuantity = productQuantityMap.get(productSnapshotResult.id());
+        for(ProductModel model : productModels){
+            OrderCriteria.ProductQuantity productQuantity = productQuantityMap.get(model.getId());
 
             commandProducts.add(new OrderCommand.Product(
-                    productSnapshotResult.id(),
-                    productSnapshotResult.name(),
-                    productSnapshotResult.price(),
+                    model.getId(),
+                    model.getName(),
+                    model.getPrice(),
                     productQuantity.quantity()
             ));
         }
