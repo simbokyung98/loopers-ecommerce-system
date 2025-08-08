@@ -24,6 +24,6 @@ public class CouponFacade {
 
         IssuedCouponModel issuedCouponModel = couponService.issue(criteria.toCommand());
 
-        return CouponInfo.IssuedCoupon.form(issuedCouponModel);
+        return CouponInfo.IssuedCoupon.from(issuedCouponModel);
     }
 }

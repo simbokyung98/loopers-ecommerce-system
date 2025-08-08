@@ -9,10 +9,6 @@ import java.util.List;
 
 public class ProductInfo{
 
-    public record Products(
-            List<Product> products
-    ){}
-
     public record PageResponse<T>(
             List<T> content,
             int page,

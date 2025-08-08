@@ -13,7 +13,7 @@ public class CouponInfo {
             Long userId,
             ZonedDateTime issuedAt
     ){
-      public static IssuedCoupon form(IssuedCouponModel issuedCouponModel){
+      public static IssuedCoupon from(IssuedCouponModel issuedCouponModel){
           return new IssuedCoupon(
                   issuedCouponModel.getId(),
                   issuedCouponModel.getCouponId(),

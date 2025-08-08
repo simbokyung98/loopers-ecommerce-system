@@ -1,6 +1,7 @@
 package com.loopers.application.product;
 
 
+import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.dto.ProductCriteria;
 import com.loopers.application.product.dto.ProductInfo;
 import com.loopers.domain.brand.BrandModel;
@@ -31,7 +32,7 @@ public class ProductFacade {
     }
 
     @Transactional(readOnly = true)
-    public ProductInfo.PageResponse<ProductInfo.Product> getProductsWithPageAndSort(ProductCriteria.SearchProducts criteria){
+    public PageInfo.PageEnvelope<ProductInfo.Product> getProductsWithPageAndSort(ProductCriteria.SearchProducts criteria){
 
         Page<ProductModel> productModels = productService.getProductsWithPageAndSort(criteria.page(),criteria.size(),criteria.orderType());
 
@@ -43,7 +44,7 @@ public class ProductFacade {
         Page<ProductInfo.Product> products =
                 productModels.map(model -> ProductInfo.Product.from(model, brandModelMap.get(model.getBrandId()) ));
 
-        return ProductInfo.PageResponse.from(products);
+        return PageInfo.PageEnvelope.from(products);
     }
 
 

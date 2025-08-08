@@ -34,7 +34,7 @@ public class OrderFacade {
     private final CouponService couponService;
 
     @Transactional
-    public OrderInfo.Order order(OrderCriteria.Order criteria){
+    public OrderInfo.OrderResponse order(OrderCriteria.Order criteria){
 
         //유저 체크
         userService.checkExistUser(criteria.userId());
@@ -82,7 +82,19 @@ public class OrderFacade {
         OrderCommand.PlaceOrder placeOrder = criteria.toCommand(totalAmount, commandProducts);
         OrderModel orderModel = orderService.placeOrder(placeOrder);
 
-        return OrderInfo.Order.from(orderModel);
+        return OrderInfo.OrderResponse.from(orderModel);
 
     }
+
+    @Transactional(readOnly = true)
+    public OrderInfo.UserOrders getOrdersByUserId(Long userId){
+        //유저 체크
+        userService.checkExistUser(userId);
+
+        List<OrderModel> orderModels = orderService.getOrdersByUserId(userId);
+
+        return OrderInfo.UserOrders.from(orderModels);
+    }
+
+
 }
