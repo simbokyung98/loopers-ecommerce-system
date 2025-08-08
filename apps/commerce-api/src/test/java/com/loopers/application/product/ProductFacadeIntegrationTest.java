@@ -1,6 +1,7 @@
 package com.loopers.application.product;
 
 
+import com.loopers.application.common.PageInfo;
 import com.loopers.application.like.LikeFacade;
 import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.product.dto.ProductCriteria;
@@ -97,7 +98,7 @@ class ProductFacadeIntegrationTest {
             ProductCriteria.SearchProducts criteria = new ProductCriteria.SearchProducts(0, 10, OrderType.낮은가격순);
 
             // act
-            ProductInfo.PageResponse<ProductInfo.Product> result = productFacade.getProductsWithPageAndSort(criteria);
+            PageInfo.PageEnvelope<ProductInfo.Product> result = productFacade.getProductsWithPageAndSort(criteria);
 
             // assert
             assertThat(result.content()).hasSize(2);
@@ -112,7 +113,7 @@ class ProductFacadeIntegrationTest {
                         }
                     });
 
-            assertThat(result.totalElements()).isEqualTo(2);
+            assertThat(result.meta().totalElements()).isEqualTo(2);
         }
     }
 

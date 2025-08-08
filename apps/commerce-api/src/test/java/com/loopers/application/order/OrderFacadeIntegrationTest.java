@@ -118,7 +118,7 @@ public class OrderFacadeIntegrationTest {
                     );
 
             //act
-            OrderInfo.Order result = orderFacade.order(orderRequest);
+            OrderInfo.OrderResponse result = orderFacade.order(orderRequest);
 
             long discountAmount = coupon.calculateDiscount(14_000L);
             //assert
