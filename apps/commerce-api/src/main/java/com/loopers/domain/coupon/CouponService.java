@@ -7,6 +7,7 @@ import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -15,6 +16,7 @@ public class CouponService {
     private final IssuedCouponRepository issuedCouponRepository;
     private final CouponRepository couponRepository;
 
+    @Transactional
     public IssuedCouponModel issue(CouponCommand.Issue command){
 
         CouponModel couponModel = couponRepository.findCouponByIdForUpdate(command.couponId())
@@ -34,6 +36,7 @@ public class CouponService {
        }
     }
 
+    @Transactional
     public Long useCoupon(Long userId, Long issueCouponId, Long orderTotalAmount){
         try{
             IssuedCouponModel issuedCouponModel = issuedCouponRepository.getIssuedCouponOfUser(userId, issueCouponId)
