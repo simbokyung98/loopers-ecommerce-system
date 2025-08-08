@@ -65,7 +65,7 @@ public class OrderFacade {
         }
 
         //총금액계산
-        long totalAmount = OrderAmountCalculator.calculateTotalAmount(commandProducts);
+        long totalAmount = orderService.calculateTotalAmount(commandProducts);
 
         //쿠폰사용
         if(criteria.issueCouponId() != null){
