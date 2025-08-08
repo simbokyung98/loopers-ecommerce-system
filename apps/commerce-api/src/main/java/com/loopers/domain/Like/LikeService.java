@@ -13,18 +13,42 @@ public class LikeService {
     private final LikeRepository likeRepository;
 
     @Transactional
-    public void like(Long userId, Long productId){
-        likeRepository.findLike(userId, productId)
+    public boolean like(Long userId, Long productId){
+
+
+        return likeRepository.findLike(userId, productId)
+                .map(like -> {
+                    if(like.getDeletedAt() != null){
+                        like.restore();
+                        return true;
+                    }else {
+                        return false;
+                    }
+                })//이미 존재
                 .orElseGet(() -> {
                     LikeModel likeModel = new LikeModel(userId, productId);
-                    return likeRepository.save(likeModel);
+                    likeRepository.save(likeModel);
+                    return true;
                 });
+
     }
 
     @Transactional
-    public void dislike(Long userId, Long productId){
-        likeRepository.findLike(userId, productId)
-                .ifPresent(likeRepository::delete);
+    public Boolean dislike(Long userId, Long productId){
+
+        return likeRepository.findLike(userId, productId)
+                .map(like -> {
+                    if(like.getDeletedAt() != null){
+                      return false;
+                    }else {
+                        like.delete();
+                        return true;
+                    }
+                })//좋아요 한 적 없음
+                .orElseGet(() -> {
+                  return false;
+                });
+
     }
 
     public List<Long> getLikedProductIdsByUser(Long userId){

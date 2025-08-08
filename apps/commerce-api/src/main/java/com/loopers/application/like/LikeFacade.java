@@ -26,8 +26,11 @@ public class LikeFacade {
         userService.checkExistUser(criteria.userId());
         productService.checkExistProduct(criteria.productId());
 
-        likeService.like(criteria.userId(), criteria.productId());
-        productService.increaseLikeCount(criteria.productId());
+        boolean created = likeService.like(criteria.userId(), criteria.productId());
+        if(created){
+            productService.increaseLikeCount(criteria.productId());
+
+        }
 
     }
 
@@ -36,8 +39,12 @@ public class LikeFacade {
     public void dislike(LikeCriteria.Dislike criteria){
 
         userService.checkExistUser(criteria.userId());
-        likeService.dislike(criteria.userId(), criteria.productId());
-        productService.decreaseLikeCount(criteria.productId());
+
+        Boolean deleted  = likeService.dislike(criteria.userId(), criteria.productId());
+
+        if(deleted){
+            productService.decreaseLikeCount(criteria.productId());
+        }
 
     }
 

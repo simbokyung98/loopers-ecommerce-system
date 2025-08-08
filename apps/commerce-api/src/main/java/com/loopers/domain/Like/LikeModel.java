@@ -3,10 +3,7 @@ package com.loopers.domain.Like;
 import com.loopers.domain.BaseEntity;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +18,7 @@ public class LikeModel extends BaseEntity {
     Long userId;
     @Column(name = "product_id", nullable = false)
     Long productId;
+
 
     public LikeModel(Long userId, Long productId){
         if(userId == null){
