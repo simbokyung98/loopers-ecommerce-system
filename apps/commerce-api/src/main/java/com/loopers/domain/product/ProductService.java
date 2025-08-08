@@ -93,13 +93,12 @@ public class ProductService {
     @Transactional
     public void deductStocks(ProductCommand.DeductStocks command){
 
-        List<Long> sortedProductIds = command.productQuantities().stream()
+        List<Long> productIds = command.productQuantities().stream()
                 .map(ProductCommand.ProductQuantity::productId)
                 .distinct()
-                .sorted()
                 .toList();
 
-        List<ProductModel> products = productRepository.getProductsByIdIn(sortedProductIds);
+        List<ProductModel> products = productRepository.getProductsByIdIn(productIds);
 
 
         Map<Long, ProductModel> productModelMap = products.stream()
