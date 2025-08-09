@@ -1,12 +1,14 @@
 package com.loopers.infrastructure.product;
 
-import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.product.ProductSnapshotResult;
 import com.loopers.domain.product.ProductStatus;
 import com.loopers.interfaces.api.product.OrderType;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,11 +37,6 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public Boolean existProductByStatus(Long id, ProductStatus productStatus) {
-        return productJpaRepository.existsByStatus(productStatus);
-    }
-
-    @Override
     public Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType) {
         PageRequest pageRequest = PageRequest.of(page, size);
 
@@ -61,8 +58,16 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<ProductModel> findByIdIn(List<Long> ids) {
-        return productJpaRepository.findByIdIn(ids);
+    public List<ProductSnapshotResult> getProductsForSnapshot(List<Long> ids) {
+        return jpaQueryFactory.select(
+                Projections.constructor(ProductSnapshotResult.class,
+                        productModel.id,
+                        productModel.name,
+                        productModel.price))
+                .from(productModel)
+                .where(productModel.id.in(ids), productModel.status.eq(ProductStatus.SELL))
+                .orderBy(productModel.id.asc())
+                .fetch();
     }
 
     @Override
@@ -71,8 +76,35 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+    public Optional<ProductModel> getProductForUpdate(Long id) {
+        return jpaQueryFactory
+                .selectFrom(productModel)
+                .where(productModel.id.eq(id))
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .stream().findFirst();
+    }
+
+    @Override
     public void saveProducts(List<ProductModel> productModels) {
+
         productJpaRepository.saveAll(productModels);
+        productJpaRepository.flush();
+    }
+
+    @Override
+    public List<ProductModel> getSellableProductsByIdInForUpdate(List<Long> productIds) {
+        return  jpaQueryFactory
+                .selectFrom(productModel)
+                .where(productModel.id.in(productIds),
+                        productModel.status.eq(ProductStatus.SELL))
+                .orderBy(productModel.id.asc()) // ✅ deadlock 방지
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE) // ✅ 락 설정
+                .fetch();
+    }
+
+    @Override
+    public List<ProductModel> getProductsByIdIn(List<Long> productIds) {
+        return productJpaRepository.findByIdIn(productIds);
     }
 
 

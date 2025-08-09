@@ -10,6 +10,7 @@ public class OrderCriteria {
 
     public record Order(
             Long userId,
+            Long issueCouponId,
             String address,
             String phoneNumber,
             String name,

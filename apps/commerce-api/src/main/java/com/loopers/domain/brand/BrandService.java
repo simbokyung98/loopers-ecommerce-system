@@ -24,7 +24,7 @@ public class BrandService {
         Optional<BrandModel> optionalProductModel = brandRepository.findById(id);
 
         if(optionalProductModel.isEmpty()){
-            throw new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다.");
+            throw new CoreException(ErrorType.NOT_FOUND, "브랜드 정보를 찾을 수 없습니다.");
         }
         return optionalProductModel.get();
     }

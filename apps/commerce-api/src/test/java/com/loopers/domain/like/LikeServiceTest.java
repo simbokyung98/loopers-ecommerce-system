@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,9 +39,10 @@ class LikeServiceTest {
                     .thenReturn(Optional.empty());
 
             //act
-            likeService.like(userId, productId);
+            Boolean created = likeService.like(userId, productId);
 
             //assert
+            assertTrue(created);
             verify(likeRepository).save(argThat(model ->
                     model.getUserId().equals(userId) && model.getProductId().equals(productId)));
 
@@ -58,11 +60,33 @@ class LikeServiceTest {
                     .thenReturn(Optional.of(existing));
 
             //act
-            likeService.like(userId, productId);
+            Boolean created = likeService.like(userId, productId);
 
             // assert
+            assertFalse(created);
+            assertNull(existing.getDeletedAt());
             verify(likeRepository, never()).save(any(LikeModel.class));
         }
+
+        @Test
+        @DisplayName("soft-delete 된 좋아요가 있으면 restore 한다")
+        void restores_whenSoftDeletedExists() {
+            Long userId = 1L;
+            Long productId = 100L;
+            LikeModel existing = new LikeModel(userId, productId);
+
+            existing.delete();
+
+            when(likeRepository.findLike(userId, productId))
+                    .thenReturn(Optional.of(existing));
+
+            boolean result = likeService.like(userId, productId);
+
+            assertTrue(result);
+            assertNull(existing.getDeletedAt());
+            verify(likeRepository, never()).save(any());
+        }
+
     }
 
 
@@ -81,27 +105,48 @@ class LikeServiceTest {
                     .thenReturn(Optional.of(existing));
 
 
-            likeService.dislike(userId, productId);
+            Boolean deleted = likeService.dislike(userId, productId);
 
-            verify(likeRepository).delete(existing);
+            assertTrue(deleted);
+            assertNotNull(existing.getDeletedAt());
         }
 
         @Test
-        @DisplayName("좋아요가 존재하지 않으면 삭제하지 않는다.")
-        void dislike_doesNotDelete_whenNotExists() {
+        @DisplayName("이미 취소된 좋아요면 아무 것도 하지 않고 false를 반환한다.")
+        void dislike_noop_whenAlreadyDeleted() {
 
             Long userId = 1L;
             Long productId = 100L;
+            LikeModel existing = new LikeModel(userId, productId);
+            existing.delete();
 
             when(likeRepository.findLike(userId, productId))
-                    .thenReturn(Optional.empty());
+                    .thenReturn(Optional.of(existing));
 
 
-            likeService.dislike(userId, productId);
+            Boolean deleted = likeService.dislike(userId, productId);
 
 
-            verify(likeRepository, never()).delete(any(LikeModel.class));
+            assertFalse(deleted);
+            assertNotNull(existing.getDeletedAt());
         }
+
+        @Test
+        @DisplayName("좋아요가 존재하지 않으면 false 반환하고 아무 것도 하지 않는다.")
+        void returnFalse_whenNotExists() {
+            Long userId = 1L;
+            Long productId = 100L;
+
+            when(likeRepository.findLike(userId, productId)).thenReturn(Optional.empty());
+
+            boolean deleted = likeService.dislike(userId, productId);
+
+            assertFalse(deleted);
+
+        }
+
+
+
     }
 
 

@@ -3,6 +3,9 @@
     <springProfile name="local,local-dev,test">
         <include resource="appenders/plain-console-appender.xml"/>
         <logger name="com.loopers" level="DEBUG"/>
+<!--        <logger name="org.hibernate.SQL" level="DEBUG"/>-->
+<!--        <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>-->
+<!--        <logger name="org.hibernate.orm.jdbc.bind" level="TRACE"/> &lt;!&ndash; Hibernate 6 이상이면 이거 필요 &ndash;&gt;-->
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>

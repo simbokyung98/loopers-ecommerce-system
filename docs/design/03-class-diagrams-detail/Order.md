@@ -3,20 +3,21 @@
     classDiagram
     class Order{
     - int id
-      - User user
-      - List orderitems
-      - string address
-      - string phoneNumber
-      - point point
+    - User user
+    - List~OrderItem~ orderItems
+    - string address
+    - string phoneNumber
+    - Long totalAmount
+    - Long usedPointAmount
+    - Long discountAmount
+    - Long issuedCouponId
     
    + addItem(orderItem)
   }
   class OrderItem{
       - int id
-      - User user
       - Product product
       - int quantity
-      + create(user, product, quantity)
   }
   class Product{
       - int id
@@ -38,8 +39,20 @@
       + pay(amount)
   }
 
-  Order --> "N" OrderItem :소유
-  OrderItem --> Product : 참조
-  Order --> User : 참조
-  Order --> Point : 참조
+  class IssuedCoupon { 
+      - int id
+      - User user
+      - string type
+      - string status
+      - LocalDateTime issuedAt
+      - LocalDateTime? usedAt
+      + isUsed() 
+  }
+
+    Order --> "N" OrderItem : 소유
+    OrderItem --> Product : 참조
+    Order --> User : 참조
+    Order --> IssuedCoupon : 사용된 쿠폰
+    User --> "N" IssuedCoupon : 쿠폰 소유
+    User --> Point : 소유
 ```

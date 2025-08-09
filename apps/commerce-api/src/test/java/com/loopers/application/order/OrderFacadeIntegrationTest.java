@@ -3,7 +3,11 @@ package com.loopers.application.order;
 
 import com.loopers.application.order.dto.OrderCriteria;
 import com.loopers.application.order.dto.OrderInfo;
-import com.loopers.domain.order.OrderRepository;
+import com.loopers.domain.coupon.CouponRepository;
+import com.loopers.domain.coupon.IssuedCouponRepository;
+import com.loopers.domain.coupon.model.CouponModel;
+import com.loopers.domain.coupon.model.FixedCouponModel;
+import com.loopers.domain.coupon.model.IssuedCouponModel;
 import com.loopers.domain.point.PointModel;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.product.ProductModel;
@@ -11,13 +15,13 @@ import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.ProductStatus;
 import com.loopers.domain.user.UserModel;
 import com.loopers.domain.user.UserRepository;
-import com.loopers.domain.user.UserService;
 import com.loopers.interfaces.api.User.Gender;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,10 +42,10 @@ public class OrderFacadeIntegrationTest {
     private PointRepository pointRepository;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private CouponRepository couponRepository;
 
     @Autowired
-    private UserService userService;
+    private IssuedCouponRepository issuedCouponRepository;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -56,14 +60,13 @@ public class OrderFacadeIntegrationTest {
     @Nested
     class Order {
 
-        @BeforeEach
-        void setup(){
-
-        }
-
         @Test
         @DisplayName("주문 요청 시, 포인트 차감 및 주문이 생성된다")
         void order_success(){
+            CouponModel coupon = couponRepository.saveCoupon(
+                    new FixedCouponModel("정상 쿠폰", 5L, ZonedDateTime.now().plusDays(1), 5L)
+            );
+
             UserModel requestModel = new UserModel(
                     "testId",
                     Gender.MALE.getCode(),
@@ -72,8 +75,13 @@ public class OrderFacadeIntegrationTest {
             );
             UserModel userModel =  userRepository.save(requestModel);
 
+            IssuedCouponModel issuedCouponModel = issuedCouponRepository.saveIssuedCoupon(
+                    new IssuedCouponModel(userModel.getId(), coupon.getId())
+            );
+
+            Long chargePoint = 20_000L;
             PointModel pointModel = new PointModel(userModel.getId());
-            pointModel.charge(20_000L);
+            pointModel.charge(chargePoint);
             pointRepository.save(pointModel);
 
 
@@ -102,6 +110,7 @@ public class OrderFacadeIntegrationTest {
 
             OrderCriteria.Order orderRequest = new OrderCriteria.Order(
                     userModel.getId(),
+                    issuedCouponModel.getId(),
                     "테스트 주소",
                     "01011112222",
                     "홍길동",
@@ -109,21 +118,20 @@ public class OrderFacadeIntegrationTest {
                     );
 
             //act
-            OrderInfo.Order result = orderFacade.order(orderRequest);
+            OrderInfo.OrderResponse result = orderFacade.order(orderRequest);
 
+            long discountAmount = coupon.calculateDiscount(14_000L);
             //assert
             assertAll(
                     () -> assertThat(result).isNotNull(),
-                    () ->assertThat(result.totalAmount()).isEqualTo(14_000L)
+                    () ->assertThat(result.totalAmount()).isEqualTo(discountAmount)
             );
 
             PointModel pointResult = pointRepository.findByUserId(userModel.getId()).orElseThrow();
-            assertThat(pointResult.getTotalAmount()).isEqualTo(6_000L);
+            assertThat(pointResult.getTotalAmount()).isEqualTo(chargePoint - discountAmount);
 
             ProductModel updateProduct = productRepository.getProduct(product1.getId()).orElseThrow();
             assertThat(updateProduct.getStock()).isEqualTo(3L);
-
-
 
         }
 

@@ -1,5 +1,6 @@
 package com.loopers.application.like;
 
+import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.like.dto.LikeInfo;
 import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.product.ProductModel;
@@ -87,5 +88,45 @@ class LikeFacadeTest {
             verify(productService, never()).getListByIds(any());
         }
 
+    }
+
+    @DisplayName("좋아요 할 때, ")
+    @Nested
+    class Like {
+        @DisplayName("이미 좋아요 상태면 likeCount 증가 호출하지 않는다")
+        @Test
+        void NotIncreaseCount_whenAlreadyLiked() {
+
+            Long userId = 1L, productId = 10L;
+            when(likeService.like(userId, productId)).thenReturn(false); // 이미 좋아요였음
+
+            // act
+            likeFacade.like(new LikeCriteria.Like(userId, productId));
+
+            // assert
+            verify(userService).checkExistUser(userId);
+            verify(productService).checkExistProduct(productId);
+            verify(likeService).like(userId, productId);
+            verify(productService, never()).increaseLikeCount(productId);
+        }
+    }
+    @DisplayName("좋아요 취소 할 때, ")
+    @Nested
+    class Dislike {
+        @DisplayName("좋아요 취소가 실제로 발생하지 않으면 likeCount 감소 호출하지 않는다")
+        @Test
+        void notDecreaseCount_whenNotLiked() {
+
+            Long userId = 1L, productId = 10L;
+            when(likeService.dislike(userId, productId)).thenReturn(false);
+
+            // act
+            likeFacade.dislike(new LikeCriteria.Dislike(userId, productId));
+
+            // assert
+            verify(userService).checkExistUser(userId);
+            verify(likeService).dislike(userId, productId);
+            verify(productService, never()).decreaseLikeCount(productId);
+        }
     }
 }
