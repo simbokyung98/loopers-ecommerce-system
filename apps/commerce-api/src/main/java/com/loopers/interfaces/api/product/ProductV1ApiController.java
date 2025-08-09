@@ -24,7 +24,7 @@ public class ProductV1ApiController implements ProductV1ApiSpec {
     }
 
     @Override
-    @GetMapping("/search")
+    @GetMapping
     public ApiResponse<ProductV1Dto.PageEnvelope<ProductV1Dto.ProductResponse>> getProductsWithPageAndSort(
             @ModelAttribute ProductV1Dto.SearchProductRequest searchProductRequest) {
 

@@ -15,7 +15,7 @@ public class OrderV1ApiController implements OrderV1ApiSpec {
 
     private final OrderFacade orderFacade;
     @Override
-    @PostMapping("/order")
+    @PostMapping
     public ApiResponse<OrderV1Dto.Order> order(@RequestHeader(value = "X-USER-ID") Long userid, @RequestBody OrderV1Dto.OrderRequest request) {
         OrderCriteria.Order creteria = request.to(userid);
         OrderInfo.OrderResponse orderInfo = orderFacade.order(creteria);
