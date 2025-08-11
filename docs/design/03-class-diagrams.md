@@ -22,57 +22,79 @@
       + decrease(stock)
       }
     
-    class Brand {
-    - int id
-      - String name
-      }
-    
-    class Order {
-    - int id
-      - User user
-      - List<OrderItem> orderItems
-      - String address
-      - String phoneNumber
-      - Point point
-      - String status
-      + addItem(orderItem)
-      }
-    
+    class Brand { 
+     - int id
+     - String name 
+    }
+
+    class Order{
+     - int id
+     - User user
+     - List~OrderItem~ orderItems
+     - string address
+     - string phoneNumber
+     - Long totalAmount
+     - Long usedPointAmount
+     - Long discountAmount
+     - Long issuedCouponId
+
+     + addItem(orderItem)
+     }
     class OrderItem {
     - int id
-      - User user
-      - Product product
-      - int quantity
-      }
+    - Product product
+    - int quantity
+    }
     
     class Cart {
-    - int id
-      - Product product
-      - int quantity
+     - int id
+     - Product product
+     - int quantity
     
     }
     
     class Like {
-    - int id
-      - User user
-      - Product product
-      }
-    
+     - int id
+     - User user
+     - Product product 
+     }
+
     class Point {
-    - int id
-      - User user
-      - int amount
-      + charge(amount)
-      + pay(amount)
-      }
-    
+        - int id
+        - User user
+        - int amount
+        + charge(amount)
+        + pay(amount)
+    }
+
     class PointHistory {
-    - int id
-      - User user
-      - int amount
-      - String divisionCode
-      - Date createdAt
-      }
+        - int id
+        - User user
+        - int amount
+        - String divisionCode
+        - Date createdAt
+    }
+
+
+    class Coupon {
+        - int id
+        - String name
+        - String type
+        - Long discountValue
+        - Long? maxDiscountAmount
+        - Long? minOrderPrice
+        - Long issuedLimit
+        - Date expiresAt
+    }
+
+    class IssuedCoupon {
+        - int id
+        - User user
+        - Coupon coupon
+        - Date issuedAt
+        - Date? usedAt
+        + isUsed() 
+    }
 
     
     Order "1" --> "N" OrderItem : 소유
@@ -86,5 +108,7 @@
     Like --> Product : 대상 상품
     Point --> User : 소유자
     PointHistory --> User : 대상
+    User --> "N" IssuedCoupon : 소유
+    IssuedCoupon --> Coupon : 참조
     
 ```

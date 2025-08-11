@@ -58,7 +58,7 @@ spring:
 datasource:
   mysql-jpa:
     main:
-      maximum-pool-size: 10
+      maximum-pool-size: 50
       minimum-idle: 5
 
 ---

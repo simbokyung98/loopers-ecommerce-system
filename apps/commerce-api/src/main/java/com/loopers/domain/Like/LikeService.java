@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -14,27 +13,46 @@ public class LikeService {
     private final LikeRepository likeRepository;
 
     @Transactional
-    public void like(Long userId, Long productId){
-        likeRepository.findLike(userId, productId)
+    public boolean like(Long userId, Long productId){
+
+
+        return likeRepository.findLike(userId, productId)
+                .map(like -> {
+                    if(like.getDeletedAt() != null){
+                        like.restore();
+                        return true;
+                    }else {
+                        return false;
+                    }
+                })//이미 존재
                 .orElseGet(() -> {
                     LikeModel likeModel = new LikeModel(userId, productId);
-                    return likeRepository.save(likeModel);
+                    likeRepository.save(likeModel);
+                    return true;
                 });
+
     }
 
     @Transactional
-    public void dislike(Long userId, Long productId){
-        likeRepository.findLike(userId, productId)
-                .ifPresent(likeRepository::delete);
+    public Boolean dislike(Long userId, Long productId){
+
+        return likeRepository.findLike(userId, productId)
+                .map(like -> {
+                    if(like.getDeletedAt() != null){
+                      return false;
+                    }else {
+                        like.delete();
+                        return true;
+                    }
+                })//좋아요 한 적 없음
+                .orElseGet(() -> {
+                  return false;
+                });
+
     }
 
     public List<Long> getLikedProductIdsByUser(Long userId){
         return likeRepository.findAllProductIdByUserId(userId);
     }
 
-    public Long countLikeByProductId(Long productId) {return likeRepository.countByProductId(productId);}
-
-    public Map<Long, Long> countLikeByProductIds(List<Long> productIds){
-        return likeRepository.countByProductIds(productIds);
-    }
 }

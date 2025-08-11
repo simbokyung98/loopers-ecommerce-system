@@ -30,8 +30,19 @@ public class ProductService {
         }
         return optionalProductModel.get();
     }
+    public List<ProductModel> getSellableProductsByIdInForUpdate(List<Long> ids){
+        //데드락 방지를 위해 정렬
+        List<Long> sortedProductIds = ids.stream()
+                .distinct()
+                .sorted()
+                .toList();
+
+        return productRepository.getSellableProductsByIdInForUpdate(sortedProductIds);
+    }
+
+    @Transactional(readOnly = true)
     public List<ProductModel> getListByIds(List<Long> ids){
-        return productRepository.findByIdIn(ids);
+        return productRepository.getProductsByIdIn(ids);
     }
 
     @Transactional(readOnly = true)
@@ -64,23 +75,45 @@ public class ProductService {
     }
 
 
+    public void increaseLikeCount(Long productId){
+        ProductModel productModel = productRepository.getProductForUpdate(productId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));
+        productModel.increaseLikeCount();
+
+    }
+
+    public void decreaseLikeCount(Long productId){
+        ProductModel productModel = productRepository.getProductForUpdate(productId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));
+        productModel.decreaseLikeCount();
+
+    }
+
 
     @Transactional
     public void deductStocks(ProductCommand.DeductStocks command){
 
         List<Long> productIds = command.productQuantities().stream()
-                .map(ProductCommand.ProductQuantity::productId).toList();
+                .map(ProductCommand.ProductQuantity::productId)
+                .distinct()
+                .toList();
 
-       Map<Long, ProductModel> productModelMap = productRepository.findByIdIn(productIds)
-               .stream().collect(Collectors.toMap(ProductModel::getId, Function.identity()));
+        List<ProductModel> products = productRepository.getProductsByIdIn(productIds);
+
+
+        Map<Long, ProductModel> productModelMap = products.stream()
+                .collect(Collectors.toMap(ProductModel::getId, Function.identity()));
 
         for(ProductCommand.ProductQuantity quantity : command.productQuantities()){
             ProductModel productModel = productModelMap.get(quantity.productId());
+            if (productModel == null) {
+                throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다: " + quantity.productId());
+            }
+
+
             productModel.deduct(quantity.quantity());
 
         }
-        productRepository.saveProducts(List.copyOf(productModelMap.values()));
-
 
     }
 

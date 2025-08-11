@@ -54,5 +54,10 @@ public class OrderService {
         return orderRepository.findOrderItemsByOrderId(orderId);
     }
 
+    public long calculateTotalAmount(List<OrderCommand.Product> products) {
+        return products.stream()
+                .mapToLong(p -> p.price() * p.quantity())
+                .sum();
+    }
 
 }

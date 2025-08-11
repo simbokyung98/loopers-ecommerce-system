@@ -57,7 +57,7 @@ class PointServiceTest {
             Long userId = 1L;
             Long point = 1000L;
 
-            when(pointRepository.findByUserId(userId))
+            when(pointRepository.findByUserIdForUpdate(userId))
                     .thenReturn(Optional.empty());
 
             assertThatException()

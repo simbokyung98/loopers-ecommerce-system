@@ -2,24 +2,24 @@
 ```mermaid 
 classDiagram
     class Brand{
-    Long id
-    String name
+        - Long id
+        - String name
     }
     class Product{
-    List Prouducts
-    + addItem(productItem)
+        - List Prouducts
+        + addItem(productItem)
     }
-    class ProductItem{
-    Long id
-    Long name
-    Brand Brand
-    Long Stock
-    String status
-    List Likes 
+    class ProductItem {
+        - Long id
+        - String name
+        - Brand brand
+        - Long stock
+        - String status
+        - List~Like~ likes
     }
 
     class Like{
-    Long ProuductId
+        - Long ProuductId
     }
     
     Product --> "N" ProductItem :소유

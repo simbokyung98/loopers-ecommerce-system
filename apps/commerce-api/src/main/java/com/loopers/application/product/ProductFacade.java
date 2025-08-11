@@ -1,9 +1,9 @@
 package com.loopers.application.product;
 
 
+import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.dto.ProductCriteria;
 import com.loopers.application.product.dto.ProductInfo;
-import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.product.ProductModel;
@@ -22,34 +22,29 @@ public class ProductFacade {
 
     private final BrandService brandService;
     private final ProductService productService;
-    private final LikeService likeService;
-
     public ProductInfo.Product getProduct(Long productId){
 
         ProductModel productModel = productService.get(productId);
         BrandModel brandModel = brandService.getBrand(productModel.getId());
-        Long likeCount = likeService.countLikeByProductId(productId);
 
 
-        return ProductInfo.Product.from(productModel, brandModel, likeCount);
+        return ProductInfo.Product.from(productModel, brandModel);
     }
 
     @Transactional(readOnly = true)
-    public ProductInfo.PageResponse<ProductInfo.Product> getProductsWithPageAndSort(ProductCriteria.SearchProducts criteria){
+    public PageInfo.PageEnvelope<ProductInfo.Product> getProductsWithPageAndSort(ProductCriteria.SearchProducts criteria){
 
         Page<ProductModel> productModels = productService.getProductsWithPageAndSort(criteria.page(),criteria.size(),criteria.orderType());
 
         List<Long> productIds =productModels.map(ProductModel::getId).stream().toList();
         List<Long> brandIds =productModels.map(ProductModel::getBrandId).stream().distinct().toList();
 
-        Map<Long, Long> likeCountMap = likeService.countLikeByProductIds(productIds);
-
         Map<Long, BrandModel> brandModelMap = brandService.getBrandMapByIds(brandIds);
 
         Page<ProductInfo.Product> products =
-                productModels.map(model -> ProductInfo.Product.from(model, brandModelMap.get(model.getBrandId()) ,likeCountMap.getOrDefault(model.getId(), 0L)));
+                productModels.map(model -> ProductInfo.Product.from(model, brandModelMap.get(model.getBrandId()) ));
 
-        return ProductInfo.PageResponse.from(products);
+        return PageInfo.PageEnvelope.from(products);
     }
 
 

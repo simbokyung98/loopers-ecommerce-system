@@ -3,6 +3,7 @@ package com.loopers.application.order;
 
 import com.loopers.application.order.dto.OrderCriteria;
 import com.loopers.application.order.dto.OrderInfo;
+import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderModel;
 import com.loopers.domain.order.OrderService;
@@ -13,7 +14,7 @@ import com.loopers.domain.user.UserService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -23,46 +24,53 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-@Component
+@Service
 public class OrderFacade {
 
     private final UserService userService;
     private final ProductService productService;
     private final OrderService orderService;
     private final PointService pointService;
+    private final CouponService couponService;
 
     @Transactional
-    public OrderInfo.Order order(OrderCriteria.Order criteria){
+    public OrderInfo.OrderResponse order(OrderCriteria.Order criteria){
+
         //유저 체크
         userService.checkExistUser(criteria.userId());
 
         Map<Long, OrderCriteria.ProductQuantity> productQuantityMap =
                criteria.productQuantities().stream().collect(Collectors.toMap(OrderCriteria.ProductQuantity::productId, Function.identity()));
 
-        List<ProductModel> productModels = productService.getListByIds(productQuantityMap.keySet().stream().toList());
+        //재고 확보 및 주문 스냅샷을 위한 재고 리스트 get(락 걸기)
+        List<ProductModel> productModels = productService.getSellableProductsByIdInForUpdate(productQuantityMap.keySet().stream().toList());
 
         //상품 체크
         if(productQuantityMap.size() != productModels.size()){
-            throw new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품이 있습니다.");
+            throw new CoreException(ErrorType.NOT_FOUND, "주문할 수 없는 상품이 있습니다.");
         }
 
         //주문 아이템 생성
         List<OrderCommand.Product> commandProducts = new ArrayList<>();
 
-        for(ProductModel productModel : productModels){
-            productModel.validateSellable();
-            OrderCriteria.ProductQuantity productQuantity = productQuantityMap.get(productModel.getId());
+        for(ProductModel model : productModels){
+            OrderCriteria.ProductQuantity productQuantity = productQuantityMap.get(model.getId());
 
             commandProducts.add(new OrderCommand.Product(
-                    productModel.getId(),
-                    productModel.getName(),
-                    productModel.getPrice(),
+                    model.getId(),
+                    model.getName(),
+                    model.getPrice(),
                     productQuantity.quantity()
             ));
         }
 
         //총금액계산
-        long totalAmount = OrderAmountCalculator.calculateTotalAmount(commandProducts);
+        long totalAmount = orderService.calculateTotalAmount(commandProducts);
+
+        //쿠폰사용
+        if(criteria.issueCouponId() != null){
+            totalAmount = couponService.useCoupon(criteria.userId(), criteria.issueCouponId(), totalAmount);
+        }
 
         //포인트 차감
         pointService.spend(criteria.userId(), totalAmount);
@@ -74,7 +82,19 @@ public class OrderFacade {
         OrderCommand.PlaceOrder placeOrder = criteria.toCommand(totalAmount, commandProducts);
         OrderModel orderModel = orderService.placeOrder(placeOrder);
 
-        return OrderInfo.Order.from(orderModel);
+        return OrderInfo.OrderResponse.from(orderModel);
 
     }
+
+    @Transactional(readOnly = true)
+    public OrderInfo.UserOrders getOrdersByUserId(Long userId){
+        //유저 체크
+        userService.checkExistUser(userId);
+
+        List<OrderModel> orderModels = orderService.getOrdersByUserId(userId);
+
+        return OrderInfo.UserOrders.from(orderModels);
+    }
+
+
 }

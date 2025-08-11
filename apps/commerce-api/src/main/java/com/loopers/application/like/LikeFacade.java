@@ -8,6 +8,7 @@ import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,20 +20,31 @@ public class LikeFacade {
     private final LikeService likeService;
     private final ProductService productService;
 
+    @Transactional
     public void like(LikeCriteria.Like criteria){
 
         userService.checkExistUser(criteria.userId());
         productService.checkExistProduct(criteria.productId());
 
-        likeService.like(criteria.userId(), criteria.productId());
+        boolean created = likeService.like(criteria.userId(), criteria.productId());
+        if(created){
+            productService.increaseLikeCount(criteria.productId());
+
+        }
 
     }
 
 
-    public void dislike(LikeCriteria.Dislike command){
+    @Transactional
+    public void dislike(LikeCriteria.Dislike criteria){
 
-        userService.checkExistUser(command.userId());
-        likeService.dislike(command.userId(), command.productId());
+        userService.checkExistUser(criteria.userId());
+
+        Boolean deleted  = likeService.dislike(criteria.userId(), criteria.productId());
+
+        if(deleted){
+            productService.decreaseLikeCount(criteria.productId());
+        }
 
     }
 
