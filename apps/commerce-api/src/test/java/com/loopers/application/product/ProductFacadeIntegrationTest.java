@@ -95,7 +95,9 @@ class ProductFacadeIntegrationTest {
             likeFacade.like(LikeCriteria.Like.of(user2.getId(), p1.getId()));
             likeFacade.like(LikeCriteria.Like.of(user3.getId(), p2.getId()));
 
-            ProductCriteria.SearchProducts criteria = new ProductCriteria.SearchProducts(0, 10, OrderType.낮은가격순);
+
+
+            ProductCriteria.SearchProducts criteria = new ProductCriteria.SearchProducts(0, 10, OrderType.낮은가격순, null);
 
             // act
             PageInfo.PageEnvelope<ProductInfo.Product> result = productFacade.getProductsWithPageAndSort(criteria);
