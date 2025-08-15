@@ -1,7 +1,6 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.Like.LikeToggleResult;
-import com.loopers.interfaces.api.product.OrderType;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -46,8 +45,8 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductModel> getProductsWithPageAndSort(int page, int size, OrderType orderType){
-        return productRepository.findAllByPaging(page, size, orderType);
+    public Page<ProductModel> getProductsWithPageAndSort(ProductCommand.SearchProducts command){
+        return productRepository.findAllByPaging(command.page(), command.size(), command.orderType(), command.brandId());
     }
 
 

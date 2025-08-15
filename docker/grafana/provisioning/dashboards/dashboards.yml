@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: 'k6-dashboards'
+    orgId: 1
+    folder: ""
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboard
+      foldersFromFilesStructure: true

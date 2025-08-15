@@ -1,12 +1,10 @@
 package com.loopers.infrastructure.product;
 
-import com.loopers.domain.product.ProductModel;
-import com.loopers.domain.product.ProductRepository;
-import com.loopers.domain.product.ProductSnapshotResult;
-import com.loopers.domain.product.ProductStatus;
+import com.loopers.domain.product.*;
 import com.loopers.interfaces.api.product.OrderType;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
@@ -36,26 +34,6 @@ public class ProductRepositoryImpl implements ProductRepository {
         return productJpaRepository.existsById(id);
     }
 
-    @Override
-    public Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-
-        List<ProductModel> productModelList = jpaQueryFactory.selectFrom(productModel)
-                .orderBy(order(orderType))
-                .offset(pageRequest.getOffset())
-                .limit(pageRequest.getPageSize())
-                .fetch()
-                .stream()
-                .toList();
-
-        Long totalCount = jpaQueryFactory.select(productModel.count())
-                .from(productModel)
-                .fetchOne();
-
-        long total = totalCount != null ? totalCount : 0L;
-
-        return new PageImpl<>(productModelList, pageRequest, total);
-    }
 
     @Override
     public List<ProductSnapshotResult> getProductsForSnapshot(List<Long> ids) {
@@ -107,16 +85,49 @@ public class ProductRepositoryImpl implements ProductRepository {
         return productJpaRepository.findByIdIn(productIds);
     }
 
+    @Override
+    public Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType, Long brandId) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        List<ProductModel> productModelList = jpaQueryFactory.selectFrom(productModel)
+                .where(brandIdEq(brandId), productModel.deletedAt.isNull())
+                .orderBy(order(orderType), idTiebreaker(orderType))
+                .offset(pageRequest.getOffset())
+                .limit(pageRequest.getPageSize())
+                .fetch()
+                .stream()
+                .toList();
+
+        Long totalCount = jpaQueryFactory.select(productModel.count())
+                .from(productModel)
+                .where(brandIdEq(brandId), productModel.deletedAt.isNull())
+                .fetchOne();
+
+        long total = totalCount != null ? totalCount : 0L;
+
+        return new PageImpl<>(productModelList, pageRequest, total);
+    }
 
     private OrderSpecifier<?> order(OrderType orderType){
         return switch (orderType){
-            case 오래된순 -> productModel.createdAt.asc();
-            case 최신순 -> productModel.createdAt.desc();
+            case 오래된순 -> productModel.updatedAt.asc();
+            case 최신순 -> productModel.updatedAt.desc();
             case 낮은가격순 -> productModel.price.asc();
             case 높은가격순 -> productModel.price.desc();
             case 낮은좋아요순 -> productModel.likeCount.asc();
             case 높은좋아요순 -> productModel.likeCount.desc();
         };
+    }
+
+    private OrderSpecifier<?> idTiebreaker(OrderType orderType) {
+        return switch (orderType) {
+            case 오래된순, 낮은가격순, 낮은좋아요순 -> productModel.id.asc();
+            case 최신순, 높은가격순, 높은좋아요순 -> productModel.id.desc();
+        };
+    }
+
+    private BooleanExpression brandIdEq(Long brandId){
+        return brandId != null ? productModel.brandId.eq(brandId) : null;
     }
 
 
