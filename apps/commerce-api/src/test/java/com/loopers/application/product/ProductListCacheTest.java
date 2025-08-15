@@ -76,7 +76,7 @@ class ProductListCacheTest {
             PageInfo.PageEnvelope<ProductInfo.Product> res = cache.getOrLoad(criteria, loader);
 
             assertThat(res).isNotNull();
-            verify(pageOps).set(key, res, Duration.ofSeconds(45));
+            verify(pageOps).set(key, res, Duration.ofSeconds(30));
         }
 
         @Test

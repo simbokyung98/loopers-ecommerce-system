@@ -5,9 +5,11 @@ import com.loopers.application.product.dto.ProductCriteria;
 import com.loopers.application.product.dto.ProductInfo;
 import com.loopers.cache.ProductDetailCache;
 import com.loopers.cache.ProductListCache;
+import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.product.ProductStatus;
 import com.loopers.interfaces.api.product.OrderType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,6 +26,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -109,58 +112,58 @@ class ProductFacadeTest {
     @DisplayName("상품 상세")
     class DetailTests {
 
-//        @Test
-//        @DisplayName("동일 항목 재요청 시, 불필요한 추가 조회를 하지 않는다")
-//        void detail_sameItem_repeatedRequest_avoidsExtraFetch() {
-//            Long id = 100L;
-//            ProductInfo.Product dto = new ProductInfo.Product(id, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드");
-//
-//            when(productDetailCache.getOrLoad(eq(id), any()))
-//                    .thenReturn(dto);
-//
-//            //act
-//            ProductInfo.Product res = productFacade.getProduct(id);
-//
-//            //assert
-//            assertThat(res).isSameAs(dto);
-//            verify(productDetailCache).getOrLoad(eq(id), any());
-//            verifyNoInteractions(productService, brandService);
-//        }
-//
-//        @Test
-//        @DisplayName("초기 조회 시, 상품/브랜드 정보를 조합해 상세를 반환한다")
-//        void detail_initialRequest_fetchesProductAndBrand() {
-//            Long id = 101L;
-//            ProductInfo.Product dto = new ProductInfo.Product(id, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드");
-//
-//
-//            when(productDetailCache.getOrLoad(eq(id), any()))
-//                    .thenAnswer(inv -> {
-//                        @SuppressWarnings("unchecked")
-//                        Supplier<ProductInfo.Product> supplier = inv.getArgument(1);
-//
-//                        // supplier 내부에서 호출되는 서비스 동작을 스텁
-//                        ProductModel product = mock(ProductModel.class);
-//                        when(productService.get(id)).thenReturn(product);
-//                        when(product.getBrandId()).thenReturn(7L);
-//
-//                        BrandModel brand = mock(BrandModel.class);
-//                        when(brandService.getBrand(7L)).thenReturn(brand);
-//
-//                        // 실제 로더 실행
-//                        supplier.get();
-//
-//                        return dto;
-//                    });
-//
-//            //act
-//            ProductInfo.Product res = productFacade.getProduct(id);
-//
-//            //assert
-//            assertThat(res).isSameAs(dto);
-//            verify(productDetailCache).getOrLoad(eq(id), any());
-//            verify(productService).get(id);
-//            verify(brandService).getBrand(7L);
-//        }
+        @Test
+        @DisplayName("동일 항목 재요청 시, 불필요한 추가 조회를 하지 않는다")
+        void detail_sameItem_repeatedRequest_avoidsExtraFetch() {
+            Long id = 100L;
+            ProductInfo.Product dto = new ProductInfo.Product(id, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드");
+
+            when(productDetailCache.getOrLoad(eq(id), any()))
+                    .thenReturn(dto);
+
+            //act
+            ProductInfo.Product res = productFacade.getProduct(id);
+
+            //assert
+            assertThat(res).isSameAs(dto);
+            verify(productDetailCache).getOrLoad(eq(id), any());
+            verifyNoInteractions(productService, brandService);
+        }
+
+        @Test
+        @DisplayName("초기 조회 시, 상품/브랜드 정보를 조합해 상세를 반환한다")
+        void detail_initialRequest_fetchesProductAndBrand() {
+            Long id = 101L;
+            ProductInfo.Product dto = new ProductInfo.Product(id, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드");
+
+
+            when(productDetailCache.getOrLoad(eq(id), any()))
+                    .thenAnswer(inv -> {
+                        @SuppressWarnings("unchecked")
+                        Supplier<ProductInfo.Product> supplier = inv.getArgument(1);
+
+                        // supplier 내부에서 호출되는 서비스 동작을 스텁
+                        ProductModel product = mock(ProductModel.class);
+                        when(productService.get(id)).thenReturn(product);
+                        when(product.getBrandId()).thenReturn(7L);
+
+                        BrandModel brand = mock(BrandModel.class);
+                        when(brandService.getBrand(7L)).thenReturn(brand);
+
+                        // 실제 로더 실행
+                        supplier.get();
+
+                        return dto;
+                    });
+
+            //act
+            ProductInfo.Product res = productFacade.getProduct(id);
+
+            //assert
+            assertThat(res).isSameAs(dto);
+            verify(productDetailCache).getOrLoad(eq(id), any());
+            verify(productService).get(id);
+            verify(brandService).getBrand(7L);
+        }
     }
 }
