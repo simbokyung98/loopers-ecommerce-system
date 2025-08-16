@@ -9,19 +9,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrderType {
 
-    최신순("latest"),
-    오래된순("oldest"),
-    낮은가격순("price_asc"),
-    높은가격순("price_desc"),
-    낮은좋아요순("like_asc"),
-    높은좋아요순("like_desc");
+    최신순("LATEST"),
+    오래된순("OLDEST"),
+    낮은가격순("PRICE_ASC"),
+    높은가격순("PRICE_DESC"),
+    낮은좋아요순("LIKE_ASC"),
+    높은좋아요순("LIKE_DESC");
 
     private final String value;
 
 
     public static OrderType fromValue(String value) {
         for (OrderType type : OrderType.values()) {
-            if (type.value.equals(value)) {
+            if (type.value.equalsIgnoreCase(value)) {
                 return type;
             }
         }

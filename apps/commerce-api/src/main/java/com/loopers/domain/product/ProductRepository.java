@@ -13,7 +13,7 @@ public interface ProductRepository {
 
     Boolean existProduct(Long id);
 
-    Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType);
+    Page<ProductModel> findAllByPaging(int page, int size, OrderType orderType, Long brandId);
 
     List<ProductSnapshotResult> getProductsForSnapshot(List<Long> ids);
 

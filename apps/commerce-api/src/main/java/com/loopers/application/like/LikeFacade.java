@@ -2,10 +2,12 @@ package com.loopers.application.like;
 
 import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.like.dto.LikeInfo;
+import com.loopers.cache.ProductLikeVersionService;
 import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserService;
+import com.loopers.support.tx.AfterCommitExecutor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,9 @@ public class LikeFacade {
     private final LikeService likeService;
     private final ProductService productService;
 
+    private final ProductLikeVersionService likeVersionService;
+    private final AfterCommitExecutor afterCommit;
+
     @Transactional
     public void like(LikeCriteria.Like criteria){
 
@@ -29,7 +34,7 @@ public class LikeFacade {
         boolean created = likeService.like(criteria.userId(), criteria.productId());
         if(created){
             productService.increaseLikeCount(criteria.productId());
-
+            afterCommit.run(likeVersionService::bump);
         }
 
     }
@@ -44,6 +49,7 @@ public class LikeFacade {
 
         if(deleted){
             productService.decreaseLikeCount(criteria.productId());
+            afterCommit.run(likeVersionService::bump);
         }
 
     }

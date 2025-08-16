@@ -4,16 +4,22 @@ import com.loopers.domain.BaseEntity;
 import com.loopers.domain.Like.LikeToggleResult;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "tb_product")
+@Table(
+    name = "tb_product",
+    indexes = {
+        @Index(name = "idx_product_price", columnList = "price, id"),
+        @Index(name = "idx_product_like_count", columnList = "like_count, id"),
+        @Index(name = "idx_product_brand_like_id", columnList = "brand_id, like_count, id"),
+        @Index(name = "idx_product_brand_price_id", columnList = "brand_id, price, id")
+}
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductModel extends BaseEntity {
 
@@ -27,6 +33,7 @@ public class ProductModel extends BaseEntity {
     private Long price;
 
     @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
     @Column(name = "brand_id", nullable = false)

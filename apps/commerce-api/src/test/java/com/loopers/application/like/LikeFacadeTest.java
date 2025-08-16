@@ -2,11 +2,13 @@ package com.loopers.application.like;
 
 import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.like.dto.LikeInfo;
+import com.loopers.cache.ProductLikeVersionService;
 import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.ProductStatus;
 import com.loopers.domain.user.UserService;
+import com.loopers.support.tx.AfterCommitExecutor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,10 @@ class LikeFacadeTest {
 
     @Mock
     private ProductService productService;
+
+    @Mock private ProductLikeVersionService likeVersionService;
+
+    @Mock private AfterCommitExecutor afterCommit;
 
     @InjectMocks
     private LikeFacade likeFacade;
@@ -127,6 +133,70 @@ class LikeFacadeTest {
             verify(userService).checkExistUser(userId);
             verify(likeService).dislike(userId, productId);
             verify(productService, never()).decreaseLikeCount(productId);
+        }
+    }
+
+    @DisplayName("캐시 버전 bump 호출 확인")
+    @Nested
+    class CacheVersionBump {
+
+        @Test
+        @DisplayName("like가 새로 생성되면 커밋 후 bump 호출한다")
+        void bumpOnLikeCreated() {
+            Long userId = 1L, productId = 10L;
+
+            when(likeService.like(userId, productId)).thenReturn(true);
+            // 커밋 후 실행 헬퍼를 "즉시 실행"으로 모킹
+            doAnswer(inv -> { Runnable r = (Runnable) inv.getArgument(0); r.run(); return null; })
+                    .when(afterCommit).run(any());
+
+            likeFacade.like(new LikeCriteria.Like(userId, productId));
+
+            verify(productService).increaseLikeCount(productId);
+            verify(afterCommit).run(any(Runnable.class));
+            verify(likeVersionService).bump();
+        }
+
+        @Test
+        @DisplayName("dislike가 실제로 삭제되면 커밋 후 bump 호출")
+        void bumpOnDislikeDeleted() {
+            Long userId = 1L, productId = 10L;
+
+            when(likeService.dislike(userId, productId)).thenReturn(true);
+            doAnswer(inv -> { Runnable r = (Runnable) inv.getArgument(0); r.run(); return null; })
+                    .when(afterCommit).run(any());
+
+            likeFacade.dislike(new LikeCriteria.Dislike(userId, productId));
+
+            verify(productService).decreaseLikeCount(productId);
+            verify(afterCommit).run(any(Runnable.class));
+            verify(likeVersionService).bump();
+        }
+
+        @Test
+        @DisplayName("이미 좋아요면 bump 호출 안 함")
+        void noBumpWhenAlreadyLiked() {
+            Long userId = 1L, productId = 10L;
+
+            when(likeService.like(userId, productId)).thenReturn(false);
+
+            likeFacade.like(new LikeCriteria.Like(userId, productId));
+
+            verify(afterCommit, never()).run(any());
+            verifyNoInteractions(likeVersionService);
+        }
+
+        @Test
+        @DisplayName("좋아요 상태가 아니면(dislike 실패) bump 호출 안 함")
+        void noBumpWhenNotLiked() {
+            Long userId = 1L, productId = 10L;
+
+            when(likeService.dislike(userId, productId)).thenReturn(false);
+
+            likeFacade.dislike(new LikeCriteria.Dislike(userId, productId));
+
+            verify(afterCommit, never()).run(any());
+            verifyNoInteractions(likeVersionService);
         }
     }
 }

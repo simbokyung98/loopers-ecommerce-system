@@ -1,18 +1,61 @@
-version: '3'
 services:
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
+    container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
       - ./grafana/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver  # k6가 Prometheus에 직접 푸시할 수 있게 함(스크랩 불필요).
+      - --enable-feature=native-histograms # k6가 네이티브 히스토그램으로 보낼 때 수신 가능하게 함.
+      - --storage.tsdb.retention.time=24h
+
+
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:latest
+    container_name: grafana
     ports:
       - "3000:3000"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboard:/var/lib/grafana/dashboards
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+  k6:
+    image: grafana/k6:latest
+    container_name: k6
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    working_dir: /work
+    volumes:
+      - ./:/work
+    environment:
+      # Prometheus Remote Write
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+      # 1) 트렌드 → 네이티브 히스토그램(버킷)도 전송 (p95 등 histogram_quantile 쿼리용)
+      - K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM=true
+      # 2) 접미사 타임시리즈도 함께 전송 (패널이 *_p95, *_avg 등을 기대할 때 대비)
+      - K6_PROMETHEUS_RW_TREND_STATS=p(90),p(95),avg,min,max,med
+      # 전송 주기(선택): 패널 갱신 빨리 보고 싶으면 줄이기
+      - K6_PROMETHEUS_RW_PUSH_INTERVAL=2s
+      # 테스트 종료 시 시계열 stale 마킹(선택)
+      - K6_PROMETHEUS_RW_STALE_MARKERS=true
+      - K6_WEB_DASHBOARD=true
+      - K6_WEB_DASHBOARD_HOST=0.0.0.0   # 컨테이너 밖에서 접근하려면
+      - K6_WEB_DASHBOARD_EXPORT=/work/k6-report.html  # 종료 시 HTML 리포트 자동 저장(선택)
+    ports:
+      - "5665:5665"
+    command: ["run", "-o", "experimental-prometheus-rw", "--tag", "testid=19665", "./script/output_test.js"]
+
+
+networks:
+  default:
+    driver: bridge
