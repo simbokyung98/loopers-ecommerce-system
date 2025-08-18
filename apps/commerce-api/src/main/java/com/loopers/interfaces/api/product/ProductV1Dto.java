@@ -17,10 +17,12 @@ public class ProductV1Dto {
             @NotNull
             int size,
             @NotNull
-            OrderType orderType
+            String orderTypeRequest,
+            Long brandId
     ){
         public ProductCriteria.SearchProducts toCriteria(){
-            return new ProductCriteria.SearchProducts(page, size, orderType);
+            OrderType orderType = OrderType.fromValue(orderTypeRequest);
+            return new ProductCriteria.SearchProducts(page, size, orderType, brandId);
         }
     }
 

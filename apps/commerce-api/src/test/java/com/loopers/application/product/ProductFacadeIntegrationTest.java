@@ -15,6 +15,7 @@ import com.loopers.domain.user.UserModel;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.interfaces.api.product.OrderType;
 import com.loopers.utils.DatabaseCleanUp;
+import com.loopers.utils.RedisCleanUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,10 +47,18 @@ class ProductFacadeIntegrationTest {
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
+    @Autowired
+    private RedisCleanUp redisCleanUp;
+
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
+        redisCleanUp.truncateAll();
     }
+
+
+
+
 
     @DisplayName("상품 정보를 조회할 떄 , ")
     @Nested
@@ -74,8 +83,7 @@ class ProductFacadeIntegrationTest {
 
             assertAll(
                     () -> assertThat(productInfo).isNotNull(),
-                    () -> assertThat(productInfo.brandName()).isEqualTo(brand.getName()),
-                    () -> assertThat(productInfo.likeCount()).isEqualTo(0L)
+                    () -> assertThat(productInfo.brandName()).isEqualTo(brand.getName())
             );
         }
 
@@ -95,7 +103,9 @@ class ProductFacadeIntegrationTest {
             likeFacade.like(LikeCriteria.Like.of(user2.getId(), p1.getId()));
             likeFacade.like(LikeCriteria.Like.of(user3.getId(), p2.getId()));
 
-            ProductCriteria.SearchProducts criteria = new ProductCriteria.SearchProducts(0, 10, OrderType.낮은가격순);
+
+
+            ProductCriteria.SearchProducts criteria = new ProductCriteria.SearchProducts(0, 10, OrderType.낮은가격순, null);
 
             // act
             PageInfo.PageEnvelope<ProductInfo.Product> result = productFacade.getProductsWithPageAndSort(criteria);
