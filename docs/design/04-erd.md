@@ -36,7 +36,7 @@
     Order {
         bigint id pk
         bigint user_id fk
-        bigint total_mount
+        bigint total_amount
         bigint used_point_amount
         bigint discount_amount
         bigint issued_coupon_id fk
@@ -123,6 +123,18 @@
         
     }
     
+    Payment {
+        bigint id pk
+        bigint order_id
+        varchar type
+        varchar status
+        bigint amount
+        varchar pg_tx_id
+        datetime create_at
+        datetime update_at
+        datetime delete_at   
+    }
+    
     User         ||--o{ Cart          : adds
     User         ||--o{ Like          : likes
     User         ||--o{ Order         : places
@@ -135,8 +147,9 @@
     
     Order        ||--o{ OrderItem     : includes
     OrderItem    }o--|| Product       : refers
-    
-    Order        }o--|| IssuedCoupon  : uses
+    Payment      }o--|| Order         : refers
+
+    Order        o|--o| IssuedCoupon  : uses
     IssuedCoupon }o--|| Coupon        : of
     
     Like         }o--|| Product       : on  
@@ -147,3 +160,5 @@
 ##### - PointHistory 의 division_code :[pay, add]
 ##### - Product 의 status : [available, outOfStock, discontinued, hidden]
 ##### - Coupon 의 discount_type : [FIXED, PERCENTAGE]
+##### - Payment 의 status : [PENDING, SUCCEEDED, FAILED  ]
+##### - Paymenr 의 type : [POINT, CARD]
