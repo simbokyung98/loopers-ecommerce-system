@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.product;
+package com.loopers.infrastructure.repository.product;
 
 import com.loopers.domain.product.*;
 import com.loopers.interfaces.api.product.OrderType;

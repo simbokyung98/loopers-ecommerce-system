@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.like;
+package com.loopers.infrastructure.repository.like;
 
 
 import com.loopers.domain.Like.LikeModel;

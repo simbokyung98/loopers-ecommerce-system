@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.point;
+package com.loopers.infrastructure.repository.point;
 
 import com.loopers.domain.point.PointModel;
 import com.loopers.domain.point.PointRepository;

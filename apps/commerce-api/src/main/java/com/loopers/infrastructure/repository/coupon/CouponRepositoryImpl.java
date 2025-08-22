@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.coupon;
+package com.loopers.infrastructure.repository.coupon;
 
 import com.loopers.domain.coupon.CouponRepository;
 import com.loopers.domain.coupon.model.CouponModel;

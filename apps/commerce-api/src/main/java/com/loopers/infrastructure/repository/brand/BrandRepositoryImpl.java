@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.brand;
+package com.loopers.infrastructure.repository.brand;
 
 
 import com.loopers.domain.brand.BrandModel;

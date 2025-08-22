@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.product;
+package com.loopers.infrastructure.repository.product;
 
 import com.loopers.domain.product.ProductModel;
 import org.springframework.data.jpa.repository.JpaRepository;
