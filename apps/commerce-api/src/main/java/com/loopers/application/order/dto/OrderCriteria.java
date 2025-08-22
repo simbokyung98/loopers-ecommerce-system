@@ -17,8 +17,8 @@ public class OrderCriteria {
             List<ProductQuantity> productQuantities
 
     ){
-        public OrderCommand.PlaceOrder toCommand(Long amount, List<OrderCommand.Product> products){
-            return new OrderCommand.PlaceOrder(userId, amount, address, phoneNumber, name, products);
+        public OrderCommand.PlaceOrder toCommand(Long totalAmount, Long finalAmount, List<OrderCommand.Product> products){
+            return new OrderCommand.PlaceOrder(userId, issueCouponId, totalAmount,finalAmount, address, phoneNumber, name, products);
         }
         public ProductCommand.DeductStocks toDeductStocks(){
             return new ProductCommand.DeductStocks(productQuantities.stream().map(ProductQuantity::of).toList());

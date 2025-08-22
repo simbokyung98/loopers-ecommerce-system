@@ -58,5 +58,12 @@ public class CouponService {
         }
     }
 
+    public void restoreCoupon(Long issueCouponId){
+        IssuedCouponModel issuedCouponModel = issuedCouponRepository.getIssuedCoupon(issueCouponId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "발행된 쿠폰이 존재하지 않습니다."));
+
+        issuedCouponModel.restore();
+    }
+
 
 }

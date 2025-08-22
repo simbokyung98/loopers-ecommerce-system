@@ -1,6 +1,8 @@
 package com.loopers.application.order.dto;
 
 import com.loopers.domain.order.OrderModel;
+import com.loopers.domain.order.OrderResult;
+import com.loopers.domain.order.OrderStatus;
 
 import java.util.List;
 
@@ -8,10 +10,16 @@ public class OrderInfo {
 
     public record OrderResponse(
             Long orderId,
-            Long totalAmount
+            Long finalCount,
+            OrderStatus status
+
     ){
         public static OrderResponse from(OrderModel orderModel){
-            return new OrderResponse(orderModel.getId(), orderModel.getAmount());
+            return new OrderResponse(orderModel.getId(), orderModel.getFinalAmount(), orderModel.getStatus());
+        }
+
+        public static OrderResponse from(OrderResult.Order order){
+            return new OrderResponse(order.id(), order.finalAmount(), order.status());
         }
     }
 

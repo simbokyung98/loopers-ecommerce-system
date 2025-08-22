@@ -116,6 +116,15 @@ public class ProductService {
 
     }
 
+    @Transactional
+    public void restoreStock(ProductCommand.ProductQuantity command){
+        ProductModel product = productRepository.getProductForUpdate(command.productId())
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품이 존재하지 않습니다."));
+
+        product.restoreStock(command.quantity());
+
+    }
+
 
 
 

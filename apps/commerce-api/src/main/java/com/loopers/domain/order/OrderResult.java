@@ -8,10 +8,13 @@ public class OrderResult {
     public record Order(
             Long id,
             Long userId,
-            Long amount,
+            Long issueCouponId,
+            Long totalAmount,
+            Long finalAmount,
             String address,
             String phoneNumber,
             String name,
+            OrderStatus status,
             List<OrderItem> orderItems
     ) {
         public static Order from(OrderModel orderModel, List<OrderItemModel> orderItemModels){
@@ -22,10 +25,13 @@ public class OrderResult {
             return new Order(
                     orderModel.getId(),
                     orderModel.getUserId(),
-                    orderModel.getAmount(),
+                    orderModel.getIssueCouponId(),
+                    orderModel.getTotalAmount(),
+                    orderModel.getFinalAmount(),
                     orderModel.getAddress(),
                     orderModel.getPhoneNumber(),
                     orderModel.getName(),
+                    orderModel.getStatus(),
                     orderItemResponse
             );
         }
