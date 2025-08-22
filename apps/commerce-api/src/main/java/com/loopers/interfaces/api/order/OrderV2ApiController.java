@@ -11,27 +11,20 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/orders")
-public class OrderV1ApiController implements OrderV1ApiSpec {
+@RequestMapping("/api/v2/orders")
+public class OrderV2ApiController implements OrderV2ApiSpec {
 
     private final OrderFacade orderFacade;
     private final PurchaseFacade purchaseFacade;
     @Override
     @PostMapping
-    public ApiResponse<OrderV1Dto.Order> order(@RequestHeader(value = "X-USER-ID") Long userid, @RequestBody OrderV1Dto.OrderRequest request) {
+    public ApiResponse<OrderV2Dto.Order> order(@RequestHeader(value = "X-USER-ID") Long userid, @RequestBody OrderV2Dto.OrderRequest request) {
 
         PurchaseCriteria.Purchase criteria = request.toPurchase(userid);
         OrderInfo.OrderResponse orderInfo = purchaseFacade.purchase(criteria);
-        OrderV1Dto.Order orderResponse = OrderV1Dto.Order.from(orderInfo);
+        OrderV2Dto.Order orderResponse = OrderV2Dto.Order.from(orderInfo);
         return ApiResponse.success(orderResponse);
     }
 
-    @Override
-    @GetMapping
-    public ApiResponse<OrderV1Dto.UserOrdersResponse> getOrdersByUserId(@RequestHeader(value = "X-USER-ID") Long userid) {
-        OrderInfo.UserOrders userOrders = orderFacade.getOrdersByUserId(userid);
-        OrderV1Dto.UserOrdersResponse userOrdersResponse = OrderV1Dto.UserOrdersResponse.from(userOrders);
-        return ApiResponse.success(userOrdersResponse);
-    }
 }
 

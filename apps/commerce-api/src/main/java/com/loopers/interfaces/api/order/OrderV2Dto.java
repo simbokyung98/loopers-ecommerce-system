@@ -10,15 +10,15 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public class OrderV1Dto {
+public class OrderV2Dto {
     public record Order(
             Long orderId,
             Long totalAmount,
 
             OrderStatus status
     ){
-        public static OrderV1Dto.Order from(OrderInfo.OrderResponse order){
-            return new OrderV1Dto.Order(order.orderId(), order.finalCount(), order.status());
+        public static Order from(OrderInfo.OrderResponse order){
+            return new Order(order.orderId(), order.finalCount(), order.status());
         }
     }
 
@@ -31,38 +31,29 @@ public class OrderV1Dto {
             String phoneNumber,
             @NotNull
             String name,
+            PaymentType paymentType,
+            String cardType,
+            String cardNo,
             @NotNull
             List<ProductQuantity> productQuantities
     ){
-        public OrderCriteria.Order toOrder(Long userId){
+        public PurchaseCriteria.Purchase toPurchase(Long userId){
             List<OrderCriteria.ProductQuantity> productQuantityList = productQuantities.stream()
                     .map(ProductQuantity::to)
                     .toList();
-            return new OrderCriteria.Order(
+            return new PurchaseCriteria.Purchase(
                     userId,
                     issueCouponId,
                     address,
                     phoneNumber,
                     name,
+                    paymentType,
+                    cardType,
+                    cardNo,
                     productQuantityList
             );
         }
 
-        public PurchaseCriteria.Purchase toPurchase(Long userId){
-            List<OrderCriteria.ProductQuantity> productQuantityList = productQuantities.stream()
-                    .map(ProductQuantity::to)
-                    .toList();
-
-            return PurchaseCriteria.Purchase.builder()
-                    .userId(userId)
-                    .issueCouponId(issueCouponId)
-                    .address(address)
-                    .phoneNumber(phoneNumber)
-                    .name(name)
-                    .paymentType(PaymentType.POINT)
-                    .productQuantities(productQuantityList)
-                    .build();
-        }
     }
 
     public record ProductQuantity(
@@ -76,16 +67,6 @@ public class OrderV1Dto {
         }
     }
 
-    public record UserOrdersResponse(
-            List<OrderResponse> orderResponses
-    ){
-        public static UserOrdersResponse from(OrderInfo.UserOrders userOrders){
-            List<OrderResponse> responses = userOrders.orders()
-                    .stream().map(OrderResponse::from)
-                    .toList();
-            return new UserOrdersResponse(responses);
-        }
-    }
 
     public record OrderResponse(
             Long id,
