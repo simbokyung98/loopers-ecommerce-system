@@ -6,8 +6,10 @@ import com.loopers.application.order.dto.OrderInfo;
 import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderModel;
+import com.loopers.domain.order.OrderResult;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.point.PointService;
+import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserService;
@@ -67,23 +69,30 @@ public class OrderFacade {
         //총금액계산
         long totalAmount = orderService.calculateTotalAmount(commandProducts);
 
+        long finalAmount = 0L;
+
         //쿠폰사용
         if(criteria.issueCouponId() != null){
-            totalAmount = couponService.useCoupon(criteria.userId(), criteria.issueCouponId(), totalAmount);
+            finalAmount = couponService.useCoupon(criteria.userId(), criteria.issueCouponId(), totalAmount);
         }
 
-        //포인트 차감
-        pointService.spend(criteria.userId(), totalAmount);
 
         //재고차감
         productService.deductStocks(criteria.toDeductStocks());
 
         //주문 생성
-        OrderCommand.PlaceOrder placeOrder = criteria.toCommand(totalAmount, commandProducts);
+        OrderCommand.PlaceOrder placeOrder = criteria.toCommand(totalAmount, finalAmount, commandProducts);
         OrderModel orderModel = orderService.placeOrder(placeOrder);
 
         return OrderInfo.OrderResponse.from(orderModel);
 
+    }
+
+    @Transactional(readOnly = true)
+    public OrderInfo.OrderResponse getOrder(Long orderId){
+        OrderResult.Order order = orderService.getOrderDetailById(orderId);
+
+        return OrderInfo.OrderResponse.from(order);
     }
 
     @Transactional(readOnly = true)
@@ -94,6 +103,28 @@ public class OrderFacade {
         List<OrderModel> orderModels = orderService.getOrdersByUserId(userId);
 
         return OrderInfo.UserOrders.from(orderModels);
+    }
+
+    @Transactional
+    public void failPayment(Long orderId){
+        OrderResult.Order order = orderService.getOrderDetailById(orderId);
+
+
+
+        if(order.issueCouponId() != null){
+            couponService.restoreCoupon(order.issueCouponId());
+        }
+
+        orderService.failPayment(orderId);
+
+        order.orderItems().forEach(item ->
+                productService.restoreStock(ProductCommand.ProductQuantity.of(item.productId(), item.quantity()))
+                );
+
+    }
+
+    public void completePayment(Long orderId){
+        orderService.completePayment(orderId);
     }
 
 

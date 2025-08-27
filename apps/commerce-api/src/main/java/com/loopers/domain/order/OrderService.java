@@ -19,7 +19,9 @@ public class OrderService {
 
         OrderModel orderModel = new OrderModel(
                 command.userId(),
-                command.amount(),
+                command.couponId(),
+                command.totalAmount(),
+                command.finalAmount(),
                 command.address(),
                 command.phoneNumber(),
                 command.name()
@@ -58,6 +60,19 @@ public class OrderService {
         return products.stream()
                 .mapToLong(p -> p.price() * p.quantity())
                 .sum();
+    }
+
+    public void completePayment(Long orderId){
+        OrderModel orderModel = orderRepository.findOrderById(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문정보가 존재하지 않습니다."));
+        orderModel.markAsPaid();
+
+    }
+
+    public  void failPayment(Long orderId){
+        OrderModel orderModel = orderRepository.findOrderById(orderId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "주문정보가 존재하지 않습니다."));
+        orderModel.markAsPaymentFailed();
     }
 
 }

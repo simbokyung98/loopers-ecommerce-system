@@ -8,7 +8,6 @@ import com.loopers.domain.coupon.IssuedCouponRepository;
 import com.loopers.domain.coupon.model.CouponModel;
 import com.loopers.domain.coupon.model.FixedCouponModel;
 import com.loopers.domain.coupon.model.IssuedCouponModel;
-import com.loopers.domain.point.PointModel;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductRepository;
@@ -64,7 +63,7 @@ public class OrderFacadeIntegrationTest {
     class Order {
 
         @Test
-        @DisplayName("주문 요청 시, 포인트 차감 및 주문이 생성된다")
+        @DisplayName("주문 요청 시, 주문이 생성된다")
         void order_success(){
             CouponModel coupon = couponRepository.saveCoupon(
                     new FixedCouponModel("정상 쿠폰", 5L, ZonedDateTime.now().plusDays(1), 5L)
@@ -81,11 +80,6 @@ public class OrderFacadeIntegrationTest {
             IssuedCouponModel issuedCouponModel = issuedCouponRepository.saveIssuedCoupon(
                     new IssuedCouponModel(userModel.getId(), coupon.getId())
             );
-
-            Long chargePoint = 20_000L;
-            PointModel pointModel = new PointModel(userModel.getId());
-            pointModel.charge(chargePoint);
-            pointRepository.save(pointModel);
 
 
             Long BRAND_ID = 1L;
@@ -127,11 +121,9 @@ public class OrderFacadeIntegrationTest {
             //assert
             assertAll(
                     () -> assertThat(result).isNotNull(),
-                    () ->assertThat(result.totalAmount()).isEqualTo(discountAmount)
+                    () ->assertThat(result.finalCount()).isEqualTo(discountAmount)
             );
 
-            PointModel pointResult = pointRepository.findByUserId(userModel.getId()).orElseThrow();
-            assertThat(pointResult.getTotalAmount()).isEqualTo(chargePoint - discountAmount);
 
             ProductModel updateProduct = productRepository.getProduct(product1.getId()).orElseThrow();
             assertThat(updateProduct.getStock()).isEqualTo(3L);

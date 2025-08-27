@@ -44,7 +44,7 @@ public class PointModel extends BaseEntity {
         long spendAmount = this.totalAmount - amount;
 
         if(spendAmount < 0) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다.");
+            throw new IllegalStateException("포인트가 부족합니다.");
         }
 
         this.totalAmount = spendAmount;

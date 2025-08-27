@@ -113,5 +113,12 @@ public class ProductModel extends BaseEntity {
         }
     }
 
+    public void restoreStock(Long quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "재고 복원 수량이 올바르지 않습니다.");
+        }
+        this.stock += quantity;
+    }
+
 
 }

@@ -1,7 +1,7 @@
 package com.loopers.interfaces.api.user;
 
 import com.loopers.domain.user.UserModel;
-import com.loopers.infrastructure.user.UserJpaRepository;
+import com.loopers.infrastructure.repository.user.UserJpaRepository;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.interfaces.api.User.Gender;
 import com.loopers.interfaces.api.User.UserV1Dto;

@@ -46,4 +46,11 @@ public class IssuedCouponModel extends BaseEntity {
 
         this.usedAt = ZonedDateTime.now();
     }
+
+    public void restore() {
+        if (this.usedAt == null) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "아직 사용되지 않은 쿠폰은 복원할 수 없습니다.");
+        }
+        this.usedAt = null;
+    }
 }

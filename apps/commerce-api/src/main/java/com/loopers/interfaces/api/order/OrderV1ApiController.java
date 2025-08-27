@@ -2,8 +2,9 @@ package com.loopers.interfaces.api.order;
 
 
 import com.loopers.application.order.OrderFacade;
-import com.loopers.application.order.dto.OrderCriteria;
 import com.loopers.application.order.dto.OrderInfo;
+import com.loopers.application.purchase.PurchaseCriteria;
+import com.loopers.application.purchase.PurchaseFacade;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +15,13 @@ import org.springframework.web.bind.annotation.*;
 public class OrderV1ApiController implements OrderV1ApiSpec {
 
     private final OrderFacade orderFacade;
+    private final PurchaseFacade purchaseFacade;
     @Override
     @PostMapping
     public ApiResponse<OrderV1Dto.Order> order(@RequestHeader(value = "X-USER-ID") Long userid, @RequestBody OrderV1Dto.OrderRequest request) {
-        OrderCriteria.Order creteria = request.to(userid);
-        OrderInfo.OrderResponse orderInfo = orderFacade.order(creteria);
+
+        PurchaseCriteria.Purchase criteria = request.toPurchase(userid);
+        OrderInfo.OrderResponse orderInfo = purchaseFacade.purchase(criteria);
         OrderV1Dto.Order orderResponse = OrderV1Dto.Order.from(orderInfo);
         return ApiResponse.success(orderResponse);
     }

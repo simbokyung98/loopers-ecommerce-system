@@ -29,6 +29,37 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+
+external:
+  pg:
+    base-url : "http://localhost:8082"
+
+resilience4j:
+  retry:
+    instances:
+      pgRetry:
+        max-attempts: 2
+        wait-duration: 1s
+        retry-exceptions:
+          - org.springframework.web.client.RestClientException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+          - com.loopers.support.error.CoreException
+        fail-after-max-attempts: true
+  circuitbreaker:
+    instances:
+      pgCircuit:
+        sliding-window-size: 10
+        failure-rate-threshold: 50       # 실패율이 50% 넘으면 Open
+        wait-duration-in-open-state: 10s # Open 상태 유지 시간
+        permitted-number-of-calls-in-half-open-state: 2
+        slow-call-duration-threshold: 2s
+        slow-call-rate-threshold: 50
+        record-exceptions:
+          - org.springframework.web.client.RestClientException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+          - com.loopers.support.error.CoreException
 ---
 spring:
   config:

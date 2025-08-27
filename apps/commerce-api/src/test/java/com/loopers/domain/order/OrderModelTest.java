@@ -24,7 +24,15 @@ class OrderModelTest {
 
 
             Throwable throwable = catchThrowable(() ->
-                    new OrderModel(1L, 1L, "testAddress", phoneNumber, "testName")
+                    new OrderModel(
+                            1L,
+                            null,
+                            10000L,
+                            9000L,
+                            "testAddress",
+                            phoneNumber,
+                            "testName"
+                    )
             );
 
             assertThat(throwable)
@@ -33,15 +41,63 @@ class OrderModelTest {
                     .isEqualTo(ErrorType.BAD_REQUEST);
         }
 
-        @DisplayName("주문 가격이 음수이면 , BAD_REQUEST 예외가 발생한다.")
+        @DisplayName("총 금액이 음수이면, BAD_REQUEST 예외가 발생한다.")
         @Test
-        void throwsBadRequestException_whenAmountIsNegative(){
-
+        void throwsBadRequestException_whenTotalAmountIsNegative() {
             Long negativeAmount = -1L;
 
-
             Throwable throwable = catchThrowable(() ->
-                    new OrderModel(1L, negativeAmount, "testAddress", "01011112222", "testName")
+                    new OrderModel(
+                            1L,
+                            null,
+                            negativeAmount,  // finalCount
+                            0L,              // finalAmount
+                            "testAddress",
+                            "01011112222",
+                            "testName"
+                    )
+            );
+
+            assertThat(throwable)
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("최종 결제 금액이 음수이면, BAD_REQUEST 예외가 발생한다.")
+        @Test
+        void throwsBadRequestException_whenFinalAmountIsNegative() {
+            Throwable throwable = catchThrowable(() ->
+                    new OrderModel(
+                            1L,
+                            null,
+                            10000L,       // finalCount
+                            -1L,          // finalAmount
+                            "testAddress",
+                            "01011112222",
+                            "testName"
+                    )
+            );
+
+            assertThat(throwable)
+                    .isInstanceOf(CoreException.class)
+                    .extracting("errorType")
+                    .isEqualTo(ErrorType.BAD_REQUEST);
+        }
+
+        @DisplayName("최종 결제 금액이 총 금액보다 크면, BAD_REQUEST 예외가 발생한다.")
+        @Test
+        void throwsBadRequestException_whenFinalAmountGreaterThanTotalAmount() {
+            Throwable throwable = catchThrowable(() ->
+                    new OrderModel(
+                            1L,
+                            null,
+                            10000L,       // finalCount
+                            20000L,       // finalAmount
+                            "testAddress",
+                            "01011112222",
+                            "testName"
+                    )
             );
 
             assertThat(throwable)

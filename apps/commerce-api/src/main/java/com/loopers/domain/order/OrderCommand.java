@@ -6,7 +6,9 @@ public class OrderCommand {
 
     public record PlaceOrder(
             Long userId,
-            Long amount,
+            Long couponId,
+            Long totalAmount,
+            Long finalAmount,
             String address,
             String phoneNumber,
             String name,

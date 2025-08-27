@@ -3,6 +3,9 @@ package com.loopers.interfaces.api.order;
 
 import com.loopers.application.order.dto.OrderCriteria;
 import com.loopers.application.order.dto.OrderInfo;
+import com.loopers.application.purchase.PurchaseCriteria;
+import com.loopers.domain.order.OrderStatus;
+import com.loopers.domain.payment.PaymentType;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
@@ -10,10 +13,12 @@ import java.util.List;
 public class OrderV1Dto {
     public record Order(
             Long orderId,
-            Long totalAmount
+            Long totalAmount,
+
+            OrderStatus status
     ){
-        public static Order from(OrderInfo.OrderResponse order){
-            return new Order(order.orderId(), order.totalAmount());
+        public static OrderV1Dto.Order from(OrderInfo.OrderResponse order){
+            return new OrderV1Dto.Order(order.orderId(), order.finalCount(), order.status());
         }
     }
 
@@ -29,7 +34,7 @@ public class OrderV1Dto {
             @NotNull
             List<ProductQuantity> productQuantities
     ){
-        public OrderCriteria.Order to(Long userId){
+        public OrderCriteria.Order toOrder(Long userId){
             List<OrderCriteria.ProductQuantity> productQuantityList = productQuantities.stream()
                     .map(ProductQuantity::to)
                     .toList();
@@ -41,6 +46,22 @@ public class OrderV1Dto {
                     name,
                     productQuantityList
             );
+        }
+
+        public PurchaseCriteria.Purchase toPurchase(Long userId){
+            List<OrderCriteria.ProductQuantity> productQuantityList = productQuantities.stream()
+                    .map(ProductQuantity::to)
+                    .toList();
+
+            return PurchaseCriteria.Purchase.builder()
+                    .userId(userId)
+                    .issueCouponId(issueCouponId)
+                    .address(address)
+                    .phoneNumber(phoneNumber)
+                    .name(name)
+                    .paymentType(PaymentType.POINT)
+                    .productQuantities(productQuantityList)
+                    .build();
         }
     }
 

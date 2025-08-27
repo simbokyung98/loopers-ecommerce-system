@@ -48,11 +48,20 @@
       - LocalDateTime? usedAt
       + isUsed() 
   }
-
+  
+  class payment{
+      - int id
+      - string payType
+      - Long amont
+      - string status
+      - Pg pg
+      - 
+ }
     Order --> "N" OrderItem : 소유
     OrderItem --> Product : 참조
     Order --> User : 참조
     Order --> IssuedCoupon : 사용된 쿠폰
     User --> "N" IssuedCoupon : 쿠폰 소유
     User --> Point : 소유
+    Payment --> Order : 참조
 ```

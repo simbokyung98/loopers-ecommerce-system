@@ -65,18 +65,16 @@ class PointModelTest {
         }
 
 
-        @DisplayName("포인트가 부족할경우, BadRequest 예외가 발생한다")
+        @DisplayName("포인트가 부족할경우, IllegalStateException 예외가 발생한다")
         @Test
-        void throwsBadRequestException_whenTotalAmountNotEnough() {
+        void throwsIllegalStateException_whenTotalAmountNotEnough() {
             PointModel pointModel = new PointModel(1L);
             pointModel.charge(100L);
 
             Throwable thrown = catchThrowable(() -> pointModel.spand(101L));
 
             assertThat(thrown)
-                    .isInstanceOf(CoreException.class)
-                    .extracting("errorType")
-                    .isEqualTo(ErrorType.BAD_REQUEST);
+                    .isInstanceOf(IllegalStateException.class);
         }
 
         @DisplayName("포인트가 충분 할 경우, 포인트를 사용한다")

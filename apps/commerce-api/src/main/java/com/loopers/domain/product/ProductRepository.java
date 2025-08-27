@@ -26,4 +26,5 @@ public interface ProductRepository {
     List<ProductModel> getSellableProductsByIdInForUpdate(List<Long> productIds);
     List<ProductModel> getProductsByIdIn(List<Long> productIds);
 
+
 }
