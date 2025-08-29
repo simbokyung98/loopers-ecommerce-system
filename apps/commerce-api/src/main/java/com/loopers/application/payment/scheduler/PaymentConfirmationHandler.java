@@ -1,9 +1,9 @@
 package com.loopers.application.payment.scheduler;
 
+import com.loopers.application.order.OrderFacade;
 import com.loopers.application.payment.PaymentGatewayService;
 import com.loopers.application.payment.dto.PaymentProbe;
 import com.loopers.application.payment.dto.ScheduledPayment;
-import com.loopers.application.purchase.PurchaseFacade;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -18,7 +18,7 @@ public class PaymentConfirmationHandler implements PaymentFollowUpUseCase {
 
     private final PaymentGatewayService paymentGatewayService; // PG 확인
     private final PaymentService paymentService;
-    private final PurchaseFacade purchaseFacade;
+    private final OrderFacade orderFacade;
     private final PaymentFollowUpScheduler scheduler;          // 성공 시 반복 중지
 
     @Override
@@ -58,7 +58,8 @@ public class PaymentConfirmationHandler implements PaymentFollowUpUseCase {
                 scheduler.cancel(orderId);
             }
             case STOP -> {
-                purchaseFacade.failedPayment(paymentId, orderId);
+                paymentService.failedPay(paymentId);
+                orderFacade.failedPayment(orderId);
                 scheduler.cancel(orderId);
             }
             case RETRY -> {

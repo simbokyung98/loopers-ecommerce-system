@@ -37,11 +37,18 @@ public class PaymentCriteria {
 
         public PaymentCreateRequest toRequest(){
             return new PaymentCreateRequest(
-                    String.valueOf(orderId),
+                    toPgOrderId(orderId),
                     cardType,
                     cardNo,
                     String.valueOf(amount)
             );
         }
+
+
+        private static String toPgOrderId(Long orderId) {
+            return "ORD-" + String.format("%06d", orderId);
+        }
+
+
     }
 }

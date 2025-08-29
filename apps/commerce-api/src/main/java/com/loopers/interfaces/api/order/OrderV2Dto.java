@@ -18,7 +18,7 @@ public class OrderV2Dto {
             OrderStatus status
     ){
         public static Order from(OrderInfo.OrderResponse order){
-            return new Order(order.orderId(), order.finalCount(), order.status());
+            return new Order(order.orderId(), order.finalAmount(), order.status());
         }
     }
 
@@ -42,6 +42,24 @@ public class OrderV2Dto {
                     .map(ProductQuantity::to)
                     .toList();
             return new PurchaseCriteria.Purchase(
+                    userId,
+                    issueCouponId,
+                    address,
+                    phoneNumber,
+                    name,
+                    paymentType,
+                    cardType,
+                    cardNo,
+                    productQuantityList
+            );
+        }
+
+        public OrderCriteria.Order toOrder(Long userId){
+            List<OrderCriteria.ProductQuantity> productQuantityList = productQuantities.stream()
+                    .map(ProductQuantity::to)
+                    .toList();
+
+            return new OrderCriteria.Order(
                     userId,
                     issueCouponId,
                     address,

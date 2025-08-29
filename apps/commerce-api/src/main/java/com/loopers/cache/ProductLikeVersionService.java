@@ -24,5 +24,6 @@ public class ProductLikeVersionService {
     /** 좋아요 이벤트 시 호출 → 즉시 무효화(다음 요청부터 새 키) */
     public void bump() {
         stringRedis.opsForValue().increment(KEY);
+        System.out.println("Like bump"+ KEY);
     }
 }
