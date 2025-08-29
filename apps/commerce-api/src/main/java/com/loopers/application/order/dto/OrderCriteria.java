@@ -2,18 +2,24 @@ package com.loopers.application.order.dto;
 
 
 import com.loopers.domain.order.OrderCommand;
+import com.loopers.domain.payment.PaymentType;
 import com.loopers.domain.product.ProductCommand;
+import lombok.Builder;
 
 import java.util.List;
 
 public class OrderCriteria {
 
+    @Builder
     public record Order(
             Long userId,
             Long issueCouponId,
             String address,
             String phoneNumber,
             String name,
+            PaymentType type,
+            String cardType,
+            String cardNo,
             List<ProductQuantity> productQuantities
 
     ){

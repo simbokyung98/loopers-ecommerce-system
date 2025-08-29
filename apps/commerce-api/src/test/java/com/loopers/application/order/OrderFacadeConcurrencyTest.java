@@ -6,6 +6,7 @@ import com.loopers.domain.coupon.IssuedCouponRepository;
 import com.loopers.domain.coupon.model.CouponModel;
 import com.loopers.domain.coupon.model.FixedCouponModel;
 import com.loopers.domain.coupon.model.IssuedCouponModel;
+import com.loopers.domain.payment.PaymentType;
 import com.loopers.domain.point.PointModel;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.product.ProductModel;
@@ -93,6 +94,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
                             "서울시 어딘가",
                             "01012345678",
                             "홍길동",
+                            PaymentType.CARD, "SAMSUNG","1111-2222-3333-4444",
                             List.of(new OrderCriteria.ProductQuantity(product.getId(), 1L))
                     );
 
@@ -228,6 +230,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
                         "서울시 멀티디바이스",
                         "01012345678",
                         "동시성유저",
+                        PaymentType.CARD, "SAMSUNG","1111-2222-3333-4444",
                         List.of(new OrderCriteria.ProductQuantity(product.getId(), 1L))
                 ));
                 successCount.incrementAndGet();

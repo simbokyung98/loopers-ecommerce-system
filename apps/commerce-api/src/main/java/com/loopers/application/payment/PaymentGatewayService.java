@@ -52,27 +52,14 @@ public class PaymentGatewayService {
                         txKey, e.getStatusCode(), e.getResponseBodyAsString());
                 return new PaymentProbe(PaymentProbe.Decision.STOP);
             }
-            if (e.getStatusCode().is5xxServerError()) {
-                log.warn("PG 5xx on getPayment: txKey={}, status={}, body={}",
-                        txKey, e.getStatusCode(), e.getResponseBodyAsString());
-                return new PaymentProbe(PaymentProbe.Decision.RETRY);
-            }
-            log.warn("PG unexpected HTTP on getPayment: txKey={}, status={}, body={}",
+            log.warn("PG 5xx on getPayment: txKey={}, status={}, body={}",
                     txKey, e.getStatusCode(), e.getResponseBodyAsString());
             return new PaymentProbe(PaymentProbe.Decision.RETRY);
-
         } catch (RestClientException e) {
             // 타임아웃/전송오류 등
-            if (isTimeoutLike(e)) {
-                log.warn("PG timeout/transport on getPayment: txKey={}, cause={}", txKey, e.toString());
-                return new PaymentProbe(PaymentProbe.Decision.RETRY);
-            }
-            log.warn("PG unexpected RestClientException on getPayment: txKey={}, cause={}", txKey, e.toString());
+            log.warn("PG timeout/transport on getPayment: txKey={}, cause={}", txKey, e.toString());
             return new PaymentProbe(PaymentProbe.Decision.RETRY);
 
-        } catch (RuntimeException e) {
-            log.warn("PG unexpected on getPayment: txKey={}, cause={}", txKey, e.toString());
-            return new PaymentProbe(PaymentProbe.Decision.RETRY);
         }
     }
 

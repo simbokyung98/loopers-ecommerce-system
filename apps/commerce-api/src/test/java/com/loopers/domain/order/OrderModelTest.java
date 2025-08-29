@@ -50,7 +50,7 @@ class OrderModelTest {
                     new OrderModel(
                             1L,
                             null,
-                            negativeAmount,  // finalCount
+                            negativeAmount,  // finalAmount
                             0L,              // finalAmount
                             "testAddress",
                             "01011112222",
@@ -71,7 +71,7 @@ class OrderModelTest {
                     new OrderModel(
                             1L,
                             null,
-                            10000L,       // finalCount
+                            10000L,       // finalAmount
                             -1L,          // finalAmount
                             "testAddress",
                             "01011112222",
@@ -92,7 +92,7 @@ class OrderModelTest {
                     new OrderModel(
                             1L,
                             null,
-                            10000L,       // finalCount
+                            10000L,       // finalAmount
                             20000L,       // finalAmount
                             "testAddress",
                             "01011112222",

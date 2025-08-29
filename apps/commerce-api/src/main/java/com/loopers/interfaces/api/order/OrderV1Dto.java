@@ -18,7 +18,7 @@ public class OrderV1Dto {
             OrderStatus status
     ){
         public static OrderV1Dto.Order from(OrderInfo.OrderResponse order){
-            return new OrderV1Dto.Order(order.orderId(), order.finalCount(), order.status());
+            return new OrderV1Dto.Order(order.orderId(), order.finalAmount(), order.status());
         }
     }
 
@@ -38,14 +38,15 @@ public class OrderV1Dto {
             List<OrderCriteria.ProductQuantity> productQuantityList = productQuantities.stream()
                     .map(ProductQuantity::to)
                     .toList();
-            return new OrderCriteria.Order(
-                    userId,
-                    issueCouponId,
-                    address,
-                    phoneNumber,
-                    name,
-                    productQuantityList
-            );
+            return OrderCriteria.Order.builder()
+                    .userId(userId)
+                    .issueCouponId(issueCouponId)
+                    .address(address)
+                    .phoneNumber(phoneNumber)
+                    .name(name)
+                    .type(PaymentType.POINT)
+                    .productQuantities(productQuantityList)
+                    .build();
         }
 
         public PurchaseCriteria.Purchase toPurchase(Long userId){

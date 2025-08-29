@@ -29,6 +29,9 @@ public class PurchaseCriteria {
                     address,
                     phoneNumber,
                     name,
+                    paymentType,
+                    cardType,
+                    cardNo,
                     productQuantities
             );
         }
