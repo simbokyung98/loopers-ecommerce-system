@@ -1,7 +1,7 @@
 package com.loopers.application.like;
 
-import com.loopers.application.like.event.LikeCreatedEvent;
-import com.loopers.application.like.event.LikeDeletedEvent;
+import com.loopers.domain.Like.event.LikeCreatedEvent;
+import com.loopers.domain.Like.event.LikeDeletedEvent;
 import com.loopers.cache.ProductLikeVersionService;
 import com.loopers.domain.product.ProductService;
 import org.junit.jupiter.api.BeforeEach;

@@ -2,8 +2,8 @@ package com.loopers.application.like;
 
 import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.like.dto.LikeInfo;
-import com.loopers.application.like.event.LikeCreatedEvent;
-import com.loopers.application.like.event.LikeDeletedEvent;
+import com.loopers.domain.Like.event.LikeCreatedEvent;
+import com.loopers.domain.Like.event.LikeDeletedEvent;
 import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
