@@ -1,7 +1,7 @@
 package com.loopers.application.like;
 
-import com.loopers.application.like.event.LikeCreatedEvent;
-import com.loopers.application.like.event.LikeDeletedEvent;
+import com.loopers.domain.Like.event.LikeCreatedEvent;
+import com.loopers.domain.Like.event.LikeDeletedEvent;
 import com.loopers.cache.ProductLikeVersionService;
 import com.loopers.domain.product.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,8 @@ public class LikeEventHandler {
         productService.increaseLikeCount(e.productId());
         likeVersionService.bump();
         log.debug("Like created handled:product={}", e.productId());
+
+        System.out.println("Like created handled: product="+ e.productId());
     }
 
     @Async
@@ -34,6 +36,7 @@ public class LikeEventHandler {
         productService.decreaseLikeCount(e.productId());
         likeVersionService.bump();
         log.debug("Like deleted handled: product={}", e.productId());
+        System.out.println("Like deleted handled: product="+ e.productId());
     }
 
 }

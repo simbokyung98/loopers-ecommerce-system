@@ -2,14 +2,12 @@ package com.loopers.application.like;
 
 import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.like.dto.LikeInfo;
-import com.loopers.application.like.event.LikeCreatedEvent;
-import com.loopers.application.like.event.LikeDeletedEvent;
-import com.loopers.cache.ProductLikeVersionService;
+import com.loopers.domain.Like.event.LikeCreatedEvent;
+import com.loopers.domain.Like.event.LikeDeletedEvent;
 import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.UserService;
-import com.loopers.support.tx.AfterCommitExecutor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -24,9 +22,6 @@ public class LikeFacade {
     private final UserService userService;
     private final LikeService likeService;
     private final ProductService productService;
-
-    private final ProductLikeVersionService likeVersionService;
-    private final AfterCommitExecutor afterCommit;
 
     private final ApplicationEventPublisher events;
 
