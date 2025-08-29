@@ -1,11 +1,11 @@
 package com.loopers.application.payment;
 
 
+import com.loopers.application.order.OrderFacade;
 import com.loopers.application.payment.dto.PaymentProbe;
 import com.loopers.application.payment.dto.ScheduledPayment;
 import com.loopers.application.payment.scheduler.PaymentConfirmationHandler;
 import com.loopers.application.payment.scheduler.PaymentFollowUpScheduler;
-import com.loopers.application.purchase.PurchaseFacade;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -26,7 +26,8 @@ class PaymentConfirmationHandlerTest {
 
     @Mock PaymentGatewayService paymentGatewayService;
     @Mock PaymentService paymentService;
-    @Mock PurchaseFacade purchaseFacade;
+    @Mock
+    OrderFacade orderFacade;
     @Mock
     PaymentFollowUpScheduler scheduler;
 
@@ -50,7 +51,8 @@ class PaymentConfirmationHandlerTest {
         verify(paymentGatewayService).checkPayment(txKey);
         verify(paymentService).completePay(paymentId);
         verify(scheduler).cancel(orderId);
-        verifyNoMoreInteractions(paymentService, purchaseFacade, scheduler);
+        verify(orderFacade, never()).failedPayment(anyLong());
+        verifyNoMoreInteractions(paymentService, orderFacade, scheduler);
     }
 
     @Test
@@ -66,9 +68,10 @@ class PaymentConfirmationHandlerTest {
         sut.onCardPendingTick(orderId, paymentId, txKey);
 
         verify(paymentGatewayService).checkPayment(txKey);
-        verify(purchaseFacade).failedPayment(paymentId, orderId);
+        verify(paymentService).failedPay(paymentId);
+        verify(orderFacade).failedPayment(orderId);
         verify(scheduler).cancel(orderId);
-        verifyNoMoreInteractions(paymentService, purchaseFacade, scheduler);
+        verifyNoMoreInteractions(paymentService, orderFacade, scheduler);
     }
 
     @Test
@@ -84,7 +87,7 @@ class PaymentConfirmationHandlerTest {
         sut.onCardPendingTick(orderId, paymentId, txKey);
 
         verify(paymentGatewayService).checkPayment(txKey);
-        verifyNoInteractions(paymentService, purchaseFacade);
+        verifyNoInteractions(paymentService, orderFacade);
         verify(scheduler, never()).cancel(anyLong());
     }
 
@@ -106,7 +109,7 @@ class PaymentConfirmationHandlerTest {
                 });
 
         verify(scheduler).findScheduled(orderId);
-        verifyNoInteractions(paymentGatewayService, paymentService, purchaseFacade);
+        verifyNoInteractions(paymentGatewayService, paymentService, orderFacade);
         verify(scheduler, never()).cancel(anyLong());
     }
 
@@ -132,7 +135,7 @@ class PaymentConfirmationHandlerTest {
                 });
 
         verify(scheduler).findScheduled(orderId);
-        verifyNoInteractions(paymentGatewayService, paymentService, purchaseFacade);
+        verifyNoInteractions(paymentGatewayService, paymentService, orderFacade);
         verify(scheduler, never()).cancel(anyLong());
     }
 
@@ -157,7 +160,7 @@ class PaymentConfirmationHandlerTest {
         verify(paymentGatewayService).checkPayment(txKey);
         verify(paymentService).completePay(paymentId);
         verify(scheduler).cancel(orderId);
-        verifyNoMoreInteractions(paymentService, purchaseFacade, scheduler);
+        verifyNoMoreInteractions(paymentService, orderFacade, scheduler);
     }
 
     @Test
@@ -179,9 +182,10 @@ class PaymentConfirmationHandlerTest {
 
         verify(scheduler).findScheduled(orderId);
         verify(paymentGatewayService).checkPayment(txKey);
-        verify(purchaseFacade).failedPayment(paymentId, orderId);
+        verify(paymentService).failedPay(paymentId);
+        verify(orderFacade).failedPayment(orderId);
         verify(scheduler).cancel(orderId);
-        verifyNoMoreInteractions(paymentService, purchaseFacade, scheduler);
+        verifyNoMoreInteractions(paymentService, orderFacade, scheduler);
     }
 
     @Test
@@ -203,7 +207,7 @@ class PaymentConfirmationHandlerTest {
 
         verify(scheduler).findScheduled(orderId);
         verify(paymentGatewayService).checkPayment(txKey);
-        verifyNoInteractions(paymentService, purchaseFacade);
+        verifyNoInteractions(paymentService, orderFacade);
         verify(scheduler, never()).cancel(anyLong());
     }
 }
