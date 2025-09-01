@@ -10,7 +10,7 @@ public class OrderInfo {
 
     public record OrderResponse(
             Long orderId,
-            Long finalCount,
+            Long finalAmount,
             OrderStatus status
 
     ){

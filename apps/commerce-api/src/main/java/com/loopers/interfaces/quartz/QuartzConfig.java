@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.quartz;
+package com.loopers.interfaces.quartz;
 
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.context.ApplicationContext;

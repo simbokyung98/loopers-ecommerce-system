@@ -39,7 +39,7 @@ public class LikeRepositoryImpl implements LikeRepository {
 
         return jpaQueryFactory.select(likeModel.productId)
                 .from(likeModel)
-                .where(likeModel.userId.eq(userId))
+                .where(likeModel.userId.eq(userId), likeModel.deletedAt.isNull())
                 .fetch();
     }
 

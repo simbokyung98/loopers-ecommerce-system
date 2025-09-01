@@ -74,6 +74,7 @@ public class ProductService {
     }
 
 
+    @Transactional
     public void increaseLikeCount(Long productId){
         ProductModel productModel = productRepository.getProductForUpdate(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));
@@ -81,6 +82,7 @@ public class ProductService {
 
     }
 
+    @Transactional
     public void decreaseLikeCount(Long productId){
         ProductModel productModel = productRepository.getProductForUpdate(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 정보를 찾을 수 없습니다."));

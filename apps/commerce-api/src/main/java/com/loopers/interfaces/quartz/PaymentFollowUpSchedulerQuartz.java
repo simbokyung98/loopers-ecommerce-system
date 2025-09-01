@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.quartz;
+package com.loopers.interfaces.quartz;
 
 
 import com.loopers.application.payment.dto.ScheduledPayment;

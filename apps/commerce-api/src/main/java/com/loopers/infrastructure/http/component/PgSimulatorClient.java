@@ -14,7 +14,6 @@ import org.springframework.web.client.RestClient;
 
 @Service
 @Slf4j
-
 public class PgSimulatorClient implements PaymentGatewayClient {
 
     private final RestClient pgRestClient;
