@@ -123,7 +123,7 @@ class LikeFacadeTest {
 
             likeFacade.like(new LikeCriteria.Like(userId, productId));
 
-            verify(events).publishEvent(new LikeCreatedEvent(productId));
+            verify(events).publishEvent(new LikeCreatedEvent(productId, userId));
         }
     }
     @DisplayName("좋아요 취소 할 때, ")
@@ -150,7 +150,7 @@ class LikeFacadeTest {
 
             likeFacade.dislike(new LikeCriteria.Dislike(userId, productId));
 
-            verify(events).publishEvent(new LikeDeletedEvent(productId));
+            verify(events).publishEvent(new LikeDeletedEvent(productId, userId));
         }
     }
 

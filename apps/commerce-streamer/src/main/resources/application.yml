@@ -24,14 +24,6 @@ spring:
       - kafka.yml
       - logging.yml
       - monitoring.yml
-
-demo-kafka:
-  test:
-    topic-name: demo.internal.topic-v1
-  like:
-    topic-name : product.like.create.v1
-
-spring:
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -40,6 +32,12 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*" # DTO 역직렬화 허용 패키지
+
+demo-kafka:
+  test:
+    topic-name: demo.internal.topic-v1
+  like:
+    topic-name: product.like.create.v1
 
 ---
 spring:
@@ -53,7 +51,6 @@ server:
 management:
   server:
     port: 8085
-
 
 ---
 spring:
