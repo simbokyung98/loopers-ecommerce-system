@@ -1,15 +1,23 @@
 package com.loopers.application.payment.scheduler;
 
 import com.loopers.application.order.OrderFacade;
+import com.loopers.application.order.dto.OrderInfo;
 import com.loopers.application.payment.PaymentGatewayService;
 import com.loopers.application.payment.dto.PaymentProbe;
 import com.loopers.application.payment.dto.ScheduledPayment;
+import com.loopers.application.payment.event.ConfirmedOrderItem;
+import com.loopers.application.payment.event.PaymentConfirmedEvent;
+import com.loopers.application.payment.event.PaymentFailedEvent;
+import com.loopers.confg.kafka.KafkaMessage;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -20,6 +28,7 @@ public class PaymentConfirmationHandler implements PaymentFollowUpUseCase {
     private final PaymentService paymentService;
     private final OrderFacade orderFacade;
     private final PaymentFollowUpScheduler scheduler;          // 성공 시 반복 중지
+    private final KafkaTemplate<Object, Object> kafkaTemplate;
 
     @Override
     public void onCardPendingTick(Long orderId, Long paymentId, String txKey) {
@@ -55,11 +64,36 @@ public class PaymentConfirmationHandler implements PaymentFollowUpUseCase {
         switch (probe.decision()) {
             case CONFIRMED -> {
                 paymentService.completePay(paymentId);
+
+                OrderInfo.OrderDetail response = orderFacade.getOrder(orderId);
+
+                List<ConfirmedOrderItem> items = response.orderItems().stream()
+                                .map(i -> new ConfirmedOrderItem(i.productId(), i.quantity()))
+                                        .toList();
+                PaymentConfirmedEvent paymentConfirmedEvent = new PaymentConfirmedEvent(
+                        orderId, paymentId, response.userId(), items
+                );
+
+                KafkaMessage<PaymentConfirmedEvent> message = KafkaMessage.from(paymentConfirmedEvent);
+                kafkaTemplate.send("product.payment.confirmed.v1",String.valueOf(paymentId), message );
+
+
                 scheduler.cancel(orderId);
+
             }
             case STOP -> {
                 paymentService.failedPay(paymentId);
                 orderFacade.failedPayment(orderId);
+
+                OrderInfo.OrderDetail response = orderFacade.getOrder(orderId);
+
+                KafkaMessage<PaymentFailedEvent> message = KafkaMessage.from(
+                        new PaymentFailedEvent(paymentId, paymentId, response.userId())
+                );
+
+                kafkaTemplate.send("product.payment.failed.v1",String.valueOf(paymentId), message );
+
+
                 scheduler.cancel(orderId);
             }
             case RETRY -> {

@@ -7,8 +7,7 @@ import com.loopers.domain.event.EventHandlerService;
 import com.loopers.domain.log.AuditEventType;
 import com.loopers.domain.log.AuditLogCommand;
 import com.loopers.domain.log.AuditLogService;
-import com.loopers.interfaces.consumer.event.LikeEvent;
-import com.loopers.interfaces.consumer.event.LikeEventType;
+import com.loopers.interfaces.consumer.event.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -68,5 +67,98 @@ public class LoggingConsumer {
 
         ack.acknowledge();
     }
+
+    @KafkaListener(
+            topics = "${demo-kafka.order.create.topic-name}",
+            groupId = "logging-consumer-group",
+            containerFactory = KafkaConfig.BATCH_LISTENER
+    )
+    public void onOrderCreateEvent(List<KafkaMessage<OrderCreatedKafkaEvent>> events, Acknowledgment ack) {
+        events.stream()
+                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "logging"))
+                .forEach(message -> {
+                    OrderCreatedKafkaEvent event = message.payload();
+                    auditLogService.save(
+                            new AuditLogCommand.AuditLog(
+                                    message.eventId(),
+                                    AuditEventType.ORDER_CREATED,
+                                    event.userId(),
+                                    event.orderId()
+                            )
+                    );
+                });
+
+        ack.acknowledge();
+    }
+
+    @KafkaListener(
+            topics = "${demo-kafka.order.failed.topic-name}",
+            groupId = "logging-consumer-group",
+            containerFactory = KafkaConfig.BATCH_LISTENER
+    )
+    public void onOrderFailedEvent(List<KafkaMessage<OrderCreatedEvent>> events, Acknowledgment ack) {
+        events.stream()
+                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "logging"))
+                .forEach(message -> {
+                    OrderCreatedEvent event = message.payload();
+                    auditLogService.save(
+                            new AuditLogCommand.AuditLog(
+                                    message.eventId(),
+                                    AuditEventType.ORDER_FAILED,
+                                    event.userId(),
+                                    event.orderId()
+                            )
+                    );
+                });
+
+        ack.acknowledge();
+    }
+
+    @KafkaListener(
+            topics = "${demo-kafka.payment.failed.topic-name}",
+            groupId = "logging-consumer-group",
+            containerFactory = KafkaConfig.BATCH_LISTENER
+    )
+    public void onPaymentFailedEvent(List<KafkaMessage<PaymentFailedEvent>> events, Acknowledgment ack) {
+        events.stream()
+                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "logging"))
+                .forEach(message -> {
+                    PaymentFailedEvent event = message.payload();
+                    auditLogService.save(
+                            new AuditLogCommand.AuditLog(
+                                    message.eventId(),
+                                    AuditEventType.PAYMENT_FAILED,
+                                    event.userId(),
+                                    event.paymentId()
+                            )
+                    );
+                });
+
+        ack.acknowledge();
+    }
+
+    @KafkaListener(
+            topics = "${demo-kafka.payment.confirmed.topic-name}",
+            groupId = "logging-consumer-group",
+            containerFactory = KafkaConfig.BATCH_LISTENER
+    )
+    public void onPaymentConfirmedEvent(List<KafkaMessage<PaymentConfirmedEvent>> events, Acknowledgment ack) {
+        events.stream()
+                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "logging"))
+                .forEach(message -> {
+                    PaymentConfirmedEvent event = message.payload();
+                    auditLogService.save(
+                            new AuditLogCommand.AuditLog(
+                                    message.eventId(),
+                                    AuditEventType.PAYMENT_SUCCESS,
+                                    event.userId(),
+                                    event.paymentId()
+                            )
+                    );
+                });
+
+        ack.acknowledge();
+    }
+
 
 }

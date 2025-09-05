@@ -38,6 +38,16 @@ demo-kafka:
     topic-name: demo.internal.topic-v1
   like:
     topic-name: product.like.create.v1
+  order:
+    create :
+      topic-name : product.order.create.v1
+    failed :
+      topic-name : product.order.failed.v1
+  payment:
+    failed :
+      topic-name : product.payment.failed.v1
+    confirmed :
+      topic-name : product.payment.confirmed.v1
 
 ---
 spring:

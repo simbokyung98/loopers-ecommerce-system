@@ -3,7 +3,6 @@ package com.loopers.interfaces.api.order;
 
 import com.loopers.application.order.dto.OrderCriteria;
 import com.loopers.application.order.dto.OrderInfo;
-import com.loopers.application.purchase.PurchaseCriteria;
 import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.payment.PaymentType;
 import jakarta.validation.constraints.NotNull;
@@ -37,22 +36,7 @@ public class OrderV2Dto {
             @NotNull
             List<ProductQuantity> productQuantities
     ){
-        public PurchaseCriteria.Purchase toPurchase(Long userId){
-            List<OrderCriteria.ProductQuantity> productQuantityList = productQuantities.stream()
-                    .map(ProductQuantity::to)
-                    .toList();
-            return new PurchaseCriteria.Purchase(
-                    userId,
-                    issueCouponId,
-                    address,
-                    phoneNumber,
-                    name,
-                    paymentType,
-                    cardType,
-                    cardNo,
-                    productQuantityList
-            );
-        }
+
 
         public OrderCriteria.Order toOrder(Long userId){
             List<OrderCriteria.ProductQuantity> productQuantityList = productQuantities.stream()

@@ -120,5 +120,7 @@ public class ProductModel extends BaseEntity {
         this.stock += quantity;
     }
 
+    public boolean isOutOfStock() { return this.stock == 0; }
+
 
 }

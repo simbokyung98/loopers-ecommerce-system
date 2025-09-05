@@ -19,6 +19,8 @@ public class CacheInvalidateConsumer {
     private final EventHandlerService eventHandlerService;
     private final RedisTemplate<String, String> redisTemplate;
 
+
+
     @KafkaListener(
             topics = "${demo-kafka.like.topic-name}",
             groupId = "cache-consumer-group",
@@ -39,6 +41,7 @@ public class CacheInvalidateConsumer {
         }
         ack.acknowledge();
     }
+
 
 
 }

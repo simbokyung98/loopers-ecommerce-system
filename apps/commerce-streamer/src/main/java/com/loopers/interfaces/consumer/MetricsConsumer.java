@@ -4,6 +4,7 @@ import com.loopers.confg.kafka.KafkaMessage;
 import com.loopers.domain.event.EventHandlerService;
 import com.loopers.domain.metric.ProductMetricDailyService;
 import com.loopers.interfaces.consumer.event.LikeEvent;
+import com.loopers.interfaces.consumer.event.PaymentConfirmedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -41,22 +42,22 @@ public class MetricsConsumer {
     }
 
 
-//    /**
-//     * 주문 생성 이벤트
-//     */
-//    @KafkaListener(
-//            topics = "${demo-kafka.order.created.topic-name}",
-//            groupId = "metrics-consumer-group",
-//            containerFactory = "metricsKafkaListenerContainerFactory"
-//    )
-//    public void onOrderCreated(List<KafkaMessage<OrderCreatedEvent>> events, Acknowledgment ack) {
-//        events.stream()
-//                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "metrics"))
-//                .map(e -> e.payload().productId())
-//                .forEach(productId -> dailyService.updateSaleCount(productId, +1));
-//
-//        ack.acknowledge();
-//    }
+    /**
+     * 주문 생성 이벤트
+     */
+    @KafkaListener(
+            topics = "${demo-kafka.payment.confirmed.topic-name}",
+            groupId = "metrics-consumer-group",
+            containerFactory = "metricsKafkaListenerContainerFactory"
+    )
+    public void onOrderCreated(List<KafkaMessage<PaymentConfirmedEvent>> events, Acknowledgment ack) {
+        events.stream()
+                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "metrics"))
+                .flatMap(e -> e.payload().items().stream()) // ✅ 여러 상품 처리
+                .forEach(item -> productMetricDailyService.updateSale(item.productId(), item.quantity().intValue()));
+
+        ack.acknowledge();
+    }
 //
 //    /**
 //     * 상품 조회 이벤트 → viewCount +1
