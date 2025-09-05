@@ -20,7 +20,7 @@ spring:
       group-id: loopers-default-consumer
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
-      auto-offset-reset: latest
+      auto-offset-reset: earliest
       properties:
         enable-auto-commit: false
         request.timeout.ms: 20000

@@ -16,6 +16,9 @@ import org.springframework.kafka.support.converter.ConversionException;
 import org.springframework.kafka.support.serializer.DeserializationException;
 import org.springframework.util.backoff.FixedBackOff;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 왜 기본(Spring Boot 자동 구성) 대신 커스텀 컨테이너 팩토리를 쓰나?
  *
@@ -80,6 +83,12 @@ public class ConsumerGroupConfig {
             ByteArrayJsonMessageConverter jsonConverter,
             KafkaTemplate<Object, Object> kafkaTemplate
     ) {
+
+        // 기본 Consumer 설정 복사 + 오버라이드
+        Map<String, Object> props = new HashMap<>(consumerFactory.getConfigurationProperties());
+        props.put("auto.offset.reset", "earliest"); // ✅ 과거 이벤트부터 모두 소비 (정확한 집계 보장)
+
+
         var factory = new ConcurrentKafkaListenerContainerFactory<Object, Object>();
         factory.setConsumerFactory(consumerFactory);
 
@@ -119,6 +128,10 @@ public class ConsumerGroupConfig {
             ByteArrayJsonMessageConverter jsonConverter,
             KafkaTemplate<Object, Object> kafkaTemplate
     ) {
+
+        Map<String, Object> propsMap = new HashMap<>(consumerFactory.getConfigurationProperties());
+        propsMap.put("auto.offset.reset", "latest"); // ✅ 최신 메시지부터 소비 (실시간 캐시 반영)
+
         var factory = new ConcurrentKafkaListenerContainerFactory<Object, Object>();
         factory.setConsumerFactory(consumerFactory);
 
