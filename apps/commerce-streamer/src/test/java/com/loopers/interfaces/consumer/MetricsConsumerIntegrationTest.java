@@ -79,5 +79,5 @@ class MetricsConsumerIntegrationTest {
                     assertThat(daily.get().getSaleCount()).isEqualTo(5); // 2 + 3
                 });
     }
-    
+
 }
