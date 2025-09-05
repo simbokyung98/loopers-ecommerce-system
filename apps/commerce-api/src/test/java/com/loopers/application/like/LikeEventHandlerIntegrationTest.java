@@ -55,7 +55,7 @@ class LikeEventHandlerIntegrationTest {
         @Transactional
         @DisplayName("롤백되면 핸들러가 실행되지 않는다")
         void createdEvent_rollback_doesNothing() {
-            events.publishEvent(new LikeCreatedEvent(PRODUCT_ID, USER_ID));
+            events.publishEvent(new LikeCreatedEvent(USER_ID, PRODUCT_ID));
 
             // 커밋하지 않고 롤백
             TestTransaction.end();
@@ -76,7 +76,7 @@ class LikeEventHandlerIntegrationTest {
         @Transactional
         @DisplayName("롤백되면 핸들러가 실행되지 않는다")
         void deletedEvent_rollback_doesNothing() {
-            events.publishEvent(new LikeDeletedEvent(PRODUCT_ID, USER_ID));
+            events.publishEvent(new LikeDeletedEvent(USER_ID, PRODUCT_ID));
             TestTransaction.end();
 
             await().during(Duration.ofMillis(300)).atMost(Duration.ofSeconds(1)).untilAsserted(() -> {

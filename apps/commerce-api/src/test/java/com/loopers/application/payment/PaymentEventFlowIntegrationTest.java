@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.event.ApplicationEvents;
@@ -57,6 +58,9 @@ class PaymentEventFlowIntegrationTest {
 
     @MockitoSpyBean
     private OrderFacade spyOrderFacade;
+
+    @MockitoBean
+    private KafkaTemplate<Object, Object> kafkaTemplate;
 
     private static final Long BRAND_ID = 1L;
 
