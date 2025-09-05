@@ -48,6 +48,9 @@ demo-kafka:
       topic-name : product.payment.failed.v1
     confirmed :
       topic-name : product.payment.confirmed.v1
+  product :
+    viewed :
+      topic-name : product.viewed.v1
 
 ---
 spring:
