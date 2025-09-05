@@ -2,16 +2,19 @@ package com.loopers.application.product;
 
 
 import com.loopers.application.common.PageInfo;
-import com.loopers.cache.ProductDetailCache;
-import com.loopers.cache.ProductListCache;
 import com.loopers.application.product.dto.ProductCriteria;
 import com.loopers.application.product.dto.ProductInfo;
+import com.loopers.cache.ProductDetailCache;
+import com.loopers.cache.ProductListCache;
+import com.loopers.confg.kafka.KafkaMessage;
 import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.product.ProductViewedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,14 +31,22 @@ public class ProductFacade {
     private final ProductListCache productListCache;
     private final ProductDetailCache productDetailCache;
 
+    private final KafkaTemplate<Object, Object> kafkaTemplate;
+
 
     @Transactional(readOnly = true)
     public ProductInfo.Product getProduct(Long productId) {
-        return productDetailCache.getOrLoad(productId, () -> {
-            ProductModel product = productService.get(productId);
-            BrandModel brand = brandService.getBrand(product.getBrandId()); // ← getBrandId() 사용
-            return ProductInfo.Product.from(product, brand);
+        ProductInfo.Product product =  productDetailCache.getOrLoad(productId, () -> {
+            ProductModel productModel = productService.get(productId);
+            BrandModel brand = brandService.getBrand(productModel.getBrandId()); // ← getBrandId() 사용
+            return ProductInfo.Product.from(productModel, brand);
         });
+
+        ProductViewedEvent event = new ProductViewedEvent(productId);
+        KafkaMessage<ProductViewedEvent> message = KafkaMessage.from(event);
+        kafkaTemplate.send("product.viewed.v1", String.valueOf(productId), message);
+
+        return product;
     }
 
 

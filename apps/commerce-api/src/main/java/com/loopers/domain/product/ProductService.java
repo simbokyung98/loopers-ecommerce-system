@@ -127,6 +127,15 @@ public class ProductService {
 
     }
 
+    public boolean isOutOfStock(Long id){
+
+        ProductModel productModel = productRepository.getProduct(id)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품이 존재하지 않습니다."));
+
+
+        return productModel.isOutOfStock();
+    }
+
 
 
 

@@ -3,8 +3,10 @@ rootProject.name = "loopers-ecommerce-system"
 include(
     ":apps:commerce-api",
     ":apps:pg-simulator",
+    ":apps:commerce-streamer",
     ":modules:jpa",
     ":modules:redis",
+    ":modules:kafka",
     ":supports:jackson",
     ":supports:logging",
     ":supports:monitoring",

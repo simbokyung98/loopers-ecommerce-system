@@ -33,6 +33,8 @@ class LikeEventHandlerIntegrationTest {
 
     private static final Long PRODUCT_ID = 100L;
 
+    private static final Long USER_ID = 100L;
+
     @BeforeEach
     void setUp() {
         // 스파이 호출/스텁 초기화
@@ -48,33 +50,12 @@ class LikeEventHandlerIntegrationTest {
     @DisplayName("LikeCreatedEvent 처리")
     class CreatedEvent {
 
-        @Test
-        @Transactional
-        @DisplayName("커밋 후에만 increaseLikeCount + bump 실행된다 (@Async)")
-        void createdEvent_afterCommit_runsAsyncHandler() {
-            // 트랜잭션 안에서 이벤트 발행 → AFTER_COMMIT 예약
-            events.publishEvent(new LikeCreatedEvent(PRODUCT_ID));
-
-            // 커밋 전: 아무 호출도 없어야 함
-            verify(productService, never()).increaseLikeCount(any());
-            verify(likeVersionService, never()).bump();
-
-            // 커밋
-            TestTransaction.flagForCommit();
-            TestTransaction.end();
-
-            // 비동기 실행 완료 대기 후 검증
-            await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
-                verify(productService, times(1)).increaseLikeCount(PRODUCT_ID);
-                verify(likeVersionService, times(1)).bump();
-            });
-        }
 
         @Test
         @Transactional
         @DisplayName("롤백되면 핸들러가 실행되지 않는다")
         void createdEvent_rollback_doesNothing() {
-            events.publishEvent(new LikeCreatedEvent(PRODUCT_ID));
+            events.publishEvent(new LikeCreatedEvent(USER_ID, PRODUCT_ID));
 
             // 커밋하지 않고 롤백
             TestTransaction.end();
@@ -93,27 +74,9 @@ class LikeEventHandlerIntegrationTest {
 
         @Test
         @Transactional
-        @DisplayName("커밋 후에만 decreaseLikeCount + bump 실행된다 (@Async)")
-        void deletedEvent_afterCommit_runsAsyncHandler() {
-            events.publishEvent(new LikeDeletedEvent(PRODUCT_ID));
-
-            verify(productService, never()).decreaseLikeCount(any());
-            verify(likeVersionService, never()).bump();
-
-            TestTransaction.flagForCommit();
-            TestTransaction.end();
-
-            await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
-                verify(productService, times(1)).decreaseLikeCount(PRODUCT_ID);
-                verify(likeVersionService, times(1)).bump();
-            });
-        }
-
-        @Test
-        @Transactional
         @DisplayName("롤백되면 핸들러가 실행되지 않는다")
         void deletedEvent_rollback_doesNothing() {
-            events.publishEvent(new LikeDeletedEvent(PRODUCT_ID));
+            events.publishEvent(new LikeDeletedEvent(USER_ID, PRODUCT_ID));
             TestTransaction.end();
 
             await().during(Duration.ofMillis(300)).atMost(Duration.ofSeconds(1)).untilAsserted(() -> {

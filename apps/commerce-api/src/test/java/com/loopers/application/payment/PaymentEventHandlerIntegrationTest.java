@@ -2,9 +2,12 @@ package com.loopers.application.payment;
 
 
 import com.loopers.application.order.OrderFacade;
+import com.loopers.application.order.dto.OrderInfo;
 import com.loopers.application.payment.dto.PaymentCriteria;
+import com.loopers.domain.order.OrderService;
 import com.loopers.domain.order.event.OrderCreatedEvent;
 import com.loopers.domain.payment.PaymentType;
+import com.loopers.domain.product.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,12 +17,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -40,6 +45,15 @@ class PaymentEventHandlerIntegrationTest {
     // 상태 확정 경계: 실제 빈을 Spy로 감시하되 DB 변경 막기 위해 doNothing 스텁
     @MockitoSpyBean
     private OrderFacade orderFacade;
+
+    @MockitoBean
+    private OrderService orderService;
+
+    @MockitoBean
+    private ProductService productService;
+
+    @MockitoBean
+    private KafkaTemplate<Object, Object> kafkaTemplate;
 
     private static final Long ORDER_ID = 1000L;
     private static final Long USER_ID = 77L;
@@ -68,6 +82,7 @@ class PaymentEventHandlerIntegrationTest {
             // pay 성공 스텁
             doNothing().when(paymentFacade).pay(any(PaymentCriteria.CreatePayment.class));
 
+
             // 트랜잭션 안에서 이벤트 발행 → AFTER_COMMIT 예약
             events.publishEvent(new OrderCreatedEvent(
                     ORDER_ID, USER_ID, AMOUNT, TYPE, CARD_TYPE, CARD_NO
@@ -77,6 +92,12 @@ class PaymentEventHandlerIntegrationTest {
             verify(paymentFacade, never()).pay(any());
             verify(orderFacade, never()).completePayment(anyLong());
             verify(orderFacade, never()).failedPayment(anyLong());
+
+            doReturn(new OrderInfo.OrderDetail(
+                    ORDER_ID, USER_ID, null, 1000L, 1000L, null, null, null, null,
+                    List.of(new OrderInfo.OrderItemResponse(1L, ORDER_ID, USER_ID, null, null, 2L, null))
+            )).when(orderFacade).getOrder(anyLong());
+
 
             // 커밋
             TestTransaction.flagForCommit();
@@ -109,9 +130,16 @@ class PaymentEventHandlerIntegrationTest {
             // pay가 실패하도록 스텁
             doThrow(new RuntimeException("PG down")).when(paymentFacade).pay(any());
 
+
             events.publishEvent(new OrderCreatedEvent(
                     ORDER_ID, USER_ID, AMOUNT, TYPE, CARD_TYPE, CARD_NO
             ));
+
+            doReturn(new OrderInfo.OrderDetail(
+                    ORDER_ID, USER_ID, null, 1000L, 1000L, null, null, null, null,
+                    List.of(new OrderInfo.OrderItemResponse(1L, ORDER_ID, USER_ID, null, null, 2L, null))
+            )).when(orderFacade).getOrder(anyLong());
+
 
             // 커밋 전: 호출 없음
             verify(paymentFacade, never()).pay(any());

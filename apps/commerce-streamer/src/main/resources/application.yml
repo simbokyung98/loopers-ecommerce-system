@@ -1,0 +1,88 @@
+server:
+  shutdown: graceful
+  tomcat:
+    threads:
+      max: 200 # 최대 워커 스레드 수 (default : 200)
+      min-spare: 10 # 최소 유지 스레드 수 (default : 10)
+    connection-timeout: 1m # 연결 타임아웃 (ms) (default : 60000ms = 1m)
+    max-connections: 8192 # 최대 동시 연결 수 (default : 8192)
+    accept-count: 100 # 대기 큐 크기 (default : 100)
+    keep-alive-timeout: 60s # 60s
+  max-http-request-header-size: 8KB
+
+spring:
+  main:
+    web-application-type: servlet
+  application:
+    name: commerce-api
+  profiles:
+    active: local
+  config:
+    import:
+      - jpa.yml
+      - redis.yml
+      - kafka.yml
+      - logging.yml
+      - monitoring.yml
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      # 공통 Consumer 기본 설정
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*" # DTO 역직렬화 허용 패키지
+
+demo-kafka:
+  test:
+    topic-name: demo.internal.topic-v1
+  like:
+    topic-name: product.like.create.v1
+  order:
+    create :
+      topic-name : product.order.create.v1
+    failed :
+      topic-name : product.order.failed.v1
+  payment:
+    failed :
+      topic-name : product.payment.failed.v1
+    confirmed :
+      topic-name : product.payment.confirmed.v1
+  product :
+    viewed :
+      topic-name : product.viewed.v1
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local, test
+
+server:
+  port: 8084
+
+management:
+  server:
+    port: 8085
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prd
+
+springdoc:
+  api-docs:
+    enabled: false

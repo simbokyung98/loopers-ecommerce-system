@@ -60,6 +60,12 @@ resilience4j:
         ignore-exceptions:
           - org.springframework.web.client.HttpClientErrorException
           - com.loopers.support.error.CoreException
+
+cache:
+  keys:
+    product:
+      like:
+        version: v:prod:list:likes
 ---
 spring:
   config:

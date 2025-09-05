@@ -104,10 +104,10 @@ public class OrderFacade {
     }
 
     @Transactional(readOnly = true)
-    public OrderInfo.OrderResponse getOrder(Long orderId){
+    public OrderInfo.OrderDetail getOrder(Long orderId){
         OrderResult.Order order = orderService.getOrderDetailById(orderId);
 
-        return OrderInfo.OrderResponse.from(order);
+        return OrderInfo.OrderDetail.from(order);
     }
 
     @Transactional(readOnly = true)

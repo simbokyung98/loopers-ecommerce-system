@@ -2,8 +2,6 @@ package com.loopers.application.like;
 
 import com.loopers.application.like.dto.LikeCriteria;
 import com.loopers.application.like.dto.LikeInfo;
-import com.loopers.domain.Like.event.LikeCreatedEvent;
-import com.loopers.domain.Like.event.LikeDeletedEvent;
 import com.loopers.domain.Like.LikeService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
@@ -33,7 +31,7 @@ public class LikeFacade {
 
         boolean created = likeService.like(criteria.userId(), criteria.productId());
         if(created){
-            events.publishEvent(new LikeCreatedEvent(criteria.productId()));
+            events.publishEvent(criteria.ofCreatedEvent());
         }
 
     }
@@ -47,7 +45,7 @@ public class LikeFacade {
         Boolean deleted  = likeService.dislike(criteria.userId(), criteria.productId());
 
         if(deleted){
-            events.publishEvent(new LikeDeletedEvent(criteria.productId()));
+            events.publishEvent(criteria.ofDeleteEvent());
         }
 
     }
