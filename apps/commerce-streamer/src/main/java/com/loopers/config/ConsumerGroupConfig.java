@@ -85,8 +85,8 @@ public class ConsumerGroupConfig {
     ) {
 
         // 기본 Consumer 설정 복사 + 오버라이드
-        Map<String, Object> props = new HashMap<>(consumerFactory.getConfigurationProperties());
-        props.put("auto.offset.reset", "earliest"); // ✅ 과거 이벤트부터 모두 소비 (정확한 집계 보장)
+        Map<String, Object> propMap = new HashMap<>(consumerFactory.getConfigurationProperties());
+        propMap.put("auto.offset.reset", "earliest"); // ✅ 과거 이벤트부터 모두 소비 (정확한 집계 보장)
 
 
         var factory = new ConcurrentKafkaListenerContainerFactory<Object, Object>();
