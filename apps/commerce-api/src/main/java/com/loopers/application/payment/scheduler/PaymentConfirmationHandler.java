@@ -79,6 +79,7 @@ public class PaymentConfirmationHandler implements PaymentFollowUpUseCase {
 
 
                 scheduler.cancel(orderId);
+                break;
 
             }
             case STOP -> {
@@ -95,9 +96,11 @@ public class PaymentConfirmationHandler implements PaymentFollowUpUseCase {
 
 
                 scheduler.cancel(orderId);
+                break;
             }
             case RETRY -> {
                 log.info("Payment not confirmed yet (retry): orderId={}", orderId);
+                break;
             }
         }
     }

@@ -14,7 +14,7 @@ public class LikeCriteria {
         }
 
         public LikeCreatedEvent ofCreatedEvent(){
-            return new LikeCreatedEvent(productId, userId);
+            return new LikeCreatedEvent(userId, productId);
         }
     }
 
@@ -27,7 +27,7 @@ public class LikeCriteria {
         }
 
         public LikeDeletedEvent ofDeleteEvent(){
-            return new LikeDeletedEvent(productId, userId);
+            return new LikeDeletedEvent(userId, productId);
         }
     }
 
