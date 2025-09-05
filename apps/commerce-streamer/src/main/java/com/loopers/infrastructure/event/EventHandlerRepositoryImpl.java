@@ -16,4 +16,9 @@ public class EventHandlerRepositoryImpl implements EventHandlerRepository {
     public void save(EventHandlerModel eventHandlerModel) {
         eventHandlerJpaRepository.save(eventHandlerModel);
     }
+
+    @Override
+    public boolean existsForUpdate(String eventId, String handlerName) {
+        return eventHandlerJpaRepository.existsForUpdate(eventId, handlerName);
+    }
 }

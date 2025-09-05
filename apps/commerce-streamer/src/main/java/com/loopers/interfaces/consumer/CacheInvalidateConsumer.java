@@ -28,7 +28,7 @@ public class CacheInvalidateConsumer {
     )
     public void onLikeEvent(@Payload KafkaMessage<LikeEvent> event,
                             Acknowledgment ack) {
-        if (!eventHandlerService.tryConsume(event.eventId(), "cache")) {
+        if (eventHandlerService.tryConsume(event.eventId(), "cache")) {
             ack.acknowledge();
             return;
         }
