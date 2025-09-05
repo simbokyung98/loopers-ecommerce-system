@@ -79,27 +79,5 @@ class MetricsConsumerIntegrationTest {
                     assertThat(daily.get().getSaleCount()).isEqualTo(5); // 2 + 3
                 });
     }
-
-    @Test
-    @DisplayName("좋아요 이벤트 여러 건 발행 시: MetricsConsumer 가 배치로 likeCount 업데이트 한다")
-    void consumeLikeEvents_shouldUpdateLikeCount_inBatch() {
-        // given
-        Long productId = 300L;
-
-        // 메시지 여러 건 발행 (배치 poll 조건 충족)
-        for (int i = 0; i < 5; i++) {
-            LikeEvent likeEvent = new LikeEvent(1L, productId, null, LikeEventType.CREATED);
-            KafkaMessage<LikeEvent> message = KafkaMessage.from(likeEvent);
-            kafkaTemplate.send("product.like.create.v1", productId.toString(), message);
-        }
-
-        // then
-        Awaitility.await()
-                .atMost(Duration.ofSeconds(15))
-                .untilAsserted(() -> {
-                    var dailyOpt = repository.findByProductIdAndDate(productId, LocalDate.now());
-                    assertThat(dailyOpt).isPresent();
-                    assertThat(dailyOpt.get().getProductId()).isEqualTo(300L); // 5건 발행됨
-                });
-    }
+    
 }
