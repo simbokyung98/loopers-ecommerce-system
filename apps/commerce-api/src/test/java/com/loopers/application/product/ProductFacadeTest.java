@@ -5,11 +5,13 @@ import com.loopers.application.product.dto.ProductCriteria;
 import com.loopers.application.product.dto.ProductInfo;
 import com.loopers.cache.ProductDetailCache;
 import com.loopers.cache.ProductListCache;
+import com.loopers.confg.kafka.KafkaMessage;
 import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.ProductStatus;
+import com.loopers.domain.product.ProductViewedEvent;
 import com.loopers.interfaces.api.product.OrderType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Collections;
 import java.util.Map;
@@ -44,6 +47,10 @@ class ProductFacadeTest {
     // 캐시 2종(Mock)
     @Mock private ProductListCache productListCache;
     @Mock private ProductDetailCache productDetailCache;
+
+    @Mock
+    private KafkaTemplate<Object, Object> kafkaTemplate;
+
 
 
     private ProductCriteria.SearchProducts latestRequest() {
@@ -164,6 +171,32 @@ class ProductFacadeTest {
             verify(productDetailCache).getOrLoad(eq(id), any());
             verify(productService).get(id);
             verify(brandService).getBrand(7L);
+        }
+
+        @Test
+        @DisplayName("상품 조회 시:  상품 반환 + ProductViewedEvent 발행")
+        void getProduct_shouldReturnProductAndPublishEvent() {
+            // given
+            Long productId = 100L;
+            ProductInfo.Product product = new ProductInfo.Product(productId, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드");
+            when(productDetailCache.getOrLoad(eq(productId), any())).thenReturn(product);
+
+            // when
+            ProductInfo.Product result = productFacade.getProduct(productId);
+
+            // then
+            assertThat(result).isEqualTo(product);
+
+            // Kafka 이벤트 발행 검증
+            verify(kafkaTemplate).send(
+                    eq("product.viewed.v1"),
+                    eq(productId.toString()),
+                    argThat(message -> {
+                        if (!(message instanceof KafkaMessage<?> kafkaMessage)) return false;
+                        return kafkaMessage.payload() instanceof ProductViewedEvent event
+                                && event.productId().equals(productId);
+                    })
+            );
         }
     }
 }

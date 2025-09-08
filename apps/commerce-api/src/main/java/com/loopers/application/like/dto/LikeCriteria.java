@@ -1,6 +1,9 @@
 package com.loopers.application.like.dto;
 
 
+import com.loopers.domain.Like.event.LikeCreatedEvent;
+import com.loopers.domain.Like.event.LikeDeletedEvent;
+
 public class LikeCriteria {
     public record Like(
             Long userId,
@@ -8,6 +11,10 @@ public class LikeCriteria {
     ) {
         public static Like of(Long userId, Long productId) {
             return new Like(userId, productId);
+        }
+
+        public LikeCreatedEvent ofCreatedEvent(){
+            return new LikeCreatedEvent(userId, productId);
         }
     }
 
@@ -17,6 +24,10 @@ public class LikeCriteria {
     ) {
         public static Dislike of(Long userId, Long productId) {
             return new Dislike(userId, productId);
+        }
+
+        public LikeDeletedEvent ofDeleteEvent(){
+            return new LikeDeletedEvent(userId, productId);
         }
     }
 

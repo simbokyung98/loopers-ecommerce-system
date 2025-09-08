@@ -2,6 +2,7 @@ package com.loopers.application.payment;
 
 
 import com.loopers.application.order.OrderFacade;
+import com.loopers.application.order.dto.OrderInfo;
 import com.loopers.application.payment.dto.PaymentProbe;
 import com.loopers.application.payment.dto.ScheduledPayment;
 import com.loopers.application.payment.scheduler.PaymentConfirmationHandler;
@@ -15,7 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,6 +34,9 @@ class PaymentConfirmationHandlerTest {
     @Mock
     PaymentFollowUpScheduler scheduler;
 
+    @Mock
+    KafkaTemplate<Object, Object> kafkaTemplate;
+
     @InjectMocks
     PaymentConfirmationHandler sut;
 
@@ -45,6 +51,11 @@ class PaymentConfirmationHandlerTest {
 
         when(paymentGatewayService.checkPayment(txKey))
                 .thenReturn(new PaymentProbe(PaymentProbe.Decision.CONFIRMED));
+
+        when(orderFacade.getOrder(orderId)).thenReturn(
+                new OrderInfo.OrderDetail(orderId, 1L, null, 1000L, 1000L, null, null, null, null,
+                        List.of(new OrderInfo.OrderItemResponse(1L, orderId, 1L, null, null, 2L, null)))
+        );
 
         sut.onCardPendingTick(orderId, paymentId, txKey);
 
@@ -64,6 +75,11 @@ class PaymentConfirmationHandlerTest {
 
         when(paymentGatewayService.checkPayment(txKey))
                 .thenReturn(new PaymentProbe(PaymentProbe.Decision.STOP));
+
+        when(orderFacade.getOrder(orderId)).thenReturn(
+                new OrderInfo.OrderDetail(orderId, 1L, null, 1000L, 1000L, null, null, null, null,
+                        List.of(new OrderInfo.OrderItemResponse(1L, orderId, 1L, null, null, 2L, null)))
+        );
 
         sut.onCardPendingTick(orderId, paymentId, txKey);
 
@@ -154,6 +170,11 @@ class PaymentConfirmationHandlerTest {
         when(paymentGatewayService.checkPayment(txKey))
                 .thenReturn(new PaymentProbe(PaymentProbe.Decision.CONFIRMED));
 
+        when(orderFacade.getOrder(orderId)).thenReturn(
+                new OrderInfo.OrderDetail(orderId, 1L, null, 1000L, 1000L, null, null, null, null,
+                        List.of(new OrderInfo.OrderItemResponse(1L, orderId, 1L, null, null, 2L, null)))
+        );
+
         sut.onCardPaymentCallback(orderId, txKey);
 
         verify(scheduler).findScheduled(orderId);
@@ -177,6 +198,11 @@ class PaymentConfirmationHandlerTest {
 
         when(paymentGatewayService.checkPayment(txKey))
                 .thenReturn(new PaymentProbe(PaymentProbe.Decision.STOP));
+
+        when(orderFacade.getOrder(orderId)).thenReturn(
+                new OrderInfo.OrderDetail(orderId, 1L, null, 1000L, 1000L, null, null, null, null,
+                        List.of(new OrderInfo.OrderItemResponse(1L, orderId, 1L, null, null, 2L, null)))
+        );
 
         sut.onCardPaymentCallback(orderId, txKey);
 

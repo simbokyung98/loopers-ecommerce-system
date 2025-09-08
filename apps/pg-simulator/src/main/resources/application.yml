@@ -54,7 +54,7 @@ spring:
       on-profile: dev
 
 server:
-  port: 8082
+  port:
 
 management:
   server:
