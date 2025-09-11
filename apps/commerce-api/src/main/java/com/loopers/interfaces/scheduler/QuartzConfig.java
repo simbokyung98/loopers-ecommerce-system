@@ -1,4 +1,4 @@
-package com.loopers.interfaces.quartz;
+package com.loopers.interfaces.scheduler;
 
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.context.ApplicationContext;

@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.metric;
+package com.loopers.infrastructure.repository.metric;
 
 
 import com.loopers.domain.metric.ProductMetricDailyModel;

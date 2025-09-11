@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.log;
+package com.loopers.infrastructure.repository.log;
 
 import com.loopers.domain.log.AuditLogModel;
 import com.loopers.domain.log.AuditLogRepository;

@@ -1,4 +1,4 @@
-package com.loopers.interfaces.quartz;
+package com.loopers.interfaces.scheduler;
 
 
 import com.loopers.application.payment.scheduler.PaymentFollowUpUseCase;
