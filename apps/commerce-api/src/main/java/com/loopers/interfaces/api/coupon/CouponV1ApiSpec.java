@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface CouponV1ApiSpec {
 
     @Operation(summary = "쿠폰 발행")
-    ApiResponse<CouponV1Dto.IssuedCouponResponse> issue(
+    ApiResponse<Object> issue(
             @RequestHeader("X-USER-ID") Long userid,
             @RequestBody CouponV1Dto.IssueCouponRequest request
     );

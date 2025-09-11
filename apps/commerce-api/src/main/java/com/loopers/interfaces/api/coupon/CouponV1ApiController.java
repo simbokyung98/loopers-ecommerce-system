@@ -16,7 +16,7 @@ public class CouponV1ApiController implements  CouponV1ApiSpec{
     private final CouponFacade couponFacade;
     @Override
     @PostMapping("/issue")
-    public ApiResponse<CouponV1Dto.IssuedCouponResponse> issue(@RequestHeader("X-USER-ID") Long userid,
+    public ApiResponse<Object> issue(@RequestHeader("X-USER-ID") Long userid,
                                                                @RequestBody CouponV1Dto.IssueCouponRequest request) {
         CouponCriteria.Issue criteria = request.toCriteria(userid);
         CouponInfo.IssuedCoupon issuedCoupon = couponFacade.issue(criteria);
