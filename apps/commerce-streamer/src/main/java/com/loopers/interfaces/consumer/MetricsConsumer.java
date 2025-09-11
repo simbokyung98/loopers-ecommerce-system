@@ -1,9 +1,8 @@
 package com.loopers.interfaces.consumer;
 
+import com.loopers.application.metric.MetricsAggregationFacade;
+import com.loopers.application.metric.dto.*;
 import com.loopers.confg.kafka.KafkaMessage;
-import com.loopers.domain.event.EventHandlerService;
-import com.loopers.domain.metric.ProductMetricDailyService;
-import com.loopers.interfaces.consumer.event.ConfirmedOrderItem;
 import com.loopers.interfaces.consumer.event.LikeEvent;
 import com.loopers.interfaces.consumer.event.PaymentConfirmedEvent;
 import com.loopers.interfaces.consumer.event.ProductViewedEvent;
@@ -14,16 +13,13 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class MetricsConsumer {
 
-    private final EventHandlerService eventHandlerService;
-    private final ProductMetricDailyService productMetricDailyService;
+    private final MetricsAggregationFacade metricsAggregationFacade;
 
     /**
      * 좋아요 생성 집계
@@ -36,18 +32,15 @@ public class MetricsConsumer {
     )
     public void onLikeEvents(List<KafkaMessage<LikeEvent>> events, Acknowledgment ack) {
 
-        System.out.println("Received like events"+ events.size());
+        List<LikeMetricEventCriteria> criteriaList = events.stream()
+                        .map(item -> {
+                            EventMessage message = new EventMessage(item.eventId(), item.publishedAt());
+                            LikeEvent likeEvent = item.payload();
 
-        events.forEach(e -> System.out.println("EventId="+e.eventId()+", Payload= " + e.payload()));
+                            return likeEvent.to(message);
+                        }).toList();
 
-
-
-        events.stream()
-                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "metrics"))
-                .map(KafkaMessage::payload)
-                .forEach(payload ->
-                        productMetricDailyService.updateLike(payload.productId(), payload.type().delta())
-                );
+        metricsAggregationFacade.aggregateLikes(criteriaList);
 
         ack.acknowledge();
     }
@@ -62,17 +55,15 @@ public class MetricsConsumer {
             containerFactory = "metricsKafkaListenerContainerFactory"
     )
     public void onOrderCreated(List<KafkaMessage<PaymentConfirmedEvent>> events, Acknowledgment ack) {
-        // 상품별 판매 수량 합산
-        Map<Long, Integer> saleCounts = events.stream()
-                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "metrics"))
-                .flatMap(e -> e.payload().items().stream())
-                .collect(Collectors.groupingBy(
-                        ConfirmedOrderItem::productId,
-                        Collectors.summingInt(item -> item.quantity().intValue())
-                ));
 
-        // DB 반영은 상품별 1번만
-        saleCounts.forEach(productMetricDailyService::updateSale);
+        List<OrderMetricEventCriteria> criteriaList = events.stream()
+                .map(item -> {
+                    EventMessage message = new EventMessage(item.eventId(), item.publishedAt());
+                    List<OrderItem> orderItemList = item.payload().toOrderItemList();
+                    return new OrderMetricEventCriteria(message, orderItemList);
+                }).toList();
+
+        metricsAggregationFacade.aggregateOrders(criteriaList);
 
         ack.acknowledge();
     }
@@ -86,18 +77,16 @@ public class MetricsConsumer {
             containerFactory = "metricsKafkaListenerContainerFactory"
     )
     public void onProductViewed(List<KafkaMessage<ProductViewedEvent>> events, Acknowledgment ack) {
-        Map<Long, Long> viewCounts = events.stream()
-                .filter(e -> eventHandlerService.tryConsume(e.eventId(), "metrics"))
-                .map(KafkaMessage::payload)
-                .collect(Collectors.groupingBy(
-                        ProductViewedEvent::productId,
-                        Collectors.counting()
-                ));
 
-        // 상품별 증가량 반영
-        viewCounts.forEach((productId, count) ->
-                productMetricDailyService.updateView(productId, count.intValue())
-        );
+        List<ProductMetricEventCriteria> criteriaList = events.stream()
+                .map(item -> {
+                    EventMessage message = new EventMessage(item.eventId(), item.publishedAt());
+                    ProductViewedEvent productViewedEvent = item.payload();
+
+                    return productViewedEvent.to(message);
+                }).toList();
+
+        metricsAggregationFacade.aggregateViews(criteriaList);
 
         ack.acknowledge();
     }
