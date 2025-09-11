@@ -23,6 +23,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Collections;
@@ -51,6 +53,11 @@ class ProductFacadeTest {
     @Mock
     private KafkaTemplate<Object, Object> kafkaTemplate;
 
+    @Mock
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Mock
+    private ZSetOperations<String, String> zSetOperations;
 
 
     private ProductCriteria.SearchProducts latestRequest() {
@@ -123,7 +130,7 @@ class ProductFacadeTest {
         @DisplayName("동일 항목 재요청 시, 불필요한 추가 조회를 하지 않는다")
         void detail_sameItem_repeatedRequest_avoidsExtraFetch() {
             Long id = 100L;
-            ProductInfo.Product dto = new ProductInfo.Product(id, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드");
+            ProductInfo.Product dto = new ProductInfo.Product(id, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드", 1L);
 
             when(productDetailCache.getOrLoad(eq(id), any()))
                     .thenReturn(dto);
@@ -141,7 +148,7 @@ class ProductFacadeTest {
         @DisplayName("초기 조회 시, 상품/브랜드 정보를 조합해 상세를 반환한다")
         void detail_initialRequest_fetchesProductAndBrand() {
             Long id = 101L;
-            ProductInfo.Product dto = new ProductInfo.Product(id, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드");
+            ProductInfo.Product dto = new ProductInfo.Product(id, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드", 1L);
 
 
             when(productDetailCache.getOrLoad(eq(id), any()))
@@ -163,6 +170,10 @@ class ProductFacadeTest {
                         return dto;
                     });
 
+            when(redisTemplate.opsForZSet()).thenReturn(zSetOperations);
+            when(zSetOperations.reverseRank(anyString(), anyString())).thenReturn(1L); // 예시 stub
+
+
             //act
             ProductInfo.Product res = productFacade.getProduct(id);
 
@@ -178,7 +189,7 @@ class ProductFacadeTest {
         void getProduct_shouldReturnProductAndPublishEvent() {
             // given
             Long productId = 100L;
-            ProductInfo.Product product = new ProductInfo.Product(productId, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드");
+            ProductInfo.Product product = new ProductInfo.Product(productId, "테스트 상품", 100L, 1000L, ProductStatus.SELL, 1L, 10L, "테스트 브랜드", 1L);
             when(productDetailCache.getOrLoad(eq(productId), any())).thenReturn(product);
 
             // when
