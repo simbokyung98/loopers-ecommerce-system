@@ -2,8 +2,10 @@ package com.loopers.interfaces.consumer;
 
 import com.loopers.application.metric.MetricsAggregationFacade;
 import com.loopers.application.metric.dto.*;
+import com.loopers.application.ranking.RankingFacade;
 import com.loopers.confg.kafka.KafkaMessage;
 import com.loopers.interfaces.consumer.event.LikeEvent;
+import com.loopers.interfaces.consumer.event.LikeEventType;
 import com.loopers.interfaces.consumer.event.PaymentConfirmedEvent;
 import com.loopers.interfaces.consumer.event.ProductViewedEvent;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.List;
 public class MetricsConsumer {
 
     private final MetricsAggregationFacade metricsAggregationFacade;
+    private final RankingFacade rankingFacade;
 
     /**
      * 좋아요 생성 집계
@@ -41,6 +44,10 @@ public class MetricsConsumer {
                         }).toList();
 
         metricsAggregationFacade.aggregateLikes(criteriaList);
+
+        criteriaList.stream()
+                .filter(c -> c.type() == LikeEventType.CREATED)
+                .forEach(c -> rankingFacade.updateLike(c.productId(), 1));
 
         ack.acknowledge();
     }
@@ -65,6 +72,10 @@ public class MetricsConsumer {
 
         metricsAggregationFacade.aggregateOrders(criteriaList);
 
+        criteriaList.stream()
+                .flatMap(c -> c.orderItemList().stream())
+                .forEach(item -> rankingFacade.updateOrder(item.productId(), 1));
+
         ack.acknowledge();
     }
 
@@ -87,6 +98,8 @@ public class MetricsConsumer {
                 }).toList();
 
         metricsAggregationFacade.aggregateViews(criteriaList);
+
+        criteriaList.forEach(c -> rankingFacade.updateView(c.productId(), 1));
 
         ack.acknowledge();
     }
