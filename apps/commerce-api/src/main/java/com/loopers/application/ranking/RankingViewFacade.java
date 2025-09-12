@@ -1,6 +1,7 @@
 package com.loopers.application.ranking;
 
 
+import com.loopers.cache.ranking.RankingViewCache;
 import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.product.ProductModel;
@@ -25,12 +26,20 @@ public class RankingViewFacade {
     private final RedisTemplate<String, String> redisTemplate;
     private final ProductService productService;
     private final BrandService brandService;
+    private final RankingViewCache rankingViewCache;
 
+    public RankingViewInfo.ProductList getTodayTopProductsWithCache(RankingViewCriteria.SearchTodayRanking criteria) {
+        // 캐시 계층에 위임
+        return rankingViewCache.dailyGetOrLoad(criteria, () -> getTodayTopProducts(criteria));
+    }
 
+    /**
+     * 캐시에 없을 때만 실행되는 "로더"
+     */
     public RankingViewInfo.ProductList getTodayTopProducts(RankingViewCriteria.SearchTodayRanking criteria) {
         String key = getKey(criteria.date());
 
-        int start = (criteria.page() -1) * criteria.size();
+        int start = (criteria.page() - 1) * criteria.size();
         int end = start + criteria.size() - 1;
 
         Set<ZSetOperations.TypedTuple<String>> rows =
@@ -38,8 +47,7 @@ public class RankingViewFacade {
 
         List<RankingViewInfo.Product> products = new ArrayList<>();
 
-
-        if (!rows.isEmpty()){
+        if (rows != null && !rows.isEmpty()) {
             List<Long> productIds = rows.stream()
                     .map(t -> Long.valueOf(t.getValue()))
                     .toList();
@@ -54,8 +62,7 @@ public class RankingViewFacade {
                     .distinct()
                     .toList();
 
-            Map<Long, BrandModel> brandModelMap =
-                    brandService.getBrandMapByIds(brandIds);
+            Map<Long, BrandModel> brandModelMap = brandService.getBrandMapByIds(brandIds);
 
             AtomicInteger offset = new AtomicInteger(start + 1);
             products = rows.stream()
@@ -64,7 +71,7 @@ public class RankingViewFacade {
                         int rank = offset.getAndIncrement();
 
                         ProductModel product = productMap.get(productId);
-                        BrandModel brand = product != null ? brandModelMap.get(product.getBrandId()) : null;
+                        BrandModel brand = (product != null) ? brandModelMap.get(product.getBrandId()) : null;
 
                         return RankingViewInfo.Product.from(product, brand, rank);
                     })
@@ -76,11 +83,10 @@ public class RankingViewFacade {
                 criteria.size(),
                 criteria.date(),
                 products
-                );
+        );
     }
 
     private String getKey(LocalDate localDate) {
         return "rank:all:" + localDate;
     }
-
 }

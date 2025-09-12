@@ -5,6 +5,7 @@ import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductStatus;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class RankingViewInfo {
             int size,
             LocalDate date,
             List<Product> products
-    ){}
+    ) implements Serializable {}
     public record Product(
             int rank,
             Long id,
@@ -27,7 +28,7 @@ public class RankingViewInfo {
             Long brandId,
             Long likeCount,
             String brandName
-    ) {
+    )  implements Serializable {
         public static RankingViewInfo.Product from(ProductModel productModel, BrandModel brandModel, int rank){
             return new RankingViewInfo.Product(
                     rank,

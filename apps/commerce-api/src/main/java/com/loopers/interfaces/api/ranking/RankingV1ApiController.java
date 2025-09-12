@@ -16,7 +16,7 @@ public class RankingV1ApiController implements RankingV1ApiSpec {
     @Override
     public ApiResponse<RankingViewInfo.ProductList> getTodayRankingList(RankingV1Dto.SearchTodayRankingRequest searchTodayRanking) {
 
-        return ApiResponse.success(rankingViewFacade.getTodayTopProducts(searchTodayRanking.toCriteria()));
+        return ApiResponse.success(rankingViewFacade.getTodayTopProductsWithCache(searchTodayRanking.toCriteria()));
 
     }
 }
