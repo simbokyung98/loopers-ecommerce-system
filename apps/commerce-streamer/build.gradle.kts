@@ -10,6 +10,7 @@ dependencies {
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation(project(mapOf("path" to ":apps:commerce-api")))
 
     // querydsl
     annotationProcessor("com.querydsl:querydsl-apt::jakarta")
@@ -17,6 +18,9 @@ dependencies {
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 
     testImplementation("org.springframework.kafka:spring-kafka-test")
+
+    //quartz
+    implementation("org.springframework.boot:spring-boot-starter-quartz")
 
     // test-fixtures
     testImplementation(testFixtures(project(":modules:jpa")))

@@ -10,7 +10,11 @@ import java.time.ZonedDateTime;
 public class CouponV1Dto {
     public record IssueCouponRequest(
             @NotNull
-            Long couponId
+            Long couponId,
+            String name,
+            Long issuedCount,
+            Long issued_limit,
+            ZonedDateTime expires_at
     ){
         public CouponCriteria.Issue toCriteria(Long userId){
             return new CouponCriteria.Issue(userId, couponId);

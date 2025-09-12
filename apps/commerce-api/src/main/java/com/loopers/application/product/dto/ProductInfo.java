@@ -36,7 +36,8 @@ public class ProductInfo{
             ProductStatus status,
             Long brandId,
             Long likeCount,
-            String brandName
+            String brandName,
+            Long rank
     ) {
         public static Product from(ProductModel productModel, BrandModel brandModel){
             return new Product(
@@ -47,7 +48,22 @@ public class ProductInfo{
                     productModel.getStatus(),
                     productModel.getBrandId(),
                     productModel.getLikeCount(),
-                    brandModel.getName()
+                    brandModel.getName(),
+                    null
+            );
+        }
+
+        public static Product fromRank(ProductModel productModel, BrandModel brandModel, Long rank){
+            return new Product(
+                    productModel.getId(),
+                    productModel.getName(),
+                    productModel.getStock(),
+                    productModel.getPrice(),
+                    productModel.getStatus(),
+                    productModel.getBrandId(),
+                    productModel.getLikeCount(),
+                    brandModel.getName(),
+                    rank
             );
         }
     }

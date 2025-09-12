@@ -1,11 +1,13 @@
 package com.loopers.interfaces.consumer;
 
-
+import com.loopers.application.metric.MetricsAggregationFacade;
+import com.loopers.application.metric.dto.*;
+import com.loopers.application.ranking.RankingFacade;
 import com.loopers.confg.kafka.KafkaMessage;
-import com.loopers.domain.event.EventHandlerService;
-import com.loopers.domain.metric.ProductMetricDailyService;
-import com.loopers.interfaces.consumer.MetricsConsumer;
-import com.loopers.interfaces.consumer.event.*;
+import com.loopers.interfaces.consumer.event.LikeEvent;
+import com.loopers.interfaces.consumer.event.LikeEventType;
+import com.loopers.interfaces.consumer.event.PaymentConfirmedEvent;
+import com.loopers.interfaces.consumer.event.ProductViewedEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,78 +18,83 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MetricsConsumerTest {
 
     @Mock
-    private EventHandlerService eventHandlerService;
+    private MetricsAggregationFacade metricsAggregationFacade;
 
     @Mock
-    private ProductMetricDailyService productMetricDailyService;
+    private RankingFacade rankingFacade;
 
     @InjectMocks
     private MetricsConsumer consumer;
 
     @Test
-    @DisplayName("좋아요 이벤트 발생 시: likeCount 업데이트 호출")
-    void onLikeEvents_shouldUpdateLikeCount() {
-        // given
-        LikeEvent likeEvent = new LikeEvent(1L, 100L, null, LikeEventType.CREATED);
-        KafkaMessage<LikeEvent> message = KafkaMessage.from(likeEvent);
+    @DisplayName("onLikeEvents - CREATED 이벤트 시 집계 + 랭킹 갱신 + ack 호출")
+    void onLikeEvents_created() {
+        LikeEvent likeEvent = new LikeEvent(1L, 100L, "cacheKey", LikeEventType.CREATED);
+        KafkaMessage<LikeEvent> message = new KafkaMessage<>("event1", "2025-09-12T10:00:00", likeEvent);
+        Acknowledgment ack = mock(Acknowledgment.class);
 
-        when(eventHandlerService.tryConsume(any(), eq("metrics"))).thenReturn(true);
+        consumer.onLikeEvents(List.of(message), ack);
 
-        // when
-        consumer.onLikeEvents(List.of(message), mock(Acknowledgment.class));
-
-        // then
-        verify(productMetricDailyService).updateLike(100L, likeEvent.type().delta());
+        verify(metricsAggregationFacade).aggregateLikes(anyList());
+        verify(rankingFacade).updateLike(100L, 1);
+        verify(ack).acknowledge();
     }
 
     @Test
-    @DisplayName("주문 생성 이벤트 발생 시: 상품별 판매 수량 합산하여 updateSale 호출")
-    void onOrderCreated_shouldUpdateSaleCounts() {
-        // given
-        ConfirmedOrderItem item1 = new ConfirmedOrderItem(200L, 2L);
-        ConfirmedOrderItem item2 = new ConfirmedOrderItem(200L, 3L);
-        ConfirmedOrderItem item3 = new ConfirmedOrderItem(300L, 1L);
+    @DisplayName("onLikeEvents - DELETED 이벤트 시 집계만, 랭킹 갱신은 없음")
+    void onLikeEvents_deleted() {
+        LikeEvent likeEvent = new LikeEvent(1L, 200L, "cacheKey", LikeEventType.DELETED);
+        KafkaMessage<LikeEvent> message = new KafkaMessage<>("event2", "2025-09-12T10:05:00", likeEvent);
+        Acknowledgment ack = mock(Acknowledgment.class);
 
-        PaymentConfirmedEvent paymentEvent = new PaymentConfirmedEvent(1L,2L, 3L, List.of(item1, item2, item3));
-        KafkaMessage<PaymentConfirmedEvent> message = KafkaMessage.from(paymentEvent);
+        consumer.onLikeEvents(List.of(message), ack);
 
-        when(eventHandlerService.tryConsume(any(), eq("metrics"))).thenReturn(true);
-
-        // when
-        consumer.onOrderCreated(List.of(message), mock(Acknowledgment.class));
-
-        // then
-        verify(productMetricDailyService).updateSale(200L, 5); // 2+3
-        verify(productMetricDailyService).updateSale(300L, 1);
+        verify(metricsAggregationFacade).aggregateLikes(anyList());
+        verify(rankingFacade, never()).updateLike(anyLong(), anyInt());
+        verify(ack).acknowledge();
     }
 
     @Test
-    @DisplayName("상품 조회 이벤트 발생 시: 상품별 조회수 합산하여 updateView 호출")
-    void onProductViewed_shouldUpdateViewCounts() {
-        // given
-        ProductViewedEvent e1 = new ProductViewedEvent(400L);
-        ProductViewedEvent e2 = new ProductViewedEvent(400L);
-        ProductViewedEvent e3 = new ProductViewedEvent(500L);
+    @DisplayName("onOrderCreated - 주문 이벤트 시 집계 + 랭킹 갱신 + ack 호출")
+    void onOrderCreated() {
+        PaymentConfirmedEvent event = mock(PaymentConfirmedEvent.class);
+        when(event.toOrderItemList()).thenReturn(List.of(
+                new OrderItem(10L, 1L),
+                new OrderItem(20L, 1L)
+        ));
+        KafkaMessage<PaymentConfirmedEvent> message = new KafkaMessage<>("event3", "2025-09-12T11:00:00", event);
+        Acknowledgment ack = mock(Acknowledgment.class);
 
-        KafkaMessage<ProductViewedEvent> m1 = KafkaMessage.from(e1);
-        KafkaMessage<ProductViewedEvent> m2 = KafkaMessage.from(e2);
-        KafkaMessage<ProductViewedEvent> m3 = KafkaMessage.from(e3);
+        consumer.onOrderCreated(List.of(message), ack);
 
-        when(eventHandlerService.tryConsume(any(), eq("metrics"))).thenReturn(true);
+        verify(metricsAggregationFacade).aggregateOrders(anyList());
+        verify(rankingFacade).updateOrder(10L, 1);
+        verify(rankingFacade).updateOrder(20L, 1);
+        verify(ack).acknowledge();
+    }
 
-        // when
-        consumer.onProductViewed(List.of(m1, m2, m3), mock(Acknowledgment.class));
+    @Test
+    @DisplayName("onProductViewed - 조회 이벤트 시 집계 + 랭킹 갱신 + ack 호출")
+    void onProductViewed() {
+        ProductViewedEvent event = mock(ProductViewedEvent.class);
+        when(event.to(any())).thenReturn(new ProductMetricEventCriteria(
+                new EventMessage("event4", "2025-09-12T12:00:00"),
+                300L
+        ));
+        KafkaMessage<ProductViewedEvent> message = new KafkaMessage<>("event4", "2025-09-12T12:00:00", event);
+        Acknowledgment ack = mock(Acknowledgment.class);
 
-        // then
-        verify(productMetricDailyService).updateView(400L, 2);
-        verify(productMetricDailyService).updateView(500L, 1);
+        consumer.onProductViewed(List.of(message), ack);
+
+        verify(metricsAggregationFacade).aggregateViews(anyList());
+        verify(rankingFacade).updateView(300L, 1);
+        verify(ack).acknowledge();
     }
 }

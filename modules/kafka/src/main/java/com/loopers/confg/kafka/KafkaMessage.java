@@ -17,4 +17,5 @@ public record KafkaMessage<T>(
                 payload
         );
     }
+
 }
