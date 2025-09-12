@@ -1,8 +1,8 @@
 package com.loopers.application.product;
 
 import com.loopers.application.product.dto.ProductInfo;
-import com.loopers.cache.ProductDetailCache;
-import com.loopers.cache.ProductDetailKeyBuilder;
+import com.loopers.cache.product.ProductDetailCache;
+import com.loopers.cache.product.ProductDetailKeyBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

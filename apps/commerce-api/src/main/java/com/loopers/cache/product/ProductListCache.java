@@ -1,8 +1,9 @@
-package com.loopers.cache;
+package com.loopers.cache.product;
 
 import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.dto.ProductCriteria;
 import com.loopers.application.product.dto.ProductInfo;
+import com.loopers.cache.CachePolicy;
 import com.loopers.interfaces.api.product.OrderType;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;

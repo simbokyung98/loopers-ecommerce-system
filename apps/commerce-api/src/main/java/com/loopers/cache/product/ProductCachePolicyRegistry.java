@@ -1,5 +1,6 @@
-package com.loopers.cache;
+package com.loopers.cache.product;
 
+import com.loopers.cache.CachePolicy;
 import com.loopers.interfaces.api.product.OrderType;
 import org.springframework.stereotype.Component;
 

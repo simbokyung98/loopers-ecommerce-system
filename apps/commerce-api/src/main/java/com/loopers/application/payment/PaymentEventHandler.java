@@ -4,7 +4,7 @@ import com.loopers.application.order.OrderFacade;
 import com.loopers.application.order.dto.OrderInfo;
 import com.loopers.application.payment.dto.PaymentCriteria;
 import com.loopers.application.payment.event.ConfirmedOrderItem;
-import com.loopers.cache.ProductDetailCache;
+import com.loopers.cache.product.ProductDetailCache;
 import com.loopers.confg.kafka.KafkaMessage;
 import com.loopers.domain.order.event.OrderCreatedEvent;
 import com.loopers.domain.order.event.OrderCreatedKafkaEvent;

@@ -1,4 +1,4 @@
-package com.loopers.cache;
+package com.loopers.cache.product;
 
 import org.springframework.stereotype.Component;
 
