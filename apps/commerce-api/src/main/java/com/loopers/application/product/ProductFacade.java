@@ -4,8 +4,8 @@ package com.loopers.application.product;
 import com.loopers.application.common.PageInfo;
 import com.loopers.application.product.dto.ProductCriteria;
 import com.loopers.application.product.dto.ProductInfo;
-import com.loopers.cache.ProductDetailCache;
-import com.loopers.cache.ProductListCache;
+import com.loopers.cache.product.ProductDetailCache;
+import com.loopers.cache.product.ProductListCache;
 import com.loopers.confg.kafka.KafkaMessage;
 import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.brand.BrandService;
@@ -14,10 +14,12 @@ import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.ProductViewedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +34,7 @@ public class ProductFacade {
     private final ProductDetailCache productDetailCache;
 
     private final KafkaTemplate<Object, Object> kafkaTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     @Transactional(readOnly = true)
@@ -39,7 +42,11 @@ public class ProductFacade {
         ProductInfo.Product product =  productDetailCache.getOrLoad(productId, () -> {
             ProductModel productModel = productService.get(productId);
             BrandModel brand = brandService.getBrand(productModel.getBrandId()); // ← getBrandId() 사용
-            return ProductInfo.Product.from(productModel, brand);
+
+            String key = getKey(LocalDate.now());
+            Long rank = redisTemplate.opsForZSet().reverseRank(key, productId.toString());
+            rank = rank != null ? rank + 1 : null;
+            return ProductInfo.Product.fromRank(productModel, brand, rank);
         });
 
         ProductViewedEvent event = new ProductViewedEvent(productId);
@@ -77,6 +84,10 @@ public class ProductFacade {
             // 4) 표준 페이지 래퍼로 포장
             return PageInfo.PageEnvelope.from(products);
         });
+    }
+
+    private String getKey(LocalDate localDate) {
+        return "rank:all:" + localDate;
     }
 
 

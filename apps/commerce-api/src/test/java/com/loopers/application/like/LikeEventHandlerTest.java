@@ -1,6 +1,6 @@
 package com.loopers.application.like;
 
-import com.loopers.cache.ProductLikeVersionService;
+import com.loopers.cache.product.ProductLikeVersionService;
 import com.loopers.confg.kafka.KafkaMessage;
 import com.loopers.domain.Like.event.LikeCreatedEvent;
 import com.loopers.domain.Like.event.LikeDeletedEvent;
