@@ -1,4 +1,4 @@
-package com.loopers.config;
+package com.loopers.application;
 
 
 import org.apache.kafka.common.TopicPartition;

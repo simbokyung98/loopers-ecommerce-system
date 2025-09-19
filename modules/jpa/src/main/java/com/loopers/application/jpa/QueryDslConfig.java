@@ -1,4 +1,4 @@
-package com.loopers.config.jpa;
+package com.loopers.application.jpa;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
