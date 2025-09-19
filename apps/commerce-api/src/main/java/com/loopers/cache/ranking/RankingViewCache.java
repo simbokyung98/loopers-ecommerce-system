@@ -14,13 +14,13 @@ import java.util.function.Supplier;
 @Service
 public class RankingViewCache {
 
-    private final RedisTemplate<String, RankingViewInfo.ProductList> rankingRedisTemplate;
+    private final RedisTemplate<String, RankingViewInfo.ProductDailyList> rankingRedisTemplate;
 
     private final RankingCachePolicyRegistry policyRegistry;
     private final RankingViewKeyBuilder keyBuilder;
 
     public RankingViewCache(
-            RedisTemplate<String, RankingViewInfo.ProductList> rankingRedisTemplate,
+            RedisTemplate<String, RankingViewInfo.ProductDailyList> rankingRedisTemplate,
             RankingCachePolicyRegistry rankingCachePolicyRegistry,
             RankingViewKeyBuilder rankingViewKeyBuilder
     ){
@@ -31,9 +31,9 @@ public class RankingViewCache {
 
     }
 
-    public RankingViewInfo.ProductList dailyGetOrLoad(
+    public RankingViewInfo.ProductDailyList dailyGetOrLoad(
             RankingViewCriteria.SearchTodayRanking criteria,
-            Supplier<RankingViewInfo.ProductList> loader
+            Supplier<RankingViewInfo.ProductDailyList> loader
     ) {
         RankingType rankingType = RankingType.일일랭킹;
 
@@ -49,7 +49,7 @@ public class RankingViewCache {
         final String key = keyBuilder.build(rankingType, criteria.page(), criteria.size());
 
         // 캐시 조회
-        RankingViewInfo.ProductList cached = rankingRedisTemplate.opsForValue().get(key);
+        RankingViewInfo.ProductDailyList cached = rankingRedisTemplate.opsForValue().get(key);
         if (cached != null) {
             // 남은 TTL 확인
             Long ttl = rankingRedisTemplate.getExpire(key, TimeUnit.SECONDS);
@@ -57,7 +57,7 @@ public class RankingViewCache {
             // refreshAhead 조건 충족 시 비동기 갱신
             if (cachePolicy.shouldRefreshAhead(ttl)) {
                 CompletableFuture.runAsync(() -> {
-                    RankingViewInfo.ProductList refreshed = loader.get();
+                    RankingViewInfo.ProductDailyList refreshed = loader.get();
                     rankingRedisTemplate.opsForValue().set(key, refreshed, cachePolicy.ttl());
                 });
             }
@@ -65,7 +65,7 @@ public class RankingViewCache {
         }
 
         // 없으면 로드 후 캐시에 저장
-        RankingViewInfo.ProductList loaded = loader.get();
+        RankingViewInfo.ProductDailyList loaded = loader.get();
         rankingRedisTemplate.opsForValue().set(key, loaded, cachePolicy.ttl());
         return loaded;
     }

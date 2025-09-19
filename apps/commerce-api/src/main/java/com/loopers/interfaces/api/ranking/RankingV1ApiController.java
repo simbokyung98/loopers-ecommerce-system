@@ -14,9 +14,19 @@ public class RankingV1ApiController implements RankingV1ApiSpec {
 
     private final RankingViewFacade rankingViewFacade;
     @Override
-    public ApiResponse<RankingViewInfo.ProductList> getTodayRankingList(RankingV1Dto.SearchTodayRankingRequest searchTodayRanking) {
+    public ApiResponse<RankingViewInfo.ProductDailyList> getTodayRankingList(RankingV1Dto.SearchTodayRankingRequest searchTodayRanking) {
 
         return ApiResponse.success(rankingViewFacade.getTodayTopProductsWithCache(searchTodayRanking.toCriteria()));
 
+    }
+
+    @Override
+    public ApiResponse<RankingViewInfo.ProductWeeklyList> getWeeklyRankingList(RankingV1Dto.SearchWeeklyRankingRequest searchWeeklyRankingRequest) {
+        return ApiResponse.success(rankingViewFacade.getWeeklyRankingWithPage(searchWeeklyRankingRequest.toCriteria()));
+    }
+
+    @Override
+    public ApiResponse<RankingViewInfo.ProductMonthlyList> getMonthlyRankingList(RankingV1Dto.SearchMonthlyRankingRequest searchMonthlyRankingRequest) {
+        return ApiResponse.success(rankingViewFacade.getMonthlyRankingWithPage(searchMonthlyRankingRequest.toCriteria()));
     }
 }

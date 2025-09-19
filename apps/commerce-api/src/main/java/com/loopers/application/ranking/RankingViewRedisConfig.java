@@ -11,10 +11,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RankingViewRedisConfig {
 
     @Bean
-    public RedisTemplate<String, RankingViewInfo.ProductList> rankingViewRedisTemplate(
+    public RedisTemplate<String, RankingViewInfo.ProductDailyList> rankingViewRedisTemplate(
             LettuceConnectionFactory defaultRedisConnectionFactory
     ) {
-        RedisTemplate<String, RankingViewInfo.ProductList> template =
+        RedisTemplate<String, RankingViewInfo.ProductDailyList> template =
                 new RedisTemplate<>();
         template.setConnectionFactory(defaultRedisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
