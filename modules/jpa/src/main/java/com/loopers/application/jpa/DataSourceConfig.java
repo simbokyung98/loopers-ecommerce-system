@@ -1,4 +1,4 @@
-package com.loopers.config.jpa;
+package com.loopers.application.jpa;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

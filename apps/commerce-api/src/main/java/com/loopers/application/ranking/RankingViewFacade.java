@@ -6,7 +6,11 @@ import com.loopers.domain.brand.BrandModel;
 import com.loopers.domain.brand.BrandService;
 import com.loopers.domain.product.ProductModel;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.ranking.ProductMetricMonthlyModel;
+import com.loopers.domain.ranking.ProductMetricWeeklyModel;
+import com.loopers.domain.ranking.RankingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
@@ -27,8 +31,9 @@ public class RankingViewFacade {
     private final ProductService productService;
     private final BrandService brandService;
     private final RankingViewCache rankingViewCache;
+    private final RankingService rankingService;
 
-    public RankingViewInfo.ProductList getTodayTopProductsWithCache(RankingViewCriteria.SearchTodayRanking criteria) {
+    public RankingViewInfo.ProductDailyList getTodayTopProductsWithCache(RankingViewCriteria.SearchTodayRanking criteria) {
         // 캐시 계층에 위임
         return rankingViewCache.dailyGetOrLoad(criteria, () -> getTodayTopProducts(criteria));
     }
@@ -36,7 +41,7 @@ public class RankingViewFacade {
     /**
      * 캐시에 없을 때만 실행되는 "로더"
      */
-    public RankingViewInfo.ProductList getTodayTopProducts(RankingViewCriteria.SearchTodayRanking criteria) {
+    public RankingViewInfo.ProductDailyList getTodayTopProducts(RankingViewCriteria.SearchTodayRanking criteria) {
         String key = getKey(criteria.date());
 
         int start = (criteria.page() - 1) * criteria.size();
@@ -78,7 +83,7 @@ public class RankingViewFacade {
                     .toList();
         }
 
-        return new RankingViewInfo.ProductList(
+        return new RankingViewInfo.ProductDailyList(
                 criteria.page(),
                 criteria.size(),
                 criteria.date(),
@@ -88,5 +93,80 @@ public class RankingViewFacade {
 
     private String getKey(LocalDate localDate) {
         return "rank:all:" + localDate;
+    }
+
+    // ✅ 주간
+    public RankingViewInfo.ProductWeeklyList getWeeklyRankingWithPage(RankingViewCriteria.SearchWeeklyRanking criteria) {
+        Page<ProductMetricWeeklyModel> page = rankingService.getWeeklyListWithPage(criteria.toCommand());
+
+        List<RankingViewInfo.Product> products = new ArrayList<>();
+        if (page.hasContent()) {
+            List<ProductModel> productModels = productService.getListByIds(
+                    page.getContent().stream().map(ProductMetricWeeklyModel::getProductId).toList()
+            );
+
+            Map<Long, ProductModel> productMap = toProductMap(productModels);
+            Map<Long, BrandModel> brandMap = toBrandMap(productModels);
+
+            products = page.getContent().stream()
+                    .map(item -> RankingViewInfo.Product.from(
+                            productMap.get(item.getProductId()),
+                            brandMap.getOrDefault(productMap.get(item.getProductId()).getBrandId(), null),
+                            item.getRankValue()
+                    ))
+                    .toList();
+        }
+
+        return new RankingViewInfo.ProductWeeklyList(
+                criteria.page(),
+                criteria.size(),
+                criteria.startDate(),
+                criteria.endDate(),
+                products
+        );
+    }
+
+    // ✅ 월간
+    public RankingViewInfo.ProductMonthlyList getMonthlyRankingWithPage(RankingViewCriteria.SearchMonthlyRanking criteria) {
+        Page<ProductMetricMonthlyModel> page = rankingService.getMonthlyListWithPage(criteria.toCommand());
+
+        List<RankingViewInfo.Product> products = new ArrayList<>();
+        if (page.hasContent()) {
+            List<ProductModel> productModels = productService.getListByIds(
+                    page.getContent().stream().map(ProductMetricMonthlyModel::getProductId).toList()
+            );
+
+            Map<Long, ProductModel> productMap = toProductMap(productModels);
+            Map<Long, BrandModel> brandMap = toBrandMap(productModels);
+
+            products = page.getContent().stream()
+                    .map(item -> RankingViewInfo.Product.from(
+                            productMap.get(item.getProductId()),
+                            brandMap.getOrDefault(productMap.get(item.getProductId()).getBrandId(), null),
+                            item.getRankValue()
+                    ))
+                    .toList();
+        }
+
+        return new RankingViewInfo.ProductMonthlyList(
+                criteria.page(),
+                criteria.size(),
+                criteria.startDate(),
+                criteria.endDate(),
+                products
+        );
+    }
+
+
+    private Map<Long, ProductModel> toProductMap(List<ProductModel> productModels) {
+        return productModels.stream().collect(Collectors.toMap(ProductModel::getId, p -> p));
+    }
+
+    private Map<Long, BrandModel> toBrandMap(List<ProductModel> productModels) {
+        List<Long> brandIds = productModels.stream()
+                .map(ProductModel::getBrandId)
+                .distinct()
+                .toList();
+        return brandService.getBrandMapByIds(brandIds);
     }
 }

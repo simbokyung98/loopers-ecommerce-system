@@ -1,0 +1,57 @@
+server:
+  shutdown: graceful
+  port: 8086   # web=false이면 의미 없음
+
+spring:
+  main:
+    web-application-type: none   # 톰캣 안 띄움
+  application:
+    name: commerce-batch
+  profiles:
+    active: local
+  config:
+    import:
+      - jpa.yml
+      - redis.yml
+      - logging.yml
+      - monitoring.yml
+  batch:
+    job:
+      enabled: false     # 기동 시 자동 실행 방지
+    jdbc:
+      initialize-schema: never  # MySQL은 수동 생성 필요
+
+---
+
+spring.config.activate.on-profile: test
+
+spring:
+  batch:
+    jdbc:
+      initialize-schema: always
+
+datasource:
+  redis:
+    enabled: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prd
+
+springdoc:
+  api-docs:
+    enabled: false

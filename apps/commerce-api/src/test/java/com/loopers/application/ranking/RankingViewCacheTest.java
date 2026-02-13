@@ -24,9 +24,9 @@ import static org.mockito.Mockito.*;
 class RankingViewCacheTest {
 
     @Mock
-    private RedisTemplate<String, RankingViewInfo.ProductList> redisTemplate;
+    private RedisTemplate<String, RankingViewInfo.ProductDailyList> redisTemplate;
     @Mock
-    private ValueOperations<String, RankingViewInfo.ProductList> valueOps;
+    private ValueOperations<String, RankingViewInfo.ProductDailyList> valueOps;
     @Mock
     private RankingCachePolicyRegistry policyRegistry;
     @Mock
@@ -41,7 +41,7 @@ class RankingViewCacheTest {
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
     }
 
-    private RankingViewInfo.ProductList dummyList() {
+    private RankingViewInfo.ProductDailyList dummyList() {
         RankingViewInfo.Product product = new RankingViewInfo.Product(
                 1,
                 100L,
@@ -53,7 +53,7 @@ class RankingViewCacheTest {
                 5L,
                 "브랜드A"
         );
-        return new RankingViewInfo.ProductList(
+        return new RankingViewInfo.ProductDailyList(
                 0,
                 20,
                 LocalDate.now(),
@@ -72,10 +72,10 @@ class RankingViewCacheTest {
 
         when(valueOps.get("rank:daily:0:20")).thenReturn(null);
 
-        RankingViewInfo.ProductList expected = dummyList();
-        Supplier<RankingViewInfo.ProductList> loader = () -> expected;
+        RankingViewInfo.ProductDailyList expected = dummyList();
+        Supplier<RankingViewInfo.ProductDailyList> loader = () -> expected;
 
-        RankingViewInfo.ProductList result = rankingViewCache.dailyGetOrLoad(criteria, loader);
+        RankingViewInfo.ProductDailyList result = rankingViewCache.dailyGetOrLoad(criteria, loader);
 
         assertThat(result).isSameAs(expected);
         verify(valueOps).set("rank:daily:0:20", expected, policy.ttl());
@@ -90,13 +90,13 @@ class RankingViewCacheTest {
         when(keyBuilder.build(RankingType.일일랭킹, criteria.page(), criteria.size()))
                 .thenReturn("rank:daily:0:20");
 
-        RankingViewInfo.ProductList cached = dummyList();
+        RankingViewInfo.ProductDailyList cached = dummyList();
         when(valueOps.get("rank:daily:0:20")).thenReturn(cached);
 
         @SuppressWarnings("unchecked")
-        Supplier<RankingViewInfo.ProductList> loader = mock(Supplier.class);
+        Supplier<RankingViewInfo.ProductDailyList> loader = mock(Supplier.class);
 
-        RankingViewInfo.ProductList result = rankingViewCache.dailyGetOrLoad(criteria, loader);
+        RankingViewInfo.ProductDailyList result = rankingViewCache.dailyGetOrLoad(criteria, loader);
 
         assertThat(result).isSameAs(cached);
         verify(loader, never()).get();
@@ -111,17 +111,17 @@ class RankingViewCacheTest {
         when(keyBuilder.build(RankingType.일일랭킹, criteria.page(), criteria.size()))
                 .thenReturn("rank:daily:0:20");
 
-        RankingViewInfo.ProductList cached = dummyList();
+        RankingViewInfo.ProductDailyList cached = dummyList();
         when(valueOps.get("rank:daily:0:20")).thenReturn(cached);
         when(redisTemplate.getExpire("rank:daily:0:20", TimeUnit.SECONDS)).thenReturn(20L); // TTL 20초 남음
 
-        Supplier<RankingViewInfo.ProductList> loader = this::dummyList;
+        Supplier<RankingViewInfo.ProductDailyList> loader = this::dummyList;
 
-        RankingViewInfo.ProductList result = rankingViewCache.dailyGetOrLoad(criteria, loader);
+        RankingViewInfo.ProductDailyList result = rankingViewCache.dailyGetOrLoad(criteria, loader);
 
         assertThat(result).isSameAs(cached);
 
         verify(valueOps, timeout(1000).atLeast(1))
-                .set(eq("rank:daily:0:20"), any(RankingViewInfo.ProductList.class), eq(policy.ttl()));
+                .set(eq("rank:daily:0:20"), any(RankingViewInfo.ProductDailyList.class), eq(policy.ttl()));
     }
 }

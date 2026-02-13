@@ -12,12 +12,30 @@ import java.util.List;
 public class RankingViewInfo {
 
 
-    public record ProductList(
+    public record ProductDailyList(
             int page,
             int size,
             LocalDate date,
             List<Product> products
     ) implements Serializable {}
+
+    public record ProductWeeklyList(
+            int page,
+            int size,
+            LocalDate startDate,
+            LocalDate endDate,
+            List<Product> products
+    ) implements Serializable {}
+
+    public record ProductMonthlyList(
+            int page,
+            int size,
+            LocalDate startDate,
+            LocalDate endDate,
+            List<Product> products
+    ) implements Serializable {}
+
+
     public record Product(
             int rank,
             Long id,
@@ -43,4 +61,6 @@ public class RankingViewInfo {
             );
         }
     }
+
+
 }

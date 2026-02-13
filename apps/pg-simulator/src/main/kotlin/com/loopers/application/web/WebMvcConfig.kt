@@ -1,4 +1,4 @@
-package com.loopers.config.web
+package com.loopers.application.web
 
 import com.loopers.interfaces.api.argumentresolver.UserInfoArgumentResolver
 import org.springframework.context.annotation.Configuration
